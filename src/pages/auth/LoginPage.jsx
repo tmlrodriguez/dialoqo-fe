@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
+import dialoqoLogo from "../../assets/dialoqo-logo.png";
 import { useAuth } from "../../context/AuthContext.jsx";
 
 import styles from "./LoginPage.module.css";
@@ -10,7 +11,7 @@ import styles from "./LoginPage.module.css";
  * LoginPage
  *
  * Description:
- * - Proporcionar la interfaz de autenticación de CentralChat.
+ * - Proporcionar la interfaz de autenticación de Dialoqo.
  *
  * Notes:
  * - Los usuarios autenticados son redirigidos a la aplicación.
@@ -28,7 +29,9 @@ function LoginPage() {
     if (isLoading) {
         return (
             <main className={styles.loginPage}>
-                <div className={styles.loginLoading}>Cargando CentralChat...</div>
+                <div className={styles.loginLoading}>
+                    Cargando Dialoqo...
+                </div>
             </main>
         );
     }
@@ -59,9 +62,15 @@ function LoginPage() {
 
         try {
             await login({ username, password });
-            navigate("/app", { replace: true });
+
+            navigate("/app", {
+                replace: true,
+            });
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible iniciar sesión.");
+            setErrorMessage(
+                error.message ||
+                "No fue posible iniciar sesión."
+            );
         } finally {
             setIsSubmitting(false);
         }
@@ -71,28 +80,48 @@ function LoginPage() {
         <main className={styles.loginPage}>
             <section className={styles.loginPanel}>
                 <div className={styles.loginBrand}>
-                    <div className={styles.loginBrandMark}>C</div>
+                    <div className={styles.loginBrandLogoWrap}>
+                        <img
+                            src={dialoqoLogo}
+                            alt="Dialoqo"
+                            className={styles.loginBrandLogo}
+                        />
+                    </div>
 
                     <div>
-                        <h1>CentralChat</h1>
-                        <p>Plataforma de monitoreo de WhatsApp</p>
+                        <h1>Dialoqo</h1>
+
+                        <p>
+                            Plataforma de inteligencia conversacional
+                        </p>
                     </div>
                 </div>
 
                 <div className={styles.loginContent}>
                     <div className={styles.loginHeading}>
                         <h2>Bienvenido</h2>
-                        <p>Inicia sesión para continuar a CentralChat.</p>
+
+                        <p>
+                            Inicia sesión para acceder a la inteligencia detrás de tus conversaciones.
+                        </p>
                     </div>
 
-                    <form className={styles.loginForm} onSubmit={handleSubmit}>
+                    <form
+                        className={styles.loginForm}
+                        onSubmit={handleSubmit}
+                    >
                         <div className={styles.loginField}>
-                            <label htmlFor="username">Usuario</label>
+                            <label htmlFor="username">
+                                Usuario
+                            </label>
+
                             <input
                                 id="username"
                                 type="text"
                                 value={username}
-                                onChange={(event) => setUsername(event.target.value)}
+                                onChange={(event) =>
+                                    setUsername(event.target.value)
+                                }
                                 autoComplete="username"
                                 placeholder="Ingresa tu usuario"
                                 disabled={isSubmitting}
@@ -102,12 +131,17 @@ function LoginPage() {
                         </div>
 
                         <div className={styles.loginField}>
-                            <label htmlFor="password">Contraseña</label>
+                            <label htmlFor="password">
+                                Contraseña
+                            </label>
+
                             <input
                                 id="password"
                                 type="password"
                                 value={password}
-                                onChange={(event) => setPassword(event.target.value)}
+                                onChange={(event) =>
+                                    setPassword(event.target.value)
+                                }
                                 autoComplete="current-password"
                                 placeholder="Ingresa tu contraseña"
                                 disabled={isSubmitting}
@@ -116,51 +150,88 @@ function LoginPage() {
                         </div>
 
                         {errorMessage && (
-                            <div className={styles.loginError} role="alert">
+                            <div
+                                className={styles.loginError}
+                                role="alert"
+                            >
                                 {errorMessage}
                             </div>
                         )}
 
-                        <button className={styles.loginSubmit} type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
+                        <button
+                            className={styles.loginSubmit}
+                            type="submit"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting
+                                ? "Iniciando sesión..."
+                                : "Iniciar sesión"}
                         </button>
                     </form>
                 </div>
 
                 <footer className={styles.loginFooter}>
-                    <span>CentralChat</span>
-                    <span>Monitoreo seguro de comunicaciones empresariales</span>
+                    <span>Dialoqo</span>
+
+                    <span>
+                        Inteligencia detrás de cada conversación
+                    </span>
                 </footer>
             </section>
 
             <section className={styles.loginVisual}>
                 <div className={styles.loginVisualContent}>
-                    <span className={styles.loginEyebrow}>Monitoreo centralizado</span>
+                    <div className={styles.loginVisualLogoWrap}>
+                        <img
+                            src={dialoqoLogo}
+                            alt=""
+                            aria-hidden="true"
+                            className={styles.loginVisualLogo}
+                        />
+                    </div>
+
+                    <span className={styles.loginEyebrow}>
+                        Inteligencia conversacional
+                    </span>
 
                     <h2>
-                        Mantén las conversaciones de tu empresa visibles,
-                        organizadas y bajo control.
+                        Convierte cada conversación en información que tu empresa puede entender y utilizar.
                     </h2>
 
                     <p>
-                        CentralChat proporciona un espacio centralizado para monitorear
-                        las conversaciones de WhatsApp de toda tu organización.
+                        Dialoqo centraliza las comunicaciones de tu organización para escuchar,
+                        observar, interpretar y detectar lo que ocurre en cada conversación.
                     </p>
 
                     <div className={styles.loginFeatureList}>
                         <div className={styles.loginFeature}>
-                            <strong>Tiempo real</strong>
-                            <span>Recibe la actividad de las conversaciones en el momento en que ocurre.</span>
+                            <strong>
+                                Escucha y observa
+                            </strong>
+
+                            <span>
+                                Mantén visibles las conversaciones de tu organización en tiempo real.
+                            </span>
                         </div>
 
                         <div className={styles.loginFeature}>
-                            <strong>Controlado</strong>
-                            <span>El acceso se mantiene limitado por empresa y permisos de usuario.</span>
+                            <strong>
+                                Lee y entiende
+                            </strong>
+
+                            <span>
+                                Transforma mensajes y contexto en información útil para la operación.
+                            </span>
                         </div>
 
                         <div className={styles.loginFeature}>
-                            <strong>Auditable</strong>
-                            <span>Las acciones importantes de los usuarios mantienen trazabilidad.</span>
+                            <strong>
+                                Detecta y alerta
+                            </strong>
+
+                            <span>
+                                Identifica situaciones importantes para que puedan atenderse oportunamente.
+                            </span>
                         </div>
                     </div>
                 </div>

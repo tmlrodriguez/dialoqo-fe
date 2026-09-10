@@ -13,23 +13,32 @@
     background: var(--color-surface);
 }
 
+
+/* =========================================================
+   Brand
+   ========================================================= */
+
 .loginBrand {
     display: flex;
     align-items: center;
     gap: 14px;
 }
 
-.loginBrandMark {
-    width: 44px;
-    height: 44px;
-    display: grid;
-    place-items: center;
+.loginBrandLogoWrap {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    border-radius: var(--border-radius-large);
-    background: var(--color-sidebar);
-    color: var(--color-text-inverse);
-    font-size: 20px;
-    font-weight: 700;
+}
+
+.loginBrandLogo {
+    width: 48px;
+    height: 48px;
+    display: block;
+    object-fit: contain;
+    border-radius: 10px;
 }
 
 .loginBrand h1 {
@@ -44,6 +53,11 @@
     color: var(--color-text-secondary);
     font-size: 13px;
 }
+
+
+/* =========================================================
+   Login Content
+   ========================================================= */
 
 .loginContent {
     width: 100%;
@@ -67,6 +81,11 @@
     color: var(--color-text-secondary);
     font-size: 15px;
 }
+
+
+/* =========================================================
+   Form
+   ========================================================= */
 
 .loginForm {
     display: flex;
@@ -96,7 +115,9 @@
     color: var(--color-text-primary);
     font: inherit;
     outline: none;
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
 
 .loginField input::placeholder {
@@ -131,7 +152,9 @@
     font: inherit;
     font-weight: 600;
     cursor: pointer;
-    transition: background var(--transition-fast), transform var(--transition-fast);
+    transition:
+        background var(--transition-fast),
+        transform var(--transition-fast);
 }
 
 .loginSubmit:hover:not(:disabled) {
@@ -147,6 +170,11 @@
     cursor: not-allowed;
 }
 
+
+/* =========================================================
+   Footer
+   ========================================================= */
+
 .loginFooter {
     display: flex;
     justify-content: space-between;
@@ -155,18 +183,55 @@
     font-size: 12px;
 }
 
+
+/* =========================================================
+   Visual Panel
+   ========================================================= */
+
 .loginVisual {
     min-height: 100vh;
     display: flex;
     align-items: center;
     padding: clamp(40px, 5vw, 72px);
-    background: var(--color-sidebar);
+    background:
+        radial-gradient(
+            circle at 75% 26%,
+            rgba(1, 201, 238, 0.10),
+            transparent 31%
+        ),
+        radial-gradient(
+            circle at 26% 72%,
+            rgba(1, 102, 241, 0.12),
+            transparent 34%
+        ),
+        var(--color-sidebar);
     color: var(--color-text-inverse);
 }
 
 .loginVisualContent {
     width: 100%;
     max-width: 650px;
+}
+
+
+/* =========================================================
+   Visual Logo
+   ========================================================= */
+
+.loginVisualLogoWrap {
+    width: 110px;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 30px;
+}
+
+.loginVisualLogo {
+    width: 104px;
+    height: 104px;
+    display: block;
+    object-fit: contain;
 }
 
 .loginEyebrow {
@@ -195,6 +260,11 @@
     line-height: 1.7;
 }
 
+
+/* =========================================================
+   Features
+   ========================================================= */
+
 .loginFeatureList {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -220,11 +290,21 @@
     line-height: 1.5;
 }
 
+
+/* =========================================================
+   Loading
+   ========================================================= */
+
 .loginLoading {
     margin: auto;
     color: var(--color-text-secondary);
     font-size: 14px;
 }
+
+
+/* =========================================================
+   Responsive
+   ========================================================= */
 
 @media (max-width: 1100px) {
     .loginPage {
@@ -266,6 +346,16 @@
 @media (max-width: 520px) {
     .loginPanel {
         padding: 24px 20px;
+    }
+
+    .loginBrandLogoWrap {
+        width: 46px;
+        height: 46px;
+    }
+
+    .loginBrandLogo {
+        width: 42px;
+        height: 42px;
     }
 
     .loginHeading h2 {

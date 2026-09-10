@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
+import dialoqoLogo from "../../assets/dialoqo-logo.png";
 import { useAuth } from "../../context/AuthContext.jsx";
 
 import SideBar from "./SideBar.jsx";
@@ -24,7 +25,11 @@ function AppLayout() {
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const userName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.username;
+    const userName =
+        [user?.first_name, user?.last_name]
+            .filter(Boolean)
+            .join(" ") ||
+        user?.username;
 
 
     /**
@@ -38,7 +43,9 @@ function AppLayout() {
 
         await logout();
 
-        navigate("/login", { replace: true });
+        navigate("/login", {
+            replace: true,
+        });
     }
 
 
@@ -49,7 +56,10 @@ function AppLayout() {
      * - Alternar la visibilidad del menú móvil.
      */
     function toggleMobileMenu() {
-        setIsMobileMenuOpen((currentValue) => !currentValue);
+        setIsMobileMenuOpen(
+            (currentValue) =>
+                !currentValue
+        );
     }
 
 
@@ -79,8 +89,17 @@ function AppLayout() {
                 </button>
 
                 <div className={styles.mobileBrand}>
-                    <div className={styles.mobileBrandMark}>C</div>
-                    <span>CentralChat</span>
+                    <div className={styles.mobileBrandLogoWrap}>
+                        <img
+                            src={dialoqoLogo}
+                            alt="Dialoqo"
+                            className={styles.mobileBrandLogo}
+                        />
+                    </div>
+
+                    <span>
+                        Dialoqo
+                    </span>
                 </div>
             </header>
 

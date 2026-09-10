@@ -1,51 +1,101 @@
 :root {
     --font-family: Inter, Arial, Helvetica, sans-serif;
 
-    --color-background: #eef3f8;
+    /* Backgrounds */
+    --color-background: #f3f8fc;
     --color-surface: #ffffff;
-    --color-surface-secondary: #e6edf5;
+    --color-surface-secondary: #eaf5fa;
+    --color-blue-surface: #edf5ff;
+    --color-cyan-surface: #eafcfd;
+    --color-turquoise-surface: #e8fcf8;
 
-    --color-text-primary: #172033;
-    --color-text-secondary: #5f6f82;
-    --color-text-muted: #8b9aab;
+    /* Text */
+    --color-text-primary: #071426;
+    --color-text-secondary: #52677d;
+    --color-text-muted: #8296aa;
     --color-text-inverse: #ffffff;
 
-    --color-border: #d4dee9;
-    --color-border-strong: #bcc9d7;
+    /* Borders */
+    --color-border: #d8e6ef;
+    --color-border-strong: #bdd2df;
 
-    --color-primary: #174a8b;
-    --color-primary-hover: #123a6d;
-    --color-primary-light: #7fa9dc;
+    /* Dialoqo Brand */
+    --color-brand-blue: #0168ed;
+    --color-brand-blue-dark: #0255df;
+    --color-brand-blue-light: #028fea;
+    --color-brand-cyan: #01d6d8;
+    --color-brand-cyan-light: #02bae6;
+    --color-brand-turquoise: #01efcc;
+    --color-brand-turquoise-dark: #00cbb6;
 
-    --color-success: #15803d;
+    /* Primary */
+    --color-primary: #0168ed;
+    --color-primary-hover: #0255df;
+    --color-primary-active: #0449bd;
+    --color-primary-light: #6bb8f8;
+    --color-primary-surface: #edf5ff;
+
+    /* Accent */
+    --color-accent: #01d6d8;
+    --color-accent-hover: #02bae6;
+    --color-accent-light: #7cebef;
+    --color-accent-secondary: #01efcc;
+
+    /* Gradients */
+    --gradient-brand: linear-gradient(135deg, #0168ed 0%, #02bae6 52%, #01efcc 100%);
+    --gradient-brand-horizontal: linear-gradient(90deg, #0168ed 0%, #02bae6 50%, #01efcc 100%);
+    --gradient-brand-soft: linear-gradient(135deg, rgba(1, 104, 237, 0.10) 0%, rgba(2, 186, 230, 0.10) 52%, rgba(1, 239, 204, 0.10) 100%);
+
+    /* Status */
+    --color-success: #0f9f75;
     --color-warning: #a16207;
     --color-danger: #b91c1c;
-
+    --color-success-background: #ecfdf5;
+    --color-warning-background: #fffbeb;
     --color-danger-background: #fef2f2;
     --color-danger-border: #fecaca;
 
-    --color-sidebar: #081a2f;
-    --color-sidebar-hover: rgba(255, 255, 255, 0.07);
-    --color-sidebar-active: rgba(255, 255, 255, 0.13);
+    /* Sidebar */
+    --color-sidebar: #000210;
+    --color-sidebar-hover: rgba(1, 104, 237, 0.13);
+    --color-sidebar-active: rgba(2, 186, 230, 0.16);
     --color-sidebar-border: rgba(255, 255, 255, 0.08);
-    --color-sidebar-text: #d6e2ef;
-    --color-sidebar-muted: #879bb2;
-    --color-sidebar-avatar: #163553;
+    --color-sidebar-text: #e7f5fb;
+    --color-sidebar-muted: #8399ad;
+    --color-sidebar-avatar: #082d54;
+    --color-sidebar-icon: #7597b7;
+    --color-sidebar-icon-active: #01d6d8;
 
-    --color-focus: #2b6cb0;
-    --color-focus-ring: rgba(43, 108, 176, 0.18);
+    /* Focus */
+    --color-focus: #02bae6;
+    --color-focus-ring: rgba(2, 186, 230, 0.20);
 
+    /* Selection */
+    --color-selection: #0168ed;
+    --color-selection-background: rgba(1, 104, 237, 0.09);
+    --color-active-border: #02bae6;
+
+    /* Messages */
+    --color-message-inbound: #ffffff;
+    --color-message-outbound: #edf6ff;
+    --color-message-outbound-border: rgba(1, 104, 237, 0.18);
+
+    /* Layout */
     --sidebar-width: 260px;
     --sidebar-width-tablet: 220px;
     --header-height: 68px;
 
+    /* Border Radius */
     --border-radius-small: 6px;
     --border-radius-medium: 10px;
     --border-radius-large: 12px;
     --border-radius-extra-large: 16px;
 
-    --shadow-small: 0 1px 3px rgba(8, 26, 47, 0.09);
-    --shadow-card: 0 1px 2px rgba(8, 26, 47, 0.06);
+    /* Shadows */
+    --shadow-small: 0 1px 3px rgba(0, 2, 16, 0.09);
+    --shadow-card: 0 1px 2px rgba(0, 2, 16, 0.06);
+    --shadow-brand: 0 8px 24px rgba(1, 104, 237, 0.14);
 
+    /* Transitions */
     --transition-fast: 0.15s ease;
 }

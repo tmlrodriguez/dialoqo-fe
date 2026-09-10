@@ -8,13 +8,16 @@ import styles from "./AppLayout.module.css";
  * - Renderizar la barra superior del área autenticada.
  *
  * Notes:
- * - Muestra el usuario autenticado y la acción de cerrar sesión.
+ * - Muestra la identidad de Dialoqo, el usuario autenticado y la acción de cerrar sesión.
  */
-function TopBar({ userName, handleLogout }) {
+function TopBar({
+    userName,
+    handleLogout,
+}) {
     return (
         <header className={styles.topbar}>
             <span className={styles.topbarApplication}>
-                CentralChat
+                Dialoqo · Inteligencia conversacional
             </span>
 
             <div className={styles.topbarActions}>
