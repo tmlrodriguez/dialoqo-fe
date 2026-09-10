@@ -1,143 +1,22 @@
 import { NavLink } from "react-router-dom";
 
+import dialoqoLogo from "../../assets/dialoqo-logo.png";
+
 import styles from "./AppLayout.module.css";
-
-
-function DashboardIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-        >
-            <rect x="3" y="3" width="7" height="7" rx="1" />
-            <rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" />
-            <rect x="14" y="14" width="7" height="7" rx="1" />
-        </svg>
-    );
-}
-
-
-function MonitoringIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-        >
-            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-            <circle cx="12" cy="12" r="2.5" />
-        </svg>
-    );
-}
-
-
-function OrganizationIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-        >
-            <path d="M4 21V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v16" />
-            <path d="M17 9h2a1 1 0 0 1 1 1v11" />
-            <path d="M8 7h2" />
-            <path d="M8 11h2" />
-            <path d="M8 15h2" />
-            <path d="M13 7h1" />
-            <path d="M13 11h1" />
-            <path d="M13 15h1" />
-            <path d="M2 21h20" />
-        </svg>
-    );
-}
-
-
-function MembersIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-        >
-            <circle cx="9" cy="8" r="3" />
-            <path d="M3.5 19c.5-3.2 2.4-5 5.5-5s5 1.8 5.5 5" />
-            <circle cx="17" cy="9" r="2.3" />
-            <path d="M15.5 14.5c3.1-.4 5.1 1.1 5.5 4.5" />
-        </svg>
-    );
-}
-
-
-function AccessIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-        >
-            <circle cx="8" cy="8" r="3" />
-            <path d="M2.5 19c.5-3.4 2.4-5.2 5.5-5.2 1.4 0 2.6.4 3.5 1.1" />
-            <rect x="13" y="12" width="8" height="7" rx="1.5" />
-            <path d="M15 12V10a2 2 0 0 1 4 0v2" />
-        </svg>
-    );
-}
-
-
-function AuditingIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-        >
-            <path d="M5 3h10l4 4v14H5Z" />
-            <path d="M15 3v5h4" />
-            <path d="M8 12h8" />
-            <path d="M8 16h5" />
-            <circle cx="16.5" cy="17.5" r="2.5" />
-            <path d="m18.3 19.3 2 2" />
-        </svg>
-    );
-}
 
 
 /**
  * SideBar
  *
  * Description:
- * - Renderizar la navegación principal de CentralChat.
+ * - Renderizar la navegación principal de Dialoqo.
  *
  * Notes:
  * - Las opciones visibles dependen del rol del usuario.
- * - Utiliza iconografía SVG consistente.
+ * - Los MONITOR acceden exclusivamente al área de conversaciones.
+ * - Los ADMINISTRATOR acceden exclusivamente a las funciones administrativas y de auditoría.
  * - Soporta navegación lateral en escritorio y menú móvil.
+ * - Todos los iconos utilizan SVG con dimensiones y estilo consistentes.
  */
 function SideBar({
     user,
@@ -146,24 +25,37 @@ function SideBar({
     closeMobileMenu,
     handleLogout,
 }) {
-    const isAdministrator = user?.role === "ADMINISTRATOR";
-    const isMonitor = user?.role === "MONITOR";
+    const isAdministrator =
+        user?.role === "ADMINISTRATOR";
+
+    const isMonitor =
+        user?.role === "MONITOR";
 
     return (
-        <aside className={`${styles.sidebar} ${isMobileMenuOpen ? styles.sidebarOpen : ""}`}>
+        <aside
+            className={`${styles.sidebar} ${
+                isMobileMenuOpen
+                    ? styles.sidebarOpen
+                    : ""
+            }`}
+        >
             <div className={styles.sidebarHeader}>
                 <div className={styles.brand}>
-                    <div className={styles.brandMark}>
-                        C
+                    <div className={styles.brandLogoWrap}>
+                        <img
+                            src={dialoqoLogo}
+                            alt="Dialoqo"
+                            className={styles.brandLogo}
+                        />
                     </div>
 
                     <div className={styles.brandContent}>
                         <span className={styles.brandName}>
-                            CentralChat
+                            Dialoqo
                         </span>
 
                         <span className={styles.brandDescription}>
-                            Centro de monitoreo
+                            Inteligencia conversacional
                         </span>
                     </div>
                 </div>
@@ -189,10 +81,56 @@ function SideBar({
                             to="/app"
                             end
                             onClick={closeMobileMenu}
-                            className={({ isActive }) => `${styles.navigationItem} ${isActive ? styles.navigationItemActive : ""}`}
+                            className={({ isActive }) =>
+                                `${styles.navigationItem} ${
+                                    isActive
+                                        ? styles.navigationItemActive
+                                        : ""
+                                }`
+                            }
                         >
                             <span className={styles.navigationIcon}>
-                                <DashboardIcon />
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <rect
+                                        x="3"
+                                        y="3"
+                                        width="7"
+                                        height="7"
+                                        rx="1"
+                                    />
+
+                                    <rect
+                                        x="14"
+                                        y="3"
+                                        width="7"
+                                        height="7"
+                                        rx="1"
+                                    />
+
+                                    <rect
+                                        x="3"
+                                        y="14"
+                                        width="7"
+                                        height="7"
+                                        rx="1"
+                                    />
+
+                                    <rect
+                                        x="14"
+                                        y="14"
+                                        width="7"
+                                        height="7"
+                                        rx="1"
+                                    />
+                                </svg>
                             </span>
 
                             <span>
@@ -203,14 +141,36 @@ function SideBar({
                         <NavLink
                             to="/app/monitoring"
                             onClick={closeMobileMenu}
-                            className={({ isActive }) => `${styles.navigationItem} ${isActive ? styles.navigationItemActive : ""}`}
+                            className={({ isActive }) =>
+                                `${styles.navigationItem} ${
+                                    isActive
+                                        ? styles.navigationItemActive
+                                        : ""
+                                }`
+                            }
                         >
                             <span className={styles.navigationIcon}>
-                                <MonitoringIcon />
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="3"
+                                    />
+
+                                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                                </svg>
                             </span>
 
                             <span>
-                                Monitoreo
+                                Conversaciones
                             </span>
                         </NavLink>
                     </>
@@ -225,10 +185,32 @@ function SideBar({
                         <NavLink
                             to="/app/administration/organization"
                             onClick={closeMobileMenu}
-                            className={({ isActive }) => `${styles.navigationItem} ${isActive ? styles.navigationItemActive : ""}`}
+                            className={({ isActive }) =>
+                                `${styles.navigationItem} ${
+                                    isActive
+                                        ? styles.navigationItemActive
+                                        : ""
+                                }`
+                            }
                         >
                             <span className={styles.navigationIcon}>
-                                <OrganizationIcon />
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M3 21h18" />
+                                    <path d="M5 21V6l7-3 7 3v15" />
+                                    <path d="M9 9h2" />
+                                    <path d="M13 9h2" />
+                                    <path d="M9 13h2" />
+                                    <path d="M13 13h2" />
+                                    <path d="M10 21v-4h4v4" />
+                                </svg>
                             </span>
 
                             <span>
@@ -239,10 +221,40 @@ function SideBar({
                         <NavLink
                             to="/app/administration/members"
                             onClick={closeMobileMenu}
-                            className={({ isActive }) => `${styles.navigationItem} ${isActive ? styles.navigationItemActive : ""}`}
+                            className={({ isActive }) =>
+                                `${styles.navigationItem} ${
+                                    isActive
+                                        ? styles.navigationItemActive
+                                        : ""
+                                }`
+                            }
                         >
                             <span className={styles.navigationIcon}>
-                                <MembersIcon />
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <circle
+                                        cx="9"
+                                        cy="8"
+                                        r="3"
+                                    />
+
+                                    <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
+
+                                    <circle
+                                        cx="17"
+                                        cy="9"
+                                        r="2.5"
+                                    />
+
+                                    <path d="M15.5 14.5A4.5 4.5 0 0 1 21 19" />
+                                </svg>
                             </span>
 
                             <span>
@@ -253,14 +265,80 @@ function SideBar({
                         <NavLink
                             to="/app/administration/access"
                             onClick={closeMobileMenu}
-                            className={({ isActive }) => `${styles.navigationItem} ${isActive ? styles.navigationItemActive : ""}`}
+                            className={({ isActive }) =>
+                                `${styles.navigationItem} ${
+                                    isActive
+                                        ? styles.navigationItemActive
+                                        : ""
+                                }`
+                            }
                         >
                             <span className={styles.navigationIcon}>
-                                <AccessIcon />
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <circle
+                                        cx="8"
+                                        cy="8"
+                                        r="3"
+                                    />
+
+                                    <path d="M3 19a5 5 0 0 1 10 0" />
+
+                                    <rect
+                                        x="14"
+                                        y="12"
+                                        width="7"
+                                        height="7"
+                                        rx="1.5"
+                                    />
+
+                                    <path d="M16 12V9.5a1.5 1.5 0 0 1 3 0V12" />
+                                </svg>
                             </span>
 
                             <span>
-                                Usuarios y Accesos
+                                Usuarios y accesos
+                            </span>
+                        </NavLink>
+
+                        <NavLink
+                            to="/app/administration/whatsapp"
+                            onClick={closeMobileMenu}
+                            className={({ isActive }) =>
+                                `${styles.navigationItem} ${
+                                    isActive
+                                        ? styles.navigationItemActive
+                                        : ""
+                                }`
+                            }
+                        >
+                            <span className={styles.navigationIcon}>
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z" />
+
+                                    <path d="M8.5 8.5c.4 3 2 4.7 5 6" />
+                                    <path d="M8.7 8.4 10 8" />
+                                    <path d="m13.5 14.5.5-1.3" />
+                                </svg>
+                            </span>
+
+                            <span>
+                                WhatsApp
                             </span>
                         </NavLink>
 
@@ -271,10 +349,36 @@ function SideBar({
                         <NavLink
                             to="/app/auditing"
                             onClick={closeMobileMenu}
-                            className={({ isActive }) => `${styles.navigationItem} ${isActive ? styles.navigationItemActive : ""}`}
+                            className={({ isActive }) =>
+                                `${styles.navigationItem} ${
+                                    isActive
+                                        ? styles.navigationItemActive
+                                        : ""
+                                }`
+                            }
                         >
                             <span className={styles.navigationIcon}>
-                                <AuditingIcon />
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M5 4h14v16H5z" />
+                                    <path d="M8 8h8" />
+                                    <path d="M8 12h5" />
+
+                                    <circle
+                                        cx="15.5"
+                                        cy="15.5"
+                                        r="2.5"
+                                    />
+
+                                    <path d="m17.3 17.3 2.2 2.2" />
+                                </svg>
                             </span>
 
                             <span>

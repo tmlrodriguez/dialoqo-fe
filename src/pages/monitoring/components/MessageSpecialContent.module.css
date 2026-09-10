@@ -1,0 +1,324 @@
+.locationCard,
+.contactCard,
+.reactionCard,
+.selectionCard,
+.orderCard,
+.unsupported {
+    width: 300px;
+    max-width: 100%;
+}
+
+.locationCard {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    padding: 11px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.locationIcon,
+.selectionIcon,
+.orderIcon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: var(--color-surface-secondary);
+    color: var(--color-primary);
+}
+
+.locationIcon svg,
+.selectionIcon svg,
+.orderIcon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.locationInformation {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.locationInformation strong {
+    color: var(--color-text-primary);
+    font-size: 10px;
+}
+
+.locationInformation span {
+    color: var(--color-text-secondary);
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.locationInformation small {
+    color: var(--color-text-muted);
+    font-size: 7px;
+}
+
+.actionButton {
+    grid-column: 1 / -1;
+    min-height: 30px;
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font: inherit;
+    font-size: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.actionButton:hover {
+    border-color: var(--color-primary);
+}
+
+.contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.contactCard {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.contactAvatar {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.contactInformation {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.contactInformation strong {
+    overflow: hidden;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.contactInformation span {
+    color: var(--color-text-secondary);
+    font-size: 9px;
+}
+
+.contactInformation small {
+    color: var(--color-text-muted);
+    font-size: 8px;
+}
+
+.reactionCard {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.reactionEmoji {
+    min-width: 34px;
+    font-size: 24px;
+    line-height: 1;
+    text-align: center;
+}
+
+.reactionInformation {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.reactionInformation strong {
+    color: var(--color-text-primary);
+    font-size: 9px;
+}
+
+.reactionInformation span {
+    color: var(--color-text-muted);
+    font-size: 8px;
+}
+
+.selectionCard {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.selectionInformation {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.selectionInformation > span {
+    color: var(--color-text-muted);
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.selectionInformation strong {
+    overflow: hidden;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.selectionInformation small {
+    color: var(--color-text-secondary);
+    font-size: 8px;
+}
+
+.orderCard {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.orderHeader {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.orderHeader > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.orderHeader strong {
+    color: var(--color-text-primary);
+    font-size: 10px;
+}
+
+.orderHeader span {
+    color: var(--color-text-muted);
+    font-size: 8px;
+}
+
+.orderProducts {
+    display: flex;
+    flex-direction: column;
+}
+
+.orderProduct {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.orderProduct:last-child {
+    border-bottom: 0;
+}
+
+.orderProduct > div {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.orderProduct strong {
+    color: var(--color-text-primary);
+    font-size: 9px;
+}
+
+.orderProduct span {
+    color: var(--color-text-secondary);
+    font-size: 8px;
+}
+
+.orderFooter {
+    padding: 7px 10px;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 7px;
+}
+
+.unsupported {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 10px;
+    border: 1px dashed var(--color-border-strong);
+    border-radius: 10px;
+    background: var(--color-surface-secondary);
+}
+
+.unsupported > svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+}
+
+.unsupported > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.unsupported strong {
+    color: var(--color-text-primary);
+    font-size: 9px;
+}
+
+.unsupported span {
+    color: var(--color-text-secondary);
+    font-size: 8px;
+    line-height: 1.45;
+}
+
+@media (max-width: 700px) {
+    .locationCard,
+    .contactCard,
+    .reactionCard,
+    .selectionCard,
+    .orderCard,
+    .unsupported {
+        width: 245px;
+    }
+}

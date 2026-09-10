@@ -1,0 +1,233 @@
+.contextBar {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-large);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-small);
+}
+
+.contextHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.eyebrow {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.contextHeader h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+.contextHeader p {
+    max-width: 620px;
+    margin: 5px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.readyBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: var(--color-success-soft, #dcfce7);
+    color: var(--color-success);
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.contextGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding: 18px 20px;
+}
+
+.contextField {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.contextField label {
+    color: var(--color-text-primary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.contextField select {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.contextField select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(
+        --color-primary-focus,
+        rgba(37, 99, 235, 0.12)
+    );
+}
+
+.contextField select:disabled {
+    background: var(--color-surface-secondary);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.numberSummary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-secondary);
+}
+
+.numberIcon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface);
+    color: var(--color-primary);
+}
+
+.numberIcon svg {
+    width: 19px;
+    height: 19px;
+}
+
+.numberInformation {
+    min-width: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.numberInformation strong,
+.numberInformation span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.numberInformation strong {
+    color: var(--color-text-primary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.numberInformation span {
+    margin-top: 3px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+}
+
+.numberStatuses {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.connectedBadge,
+.monitoringBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 23px;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.connectedBadge {
+    background: var(--color-success-soft, #dcfce7);
+    color: var(--color-success);
+}
+
+.monitoringBadge {
+    background: var(--color-primary-soft, #eff6ff);
+    color: var(--color-primary);
+}
+
+@media (max-width: 900px) {
+    .contextGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .contextField:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .contextHeader {
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .contextGrid {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    .contextField:last-child {
+        grid-column: auto;
+    }
+
+    .numberSummary {
+        padding: 13px 16px;
+    }
+}
+
+@media (max-width: 520px) {
+    .contextBar {
+        border-radius: var(--border-radius-medium);
+    }
+
+    .numberSummary {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .numberStatuses {
+        width: 100%;
+        padding-left: 50px;
+    }
+}
