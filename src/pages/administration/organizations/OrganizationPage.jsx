@@ -41,7 +41,7 @@ const SECTIONS = [
  * OrganizationPage
  *
  * Description:
- * - Gestionar la estructura organizacional de CentralChat.
+ * - Gestionar la estructura organizacional de Dialoqo.
  *
  * Notes:
  * - Permite administrar empresas y sucursales.
@@ -424,7 +424,7 @@ function OrganizationPage() {
             <PageHeader
                 eyebrow="Administración"
                 title="Organización"
-                description="Administre las empresas y sucursales registradas en CentralChat."
+                description="Administre las empresas y sucursales registradas en Dialoqo."
             />
 
             <SectionTabs
@@ -467,7 +467,7 @@ function OrganizationPage() {
                             <EmptyState
                                 icon="▦"
                                 title="No existen empresas registradas."
-                                description="Cree la primera empresa para comenzar a configurar CentralChat."
+                                description="Cree la primera empresa para comenzar a configurar Dialoqo."
                             />
                         ) : (
                             <EntityList>

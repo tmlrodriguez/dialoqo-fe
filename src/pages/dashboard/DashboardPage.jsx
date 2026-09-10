@@ -5,7 +5,7 @@ import styles from "./DashboardPage.module.css";
  * DashboardPage
  *
  * Description:
- * - Proporcionar la vista principal del dashboard de CentralChat.
+ * - Proporcionar la vista principal del dashboard de Dialoqo.
  *
  * Notes:
  * - Los indicadores reales serán integrados posteriormente con el backend.
@@ -17,7 +17,7 @@ function DashboardPage() {
                 <div>
                     <span className={styles.eyebrow}>Resumen general</span>
                     <h1>Dashboard</h1>
-                    <p>Bienvenido a CentralChat. Consulta el estado general de la plataforma.</p>
+                    <p>Bienvenido a Dialoqo. Consulta el estado general de la plataforma.</p>
                 </div>
             </div>
 
