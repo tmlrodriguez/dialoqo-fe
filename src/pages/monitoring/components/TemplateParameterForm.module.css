@@ -1,0 +1,215 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.header h3 {
+    margin: 2px 0;
+    color: var(--color-text-primary);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.header p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 9px;
+}
+
+.eyebrow {
+    color: var(--color-primary);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.backButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.backButton:hover {
+    color: var(--color-primary);
+}
+
+.backButton svg {
+    width: 14px;
+    height: 14px;
+}
+
+.preview {
+    padding: 11px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+    background: var(--color-surface-secondary);
+}
+
+.preview > span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--color-text-muted);
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.preview p {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sectionHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sectionHeader strong {
+    color: var(--color-text-primary);
+    font-size: 10px;
+}
+
+.sectionHeader span {
+    color: var(--color-text-secondary);
+    font-size: 8px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.field > span {
+    color: var(--color-text-secondary);
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.field input {
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    outline: none;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 10px;
+}
+
+.field input:focus {
+    border-color: var(--color-primary);
+}
+
+.noParameters {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+    background: var(--color-surface-secondary);
+}
+
+.noParameters strong {
+    color: var(--color-text-primary);
+    font-size: 10px;
+}
+
+.noParameters span {
+    color: var(--color-text-secondary);
+    font-size: 8px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 4px;
+}
+
+.cancelButton,
+.sendButton {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.cancelButton {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+}
+
+.sendButton {
+    border: 1px solid var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.sendButton:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.cancelButton:disabled,
+.sendButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.sendButton svg {
+    width: 14px;
+    height: 14px;
+}
+
+.spinner {
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: templateParameterSpin 0.8s linear infinite;
+}
+
+@keyframes templateParameterSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,202 @@
+.loading {
+    min-width: 180px;
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    color: var(--color-text-secondary);
+    font-size: 10px;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border: 2px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: messageMediaSpin 0.8s linear infinite;
+}
+
+@keyframes messageMediaSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error {
+    min-width: 210px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+}
+
+.errorInformation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-danger);
+    font-size: 10px;
+}
+
+.errorInformation svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.retryButton {
+    min-height: 30px;
+    padding: 0 11px;
+    align-self: flex-start;
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.retryButton:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.imageButton {
+    width: 100%;
+    display: block;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.image {
+    width: 100%;
+    max-width: 320px;
+    max-height: 320px;
+    display: block;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.videoContainer {
+    width: min(320px, 100%);
+    overflow: hidden;
+    border-radius: 10px;
+    background: #000000;
+}
+
+.video {
+    width: 100%;
+    max-height: 320px;
+    display: block;
+    border-radius: 10px;
+}
+
+.audioContainer {
+    width: 280px;
+    max-width: 100%;
+    padding: 4px 0;
+}
+
+.audio {
+    width: 100%;
+    height: 38px;
+}
+
+.document {
+    width: 280px;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.45);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.document:hover {
+    border-color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.documentIcon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--color-surface-secondary);
+    color: var(--color-primary);
+}
+
+.documentIcon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.documentInformation {
+    min-width: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.documentInformation strong {
+    overflow: hidden;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.documentInformation span {
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-size: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.openIcon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--color-text-secondary);
+}
+
+@media (max-width: 700px) {
+    .image {
+        max-width: 250px;
+        max-height: 280px;
+    }
+
+    .videoContainer {
+        width: 250px;
+    }
+
+    .audioContainer,
+    .document {
+        width: 240px;
+    }
+}

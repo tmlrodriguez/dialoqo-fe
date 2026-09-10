@@ -1,0 +1,747 @@
+.wabaWorkspace {
+    display: grid;
+    grid-template-columns: minmax(340px, 0.85fr) minmax(460px, 1.15fr);
+    gap: 22px;
+    align-items: start;
+}
+
+
+/* =========================================================
+   PANELS
+   ========================================================= */
+
+.listPanel,
+.formPanel {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-large);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-small);
+}
+
+.panelHeader {
+    min-height: 88px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 20px 22px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.eyebrow {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.panelHeader h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+.panelHeader p {
+    max-width: 560px;
+    margin: 5px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   ACCOUNT LIST
+   ========================================================= */
+
+.accountList {
+    display: flex;
+    flex-direction: column;
+    max-height: 620px;
+    overflow-y: auto;
+}
+
+.accountCard {
+    width: 100%;
+    min-height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 18px;
+    border: 0;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.accountCard:last-child {
+    border-bottom: 0;
+}
+
+.accountCard:hover:not(:disabled) {
+    background: var(--color-surface-secondary);
+}
+
+.accountCard:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.accountCardActive {
+    background: var(--color-primary-soft, #eff6ff);
+    box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.accountCardActive:hover:not(:disabled) {
+    background: var(--color-primary-soft, #eff6ff);
+}
+
+.accountCardMain {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.accountIcon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: var(--border-radius-medium);
+    background: var(--color-primary-soft, #eff6ff);
+    color: var(--color-primary);
+}
+
+.accountIcon svg {
+    width: 21px;
+    height: 21px;
+}
+
+.accountInformation {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.accountInformation strong,
+.accountInformation span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.accountInformation strong {
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.accountInformation span {
+    margin-top: 4px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.statusGroup {
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.connectedBadge,
+.disconnectedBadge,
+.webhookBadge,
+.webhookInactiveBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.connectedBadge {
+    background: var(--color-success-soft, #dcfce7);
+    color: var(--color-success);
+}
+
+.disconnectedBadge {
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+}
+
+.webhookBadge {
+    background: var(--color-primary-soft, #eff6ff);
+    color: var(--color-primary);
+}
+
+.webhookInactiveBadge {
+    background: var(--color-warning-background, #fffbeb);
+    color: var(--color-warning, #b45309);
+}
+
+
+/* =========================================================
+   LOADING / EMPTY
+   ========================================================= */
+
+.loadingState {
+    min-height: 280px;
+    display: grid;
+    place-items: center;
+    padding: 32px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+}
+
+.emptyState {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 36px;
+    text-align: center;
+}
+
+.emptyIcon {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 16px;
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+}
+
+.emptyIcon svg {
+    width: 23px;
+    height: 23px;
+}
+
+.emptyState strong {
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.emptyState span {
+    max-width: 360px;
+    margin-top: 7px;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.wabaForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px 22px;
+}
+
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formField label {
+    color: var(--color-text-primary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.formField input,
+.formField textarea,
+.formField select {
+    width: 100%;
+    padding: 0 14px;
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.formField input,
+.formField select {
+    height: 44px;
+}
+
+.formField textarea {
+    min-height: 110px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.formField input::placeholder,
+.formField textarea::placeholder {
+    color: var(--color-text-muted, var(--color-text-secondary));
+}
+
+.formField input:focus,
+.formField textarea:focus,
+.formField select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(
+        --color-primary-focus,
+        rgba(37, 99, 235, 0.12)
+    );
+}
+
+.formField input:disabled,
+.formField textarea:disabled,
+.formField select:disabled {
+    background: var(--color-surface-secondary);
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.fieldHelp {
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   LIFECYCLE
+   ========================================================= */
+
+.lifecycleSection {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface-secondary);
+}
+
+.lifecycleHeader {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.lifecycleHeader h3 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+.lifecycleHeader p {
+    margin: 4px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.lifecycleGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lifecycleField {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.lifecycleField:nth-child(odd) {
+    border-right: 1px solid var(--color-border);
+}
+
+.lifecycleField:nth-last-child(-n + 2) {
+    border-bottom: 0;
+}
+
+.lifecycleField span {
+    color: var(--color-text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.lifecycleField strong {
+    overflow-wrap: anywhere;
+    color: var(--color-text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.lifecycleActions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px 18px 18px;
+    border-top: 1px solid var(--color-border);
+}
+
+.lifecyclePrimaryButton,
+.lifecycleSecondaryButton,
+.lifecycleDangerButton {
+    min-height: 38px;
+    padding: 0 13px;
+    border-radius: var(--border-radius-medium);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+.lifecyclePrimaryButton {
+    border: 1px solid var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.lifecyclePrimaryButton:hover:not(:disabled) {
+    border-color: var(--color-primary-hover);
+    background: var(--color-primary-hover);
+}
+
+.lifecycleSecondaryButton {
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+}
+
+.lifecycleSecondaryButton:hover:not(:disabled) {
+    background: var(--color-surface-secondary);
+}
+
+.lifecycleDangerButton {
+    border: 1px solid var(--color-danger);
+    background: transparent;
+    color: var(--color-danger);
+}
+
+.lifecycleDangerButton:hover:not(:disabled) {
+    background: var(--color-danger-background, #fef2f2);
+}
+
+.lifecyclePrimaryButton:disabled,
+.lifecycleSecondaryButton:disabled,
+.lifecycleDangerButton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   FORM ACTIONS
+   ========================================================= */
+
+.formActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 4px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border);
+}
+
+.primaryActions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+    min-height: 40px;
+    padding: 0 15px;
+    border-radius: var(--border-radius-medium);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+.primaryButton {
+    border: 1px solid var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.primaryButton:hover:not(:disabled) {
+    border-color: var(--color-primary-hover);
+    background: var(--color-primary-hover);
+}
+
+.secondaryButton {
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+}
+
+.secondaryButton:hover:not(:disabled) {
+    background: var(--color-surface-secondary);
+}
+
+.dangerButton {
+    border: 1px solid var(--color-danger);
+    background: transparent;
+    color: var(--color-danger);
+}
+
+.dangerButton:hover:not(:disabled) {
+    background: var(--color-danger-background, #fef2f2);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   LARGE TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    .wabaWorkspace {
+        grid-template-columns: minmax(300px, 0.8fr) minmax(400px, 1.2fr);
+        gap: 18px;
+    }
+
+    .panelHeader {
+        padding: 18px;
+    }
+
+    .wabaForm {
+        padding: 20px 18px;
+    }
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+    .wabaWorkspace {
+        grid-template-columns: 1fr;
+    }
+
+    .accountList {
+        max-height: 420px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+    .panelHeader {
+        min-height: auto;
+        flex-direction: column;
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .panelHeader .secondaryButton {
+        width: 100%;
+    }
+
+    .accountCard {
+        min-height: 76px;
+        padding: 13px 14px;
+    }
+
+    .accountIcon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .accountIcon svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .wabaForm {
+        gap: 18px;
+        padding: 20px 16px;
+    }
+
+    .lifecycleGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .lifecycleField {
+        padding: 13px 16px;
+    }
+
+    .lifecycleField:nth-child(odd) {
+        border-right: 0;
+    }
+
+    .lifecycleField:nth-last-child(-n + 2) {
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .lifecycleField:last-child {
+        border-bottom: 0;
+    }
+
+    .lifecycleActions {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .lifecyclePrimaryButton,
+    .lifecycleSecondaryButton,
+    .lifecycleDangerButton {
+        width: 100%;
+        min-height: 40px;
+    }
+
+    .formActions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .primaryActions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .primaryActions .primaryButton,
+    .primaryActions .secondaryButton {
+        flex: 1;
+    }
+
+    .dangerButton {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 520px) {
+    .wabaWorkspace {
+        gap: 14px;
+    }
+
+    .listPanel,
+    .formPanel {
+        border-radius: var(--border-radius-medium);
+    }
+
+    .accountList {
+        max-height: none;
+    }
+
+    .accountCard {
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .accountCardMain {
+        gap: 10px;
+    }
+
+    .accountInformation strong {
+        font-size: 13px;
+    }
+
+    .accountInformation span {
+        font-size: 10px;
+    }
+
+    .statusGroup {
+        gap: 4px;
+    }
+
+    .connectedBadge,
+    .disconnectedBadge,
+    .webhookBadge,
+    .webhookInactiveBadge {
+        min-height: 22px;
+        padding: 0 6px;
+        font-size: 8px;
+    }
+
+    .wabaForm {
+        padding: 18px 16px;
+    }
+
+    .primaryActions {
+        flex-direction: column;
+    }
+
+    .primaryActions .primaryButton,
+    .primaryActions .secondaryButton {
+        width: 100%;
+    }
+
+    .emptyState {
+        min-height: 240px;
+        padding: 28px 20px;
+    }
+}

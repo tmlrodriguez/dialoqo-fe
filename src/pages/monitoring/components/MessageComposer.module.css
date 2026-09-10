@@ -1,0 +1,205 @@
+.composerContainer {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.composer {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
+}
+
+.templateButton {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface-secondary);
+    color: var(--color-primary);
+    cursor: pointer;
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.templateButton:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    background: var(--color-surface);
+}
+
+.templateButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.templateButton svg {
+    width: 17px;
+    height: 17px;
+}
+
+.inputContainer {
+    min-width: 0;
+    min-height: 42px;
+    display: flex;
+    align-items: flex-end;
+    flex: 1;
+    position: relative;
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    background: var(--color-surface-secondary);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.inputContainer:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(23, 74, 139, 0.08);
+}
+
+.inputContainer textarea {
+    width: 100%;
+    min-height: 40px;
+    max-height: 130px;
+    resize: none;
+    overflow-y: auto;
+    padding: 11px 66px 10px 14px;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 11px;
+    line-height: 1.5;
+    outline: none;
+}
+
+.inputContainer textarea::placeholder {
+    color: var(--color-text-muted);
+}
+
+.characterCount {
+    position: absolute;
+    right: 11px;
+    bottom: 10px;
+    color: var(--color-text-muted);
+    font-size: 7px;
+    pointer-events: none;
+}
+
+.sendButton {
+    min-width: 94px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    flex-shrink: 0;
+    padding: 0 13px;
+    border: 0;
+    border-radius: 18px;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    font: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.sendButton:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.sendButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.sendButton svg {
+    width: 16px;
+    height: 16px;
+}
+
+.spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: composerSpin 0.8s linear infinite;
+}
+
+.templateOverlay {
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    padding: 14px;
+    background: linear-gradient(
+        to top,
+        rgba(15, 23, 42, 0.08),
+        transparent
+    );
+}
+
+.templatePanel {
+    width: min(620px, 100%);
+    max-height: min(620px, 72vh);
+    overflow-y: auto;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 13px;
+    background: var(--color-surface);
+    box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.15),
+        0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+@keyframes composerSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 600px) {
+    .composer {
+        padding: 8px;
+    }
+
+    .templateButton {
+        width: 40px;
+        height: 40px;
+    }
+
+    .sendButton {
+        width: 42px;
+        min-width: 42px;
+        padding: 0;
+        border-radius: 50%;
+    }
+
+    .sendButton span:last-child {
+        display: none;
+    }
+
+    .inputContainer textarea {
+        padding-right: 14px;
+    }
+
+    .characterCount {
+        display: none;
+    }
+
+    .templateOverlay {
+        padding: 8px;
+    }
+}
