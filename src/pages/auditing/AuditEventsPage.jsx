@@ -40,7 +40,7 @@ const INITIAL_FILTERS = {
  * AuditEventsPage
  *
  * Description:
- * - Proporcionar la interfaz administrativa de auditoría de CentralChat.
+ * - Proporcionar la interfaz administrativa de auditoría de Dialoqo.
  *
  * Notes:
  * - Los eventos se consultan dentro del contexto de una empresa.
@@ -452,7 +452,7 @@ function AuditEventsPage() {
             <PageHeader
                 eyebrow="Control"
                 title="Auditoría"
-                description="Consulte y analice el historial inmutable de acciones administrativas, operativas y de seguridad registradas en CentralChat."
+                description="Consulte y analice el historial inmutable de acciones administrativas, operativas y de seguridad registradas en Dialoqo."
             />
 
             <div className={styles.contextBar}>

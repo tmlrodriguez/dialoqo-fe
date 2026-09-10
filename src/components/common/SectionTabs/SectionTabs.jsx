@@ -5,29 +5,48 @@ import styles from "./SectionTabs.module.css";
  * SectionTabs
  *
  * Description:
- * - Mostrar navegación entre secciones internas de una página.
+ * - Renderizar navegación reutilizable entre secciones internas.
  *
  * Notes:
- * - Cada sección debe incluir value y label.
+ * - Cada sección debe proporcionar una etiqueta visible.
+ * - El identificador de una sección puede definirse mediante value o id.
+ * - value se utiliza como formato principal para mantener compatibilidad
+ *   con las páginas administrativas existentes.
+ * - id permanece soportado para componentes que ya utilizan ese formato.
+ * - onChange recibe exclusivamente el identificador de la sección.
  */
-function SectionTabs({ sections, activeSection, onChange }) {
+function SectionTabs({
+    sections = [],
+    activeSection,
+    onChange,
+}) {
     return (
-        <div className={styles.sectionTabs}>
-            {sections.map((section) => (
-                <button
-                    key={section.value}
-                    className={`${styles.sectionTab} ${
-                        activeSection === section.value
-                            ? styles.sectionTabActive
-                            : ""
-                    }`}
-                    type="button"
-                    onClick={() => onChange(section.value)}
-                    disabled={section.disabled}
-                >
-                    {section.label}
-                </button>
-            ))}
+        <div
+            className={styles.sectionTabs}
+            role="tablist"
+            aria-label="Secciones"
+        >
+            {sections.map((section) => {
+                const sectionValue = section.value ?? section.id;
+                const isActive = activeSection === sectionValue;
+
+                return (
+                    <button
+                        key={sectionValue}
+                        className={`${styles.sectionTab} ${
+                            isActive
+                                ? styles.sectionTabActive
+                                : ""
+                        }`}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActive}
+                        onClick={() => onChange(sectionValue)}
+                    >
+                        {section.label}
+                    </button>
+                );
+            })}
         </div>
     );
 }

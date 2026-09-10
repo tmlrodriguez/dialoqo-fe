@@ -29,7 +29,7 @@ import styles from "./AdministrationPage.module.css";
  * AdministrationPage
  *
  * Description:
- * - Proporcionar la interfaz administrativa principal de CentralChat.
+ * - Proporcionar la interfaz administrativa principal de Dialoqo.
  *
  * Notes:
  * - Gestiona empresas, sucursales, monitores y accesos a empresas.
@@ -744,7 +744,7 @@ function AdministrationPage() {
                 <div>
                     <span className={styles.eyebrow}>Administración</span>
                     <h1>Gestión administrativa</h1>
-                    <p>Administre las empresas, sucursales, monitores y accesos de CentralChat.</p>
+                    <p>Administre las empresas, sucursales, monitores y accesos de Dialoqo.</p>
                 </div>
             </header>
 
@@ -798,7 +798,7 @@ function AdministrationPage() {
                             <div className={styles.emptyState}>
                                 <div className={styles.emptyStateIcon}>▦</div>
                                 <strong>No existen empresas registradas.</strong>
-                                <span>Cree la primera empresa para comenzar a configurar CentralChat.</span>
+                                <span>Cree la primera empresa para comenzar a configurar Dialoqo.</span>
                             </div>
                         ) : (
                             <div className={styles.entityList}>

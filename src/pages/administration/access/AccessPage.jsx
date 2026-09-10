@@ -48,7 +48,7 @@ const SECTIONS = [
  * - Gestionar monitores y accesos a empresas.
  *
  * Notes:
- * - Los monitores son usuarios autenticados de CentralChat.
+ * - Los monitores son usuarios autenticados de Dialoqo.
  * - Los accesos determinan qué empresas puede monitorear cada usuario.
  */
 function AccessPage() {

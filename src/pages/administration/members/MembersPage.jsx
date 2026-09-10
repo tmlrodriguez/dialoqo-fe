@@ -331,7 +331,7 @@ function MembersPage() {
 
     return (
         <section className={styles.membersPage}>
-            <PageHeader eyebrow="Administración" title="Personal" description="Administre los miembros y posiciones operativas de las empresas registradas en CentralChat." />
+            <PageHeader eyebrow="Administración" title="Personal" description="Administre los miembros y posiciones operativas de las empresas registradas en Dialoqo." />
 
             <div className={styles.contextBar}>
                 <div className={styles.contextField}>
