@@ -11,6 +11,8 @@ import {
 } from "../../../services/whatsapp.js";
 
 import styles from "./TemplateManagement.module.css";
+import { getLanguageLocale } from "../../../utils/i18n.js";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 const TEMPLATE_CATEGORIES = [
@@ -24,11 +26,11 @@ const TEMPLATE_CATEGORIES = [
     },
     {
         value: "UTILITY",
-        label: "Utility",
+        label: "Utilidad",
     },
     {
         value: "AUTHENTICATION",
-        label: "Authentication",
+        label: "Autenticación",
     },
 ];
 
@@ -40,35 +42,35 @@ const TEMPLATE_STATUSES = [
     },
     {
         value: "APPROVED",
-        label: "Approved",
+        label: "Aprobada",
     },
     {
         value: "PENDING",
-        label: "Pending",
+        label: "Pendiente",
     },
     {
         value: "REJECTED",
-        label: "Rejected",
+        label: "Rechazada",
     },
     {
         value: "PAUSED",
-        label: "Paused",
+        label: "Pausada",
     },
     {
         value: "DISABLED",
-        label: "Disabled",
+        label: "Deshabilitada",
     },
     {
         value: "PENDING_DELETION",
-        label: "Pending deletion",
+        label: "Pendiente de eliminación",
     },
     {
         value: "IN_APPEAL",
-        label: "In appeal",
+        label: "En apelación",
     },
     {
         value: "UNKNOWN",
-        label: "Unknown",
+        label: "Desconocido",
     },
 ];
 
@@ -76,11 +78,11 @@ const TEMPLATE_STATUSES = [
 const PARAMETER_FORMATS = [
     {
         value: "POSITIONAL",
-        label: "Positional",
+        label: "Posicional",
     },
     {
         value: "NAMED",
-        label: "Named",
+        label: "Nombrado",
     },
 ];
 
@@ -102,6 +104,7 @@ function TemplateManagement({
     onError,
     onSuccess,
 }) {
+    const { t } = usePageTranslation();
     const [accounts, setAccounts] = useState([]);
     const [selectedAccountId, setSelectedAccountId] = useState("");
 
@@ -188,7 +191,7 @@ function TemplateManagement({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar las cuentas de WhatsApp Business."
+                t("No fue posible cargar las cuentas de WhatsApp Business.")
             );
         } finally {
             setIsLoadingAccounts(false);
@@ -250,7 +253,7 @@ function TemplateManagement({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar las plantillas de WhatsApp."
+                t("No fue posible cargar las plantillas de WhatsApp.")
             );
         } finally {
             setIsLoadingTemplates(false);
@@ -298,7 +301,7 @@ function TemplateManagement({
 
             if (!templateDetail) {
                 throw new Error(
-                    "No fue posible obtener el detalle de la plantilla."
+                    t("No fue posible obtener el detalle de la plantilla.")
                 );
             }
 
@@ -321,7 +324,7 @@ function TemplateManagement({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible cargar la plantilla."
+                t("No fue posible cargar la plantilla.")
             );
         } finally {
             setIsLoadingDetail(false);
@@ -336,19 +339,19 @@ function TemplateManagement({
             parsedComponents = JSON.parse(componentsText);
         } catch {
             throw new Error(
-                "El campo Components debe contener JSON válido."
+                t("El campo Components debe contener JSON válido.")
             );
         }
 
         if (!Array.isArray(parsedComponents)) {
             throw new Error(
-                "Components debe contener un arreglo JSON."
+                t("Components debe contener un arreglo JSON.")
             );
         }
 
         if (parsedComponents.length === 0) {
             throw new Error(
-                "La plantilla debe contener al menos un componente."
+                t("La plantilla debe contener al menos un componente.")
             );
         }
 
@@ -396,7 +399,7 @@ function TemplateManagement({
                 );
 
                 onSuccess?.(
-                    "Plantilla actualizada correctamente."
+                    t("Plantilla actualizada correctamente.")
                 );
             } else {
                 const createData = {
@@ -414,7 +417,7 @@ function TemplateManagement({
                 );
 
                 onSuccess?.(
-                    "Plantilla enviada a Meta correctamente."
+                    t("Plantilla enviada a Meta correctamente.")
                 );
             }
 
@@ -424,7 +427,7 @@ function TemplateManagement({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible guardar la plantilla."
+                t("No fue posible guardar la plantilla.")
             );
         } finally {
             setIsSaving(false);
@@ -443,7 +446,7 @@ function TemplateManagement({
         }
 
         const confirmed = window.confirm(
-            `¿Desea eliminar la plantilla "${selectedTemplate.name}" de Meta?`
+            `${t("¿Desea eliminar la plantilla")} "${selectedTemplate.name}" ${t("de Meta?")}`
         );
 
         if (!confirmed) {
@@ -462,7 +465,7 @@ function TemplateManagement({
 
             onSuccess?.(
                 response?.success_message ||
-                "Plantilla eliminada correctamente."
+                t("Plantilla eliminada correctamente.")
             );
 
             resetForm();
@@ -471,7 +474,7 @@ function TemplateManagement({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible eliminar la plantilla."
+                t("No fue posible eliminar la plantilla.")
             );
         } finally {
             setIsDeleting(false);
@@ -499,7 +502,7 @@ function TemplateManagement({
 
             onSuccess?.(
                 response?.success_message ||
-                "Plantillas sincronizadas correctamente."
+                t("Plantillas sincronizadas correctamente.")
             );
 
             resetForm();
@@ -508,7 +511,7 @@ function TemplateManagement({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible sincronizar las plantillas con Meta."
+                t("No fue posible sincronizar las plantillas con Meta.")
             );
         } finally {
             setIsSynchronizing(false);
@@ -547,7 +550,7 @@ function TemplateManagement({
             (item) => item.value === status
         );
 
-        return option?.label || status || "Unknown";
+        return option?.label ? t(option.label) : status || t("Desconocido");
     }
 
 
@@ -556,7 +559,7 @@ function TemplateManagement({
             (item) => item.value === value
         );
 
-        return option?.label || value || "Unknown";
+        return option?.label ? t(option.label) : value || t("Desconocido");
     }
 
 
@@ -571,7 +574,7 @@ function TemplateManagement({
             return value;
         }
 
-        return new Intl.DateTimeFormat("es-HN", {
+        return new Intl.DateTimeFormat(getLanguageLocale(), {
             dateStyle: "medium",
             timeStyle: "short",
         }).format(date);
@@ -613,7 +616,7 @@ function TemplateManagement({
                 <div className={styles.contextHeader}>
                     <div className={styles.contextField}>
                         <label htmlFor="template-account">
-                            Cuenta WABA
+                            {t("Cuenta WABA")}
                         </label>
 
                         <select
@@ -628,7 +631,7 @@ function TemplateManagement({
                         >
                             {accounts.length === 0 && (
                                 <option value="">
-                                    No existen cuentas WABA disponibles
+                                    {t("No existen cuentas WABA disponibles")}
                                 </option>
                             )}
 
@@ -653,8 +656,8 @@ function TemplateManagement({
                         }
                     >
                         {isSynchronizing
-                            ? "Sincronizando..."
-                            : "Sincronizar con Meta"}
+                            ? t("Sincronizando...")
+                            : t("Sincronizar con Meta")}
                     </button>
                 </div>
             </div>
@@ -679,11 +682,11 @@ function TemplateManagement({
                     </div>
 
                     <strong>
-                        Seleccione una cuenta WABA.
+                        {t("Seleccione una cuenta WABA.")}
                     </strong>
 
                     <span>
-                        Las plantillas pertenecen a una cuenta de WhatsApp Business específica.
+                        {t("Las plantillas pertenecen a una cuenta de WhatsApp Business específica.")}
                     </span>
                 </section>
             ) : (
@@ -694,7 +697,7 @@ function TemplateManagement({
                     >
                         <div className={styles.filterField}>
                             <label htmlFor="template-search">
-                                Buscar
+                                {t("Buscar")}
                             </label>
 
                             <input
@@ -702,13 +705,13 @@ function TemplateManagement({
                                 type="search"
                                 value={search}
                                 onChange={(event) => setSearch(event.target.value)}
-                                placeholder="Nombre o idioma"
+                                placeholder={t("Nombre o idioma")}
                             />
                         </div>
 
                         <div className={styles.filterField}>
                             <label htmlFor="template-status-filter">
-                                Estado
+                                {t("Estado")}
                             </label>
 
                             <select
@@ -721,7 +724,7 @@ function TemplateManagement({
                                         key={option.value || "all"}
                                         value={option.value}
                                     >
-                                        {option.label}
+                                        {t(option.label)}
                                     </option>
                                 ))}
                             </select>
@@ -729,7 +732,7 @@ function TemplateManagement({
 
                         <div className={styles.filterField}>
                             <label htmlFor="template-category-filter">
-                                Categoría
+                                {t("Categoría")}
                             </label>
 
                             <select
@@ -742,7 +745,7 @@ function TemplateManagement({
                                         key={option.value || "all"}
                                         value={option.value}
                                     >
-                                        {option.label}
+                                        {t(option.label)}
                                     </option>
                                 ))}
                             </select>
@@ -750,7 +753,7 @@ function TemplateManagement({
 
                         <div className={styles.filterField}>
                             <label htmlFor="template-language-filter">
-                                Idioma
+                                {t("Idioma")}
                             </label>
 
                             <input
@@ -768,14 +771,14 @@ function TemplateManagement({
                                 type="button"
                                 onClick={handleResetFilters}
                             >
-                                Limpiar
+                                {t("Limpiar")}
                             </button>
 
                             <button
                                 className={styles.primaryButton}
                                 type="submit"
                             >
-                                Aplicar
+                                {t("Aplicar")}
                             </button>
                         </div>
                     </form>
@@ -789,13 +792,13 @@ function TemplateManagement({
                                     </span>
 
                                     <h2>
-                                        Plantillas
+                                        {t("Plantillas")}
                                     </h2>
 
                                     <p>
-                                        {pagination.count} plantilla
-                                        {pagination.count === 1 ? "" : "s"} registrada
-                                        {pagination.count === 1 ? "" : "s"}.
+                                        {pagination.count} {pagination.count === 1
+                                            ? t("plantilla registrada")
+                                            : t("plantillas registradas")}
                                     </p>
                                 </div>
 
@@ -805,13 +808,13 @@ function TemplateManagement({
                                     onClick={handleNewTemplate}
                                     disabled={operationInProgress}
                                 >
-                                    Nueva plantilla
+                                    {t("Nueva plantilla")}
                                 </button>
                             </div>
 
                             {isLoadingTemplates ? (
                                 <div className={styles.loadingState}>
-                                    Cargando plantillas...
+                                    {t("Cargando plantillas...")}
                                 </div>
                             ) : templates.length === 0 ? (
                                 <div className={styles.emptyState}>
@@ -832,11 +835,11 @@ function TemplateManagement({
                                     </div>
 
                                     <strong>
-                                        No existen plantillas.
+                                        {t("No existen plantillas.")}
                                     </strong>
 
                                     <span>
-                                        Sincronice con Meta o cree una nueva plantilla.
+                                        {t("Sincronice con Meta o cree una nueva plantilla.")}
                                     </span>
                                 </div>
                             ) : (
@@ -906,7 +909,7 @@ function TemplateManagement({
                                             disabled={!pagination.previous}
                                             onClick={() => loadTemplates(currentPage - 1)}
                                         >
-                                            Anterior
+                                            {t("Anterior")}
                                         </button>
 
                                         <span>
@@ -919,7 +922,7 @@ function TemplateManagement({
                                             disabled={!pagination.next}
                                             onClick={() => loadTemplates(currentPage + 1)}
                                         >
-                                            Siguiente
+                                            {t("Siguiente")}
                                         </button>
                                     </div>
                                 </>
@@ -930,19 +933,19 @@ function TemplateManagement({
                             <div className={styles.panelHeader}>
                                 <div>
                                     <span className={styles.eyebrow}>
-                                        Configuración
+                                        {t("Configuración")}
                                     </span>
 
                                     <h2>
                                         {selectedTemplate
-                                            ? "Editar plantilla"
-                                            : "Nueva plantilla"}
+                                            ? t("Editar plantilla")
+                                            : t("Nueva plantilla")}
                                     </h2>
 
                                     <p>
                                         {selectedTemplate
-                                            ? "Modifique los campos permitidos por Meta."
-                                            : "Defina una nueva plantilla para enviarla a revisión."}
+                                            ? t("Modifique los campos permitidos por Meta.")
+                                            : t("Defina una nueva plantilla para enviarla a revisión.")}
                                     </p>
                                 </div>
 
@@ -969,7 +972,7 @@ function TemplateManagement({
                             >
                                 <div className={styles.formField}>
                                     <label htmlFor="template-name">
-                                        Nombre
+                                        {t("Nombre")}
                                     </label>
 
                                     <input
@@ -986,14 +989,14 @@ function TemplateManagement({
                                     />
 
                                     <span className={styles.fieldHelp}>
-                                        Solo letras minúsculas, números y guiones bajos.
+                                        {t("Solo letras minúsculas, números y guiones bajos.")}
                                     </span>
                                 </div>
 
                                 <div className={styles.formGrid}>
                                     <div className={styles.formField}>
                                         <label htmlFor="template-language">
-                                            Idioma
+                                            {t("Idioma")}
                                         </label>
 
                                         <input
@@ -1012,7 +1015,7 @@ function TemplateManagement({
 
                                     <div className={styles.formField}>
                                         <label htmlFor="template-category">
-                                            Categoría
+                                            {t("Categoría")}
                                         </label>
 
                                         <select
@@ -1029,7 +1032,7 @@ function TemplateManagement({
                                                         key={option.value}
                                                         value={option.value}
                                                     >
-                                                        {option.label}
+                                                        {t(option.label)}
                                                     </option>
                                                 ))}
                                         </select>
@@ -1038,7 +1041,7 @@ function TemplateManagement({
 
                                 <div className={styles.formField}>
                                     <label htmlFor="template-parameter-format">
-                                        Formato de parámetros
+                                        {t("Formato de parámetros")}
                                     </label>
 
                                     <select
@@ -1055,7 +1058,7 @@ function TemplateManagement({
                                                 key={option.value}
                                                 value={option.value}
                                             >
-                                                {option.label}
+                                                {t(option.label)}
                                             </option>
                                         ))}
                                     </select>
@@ -1063,14 +1066,14 @@ function TemplateManagement({
 
                                 <div className={styles.formField}>
                                     <label htmlFor="template-components">
-                                        Components
+                                        {t("Components")}
                                     </label>
 
                                     <textarea
                                         id="template-components"
                                         value={componentsText}
                                         onChange={(event) => setComponentsText(event.target.value)}
-                                        placeholder='[{"type":"BODY","text":"Hola {{1}}"}]'
+                                        placeholder={t('[{"type":"BODY","text":"Hola {{1}}"}]')}
                                         disabled={operationInProgress}
                                         rows="12"
                                         spellCheck="false"
@@ -1078,7 +1081,7 @@ function TemplateManagement({
                                     />
 
                                     <span className={styles.fieldHelp}>
-                                        Definición normalizada en formato JSON.
+                                        {t("Definición normalizada en formato JSON.")}
                                     </span>
                                 </div>
 
@@ -1097,7 +1100,7 @@ function TemplateManagement({
 
                                             <div>
                                                 <span>
-                                                    Estado
+                                                    {t("Estado")}
                                                 </span>
 
                                                 <strong>
@@ -1107,19 +1110,19 @@ function TemplateManagement({
 
                                             <div>
                                                 <span>
-                                                    Disponible en Meta
+                                                    {t("Disponible en Meta")}
                                                 </span>
 
                                                 <strong>
                                                     {selectedTemplate.is_available_in_meta
-                                                        ? "Sí"
-                                                        : "No"}
+                                                        ? t("Sí")
+                                                        : t("No")}
                                                 </strong>
                                             </div>
 
                                             <div>
                                                 <span>
-                                                    Última sincronización
+                                                    {t("Última sincronización")}
                                                 </span>
 
                                                 <strong>
@@ -1133,7 +1136,7 @@ function TemplateManagement({
                                         {selectedTemplate.rejection_reason && (
                                             <div className={styles.rejectionMessage}>
                                                 <strong>
-                                                    Motivo de rechazo
+                                                    {t("Motivo de rechazo")}
                                                 </strong>
 
                                                 <span>
@@ -1153,8 +1156,8 @@ function TemplateManagement({
                                             disabled={operationInProgress}
                                         >
                                             {isDeleting
-                                                ? "Eliminando..."
-                                                : "Eliminar"}
+                                                ? t("Eliminando...")
+                                                : t("Eliminar")}
                                         </button>
                                     )}
 
@@ -1166,7 +1169,7 @@ function TemplateManagement({
                                                 onClick={resetForm}
                                                 disabled={operationInProgress}
                                             >
-                                                Cancelar
+                                                {t("Cancelar")}
                                             </button>
                                         )}
 
@@ -1179,10 +1182,10 @@ function TemplateManagement({
                                             }
                                         >
                                             {isSaving
-                                                ? "Guardando..."
+                                                ? t("Guardando...")
                                                 : selectedTemplate
-                                                    ? "Guardar cambios"
-                                                    : "Enviar a Meta"}
+                                                    ? t("Guardar cambios")
+                                                    : t("Enviar a Meta")}
                                         </button>
                                     </div>
                                 </div>

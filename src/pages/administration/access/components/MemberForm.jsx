@@ -6,16 +6,18 @@ import { usePageTranslation } from "../../../usePageTranslation.js";
 
 
 /**
- * MonitorForm
+ * MemberForm
  *
  * Description:
- * - Renderizar el formulario de creación y edición de monitores.
+ * - Renderizar el formulario de creación y edición de miembros.
  *
  * Notes:
+ * - Los miembros son usuarios autenticados de Dialoqo con rol MEMBER.
  * - La contraseña solo se solicita durante la creación.
+ * - El rol MEMBER es asignado exclusivamente por el backend.
  */
-function MonitorForm({
-    selectedMonitor,
+function MemberForm({
+    selectedMember,
     username,
     email,
     firstName,
@@ -39,20 +41,20 @@ function MonitorForm({
             <div className={styles.panelHeader}>
                 <div>
                     <h2>
-                        {selectedMonitor ? t("Editar monitor") : t("Nuevo monitor")}
+                        {selectedMember ? t("Editar miembro") : t("Nuevo miembro")}
                     </h2>
 
                     <p>
-                        {selectedMonitor
-                            ? t("Modifique la información del monitor seleccionado.")
-                            : t("Complete la información para registrar un nuevo monitor.")}
+                        {selectedMember
+                            ? t("Modifique la información del miembro seleccionado.")
+                            : t("Complete la información para registrar un nuevo miembro.")}
                     </p>
                 </div>
             </div>
 
             <form className={styles.entityForm} onSubmit={onSubmit}>
                 <FormField
-                    id="monitor-first-name"
+                    id="member-first-name"
                     label={t("Nombre")}
                     value={firstName}
                     onChange={onFirstNameChange}
@@ -61,7 +63,7 @@ function MonitorForm({
                 />
 
                 <FormField
-                    id="monitor-last-name"
+                    id="member-last-name"
                     label={t("Apellido")}
                     value={lastName}
                     onChange={onLastNameChange}
@@ -70,7 +72,7 @@ function MonitorForm({
                 />
 
                 <FormField
-                    id="monitor-username"
+                    id="member-username"
                     label={t("Usuario")}
                     value={username}
                     onChange={onUsernameChange}
@@ -81,7 +83,7 @@ function MonitorForm({
                 />
 
                 <FormField
-                    id="monitor-email"
+                    id="member-email"
                     label={t("Correo electrónico")}
                     type="email"
                     value={email}
@@ -91,9 +93,9 @@ function MonitorForm({
                     autoComplete="off"
                 />
 
-                {!selectedMonitor && (
+                {!selectedMember && (
                     <FormField
-                        id="monitor-password"
+                        id="member-password"
                         label={t("Contraseña")}
                         type="password"
                         value={password}
@@ -107,7 +109,7 @@ function MonitorForm({
 
                 <FormActions
                     destructive={
-                        selectedMonitor ? (
+                        selectedMember ? (
                             <button
                                 className={styles.dangerButton}
                                 type="button"
@@ -119,12 +121,12 @@ function MonitorForm({
                         ) : null
                     }
                 >
-                    {selectedMonitor && (
+                    {selectedMember && (
                         <button
                             className={styles.secondaryButton}
                             type="button"
                             onClick={onReset}
-                            disabled={isSaving || isDeleting}
+                            disabled={isSaving || isDeleting || isLoadingDetail}
                         >
                             {t("Cancelar")}
                         </button>
@@ -137,9 +139,9 @@ function MonitorForm({
                     >
                         {isSaving
                             ? t("Guardando...")
-                            : selectedMonitor
+                            : selectedMember
                                 ? t("Guardar cambios")
-                                : t("Crear monitor")}
+                                : t("Crear miembro")}
                     </button>
                 </FormActions>
             </form>
@@ -147,4 +149,4 @@ function MonitorForm({
     );
 }
 
-export default MonitorForm;
+export default MemberForm;

@@ -1,4 +1,6 @@
 import styles from "./AuditEventList.module.css";
+import { getLanguageLocale } from "../../../utils/i18n.js";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 const CATEGORY_LABELS = {
@@ -63,6 +65,7 @@ function AuditEventList({
     onSelectEvent,
     onPageChange,
 }) {
+    const { t } = usePageTranslation();
     const totalPages = Math.max(
         1,
         Math.ceil(count / pageSize)
@@ -80,7 +83,7 @@ function AuditEventList({
             return value;
         }
 
-        return new Intl.DateTimeFormat("es-HN", {
+        return new Intl.DateTimeFormat(getLanguageLocale(), {
             dateStyle: "medium",
             timeStyle: "short",
         }).format(date);
@@ -99,7 +102,7 @@ function AuditEventList({
             .filter(Boolean)
             .join(" ");
 
-        return fullName || actor.username || "Usuario";
+        return fullName || actor.username || t("Usuario");
     }
 
 
@@ -117,7 +120,7 @@ function AuditEventList({
             return targetParts.join(" #");
         }
 
-        return "Sin recurso específico";
+        return t("Sin recurso específico");
     }
 
 
@@ -125,7 +128,7 @@ function AuditEventList({
         <section className={styles.listPanel}>
             <div className={styles.listHeader}>
                 <div>
-                    <h2>Eventos de auditoría</h2>
+                    <h2>{t("Eventos de auditoría")}</h2>
 
                     <p>
                         {count === 1
@@ -185,11 +188,11 @@ function AuditEventList({
                                 <div className={styles.eventTopRow}>
                                     <div className={styles.eventBadges}>
                                         <span className={styles.categoryBadge}>
-                                            {CATEGORY_LABELS[event.category] || event.category}
+                                            {t(CATEGORY_LABELS[event.category] || event.category)}
                                         </span>
 
                                         <span className={styles.actionBadge}>
-                                            {ACTION_LABELS[event.action] || event.action}
+                                            {t(ACTION_LABELS[event.action] || event.action)}
                                         </span>
 
                                         <span
@@ -201,7 +204,7 @@ function AuditEventList({
                                                         : styles.severityInfo
                                             }`}
                                         >
-                                            {SEVERITY_LABELS[event.severity] || event.severity}
+                                            {t(SEVERITY_LABELS[event.severity] || event.severity)}
                                         </span>
                                     </div>
 
@@ -216,18 +219,18 @@ function AuditEventList({
 
                                 <div className={styles.eventMetadata}>
                                     <div className={styles.metadataItem}>
-                                        <span>Actor</span>
+                                        <span>{t("Actor")}</span>
                                         <strong>{getActorLabel(event.actor)}</strong>
                                     </div>
 
                                     <div className={styles.metadataItem}>
-                                        <span>Recurso</span>
+                                        <span>{t("Recurso")}</span>
                                         <strong>{getTargetLabel(event)}</strong>
                                     </div>
 
                                     {event.branch && (
                                         <div className={styles.metadataItem}>
-                                            <span>Sucursal</span>
+                                            <span>{t("Sucursal")}</span>
                                             <strong>{event.branch.name}</strong>
                                         </div>
                                     )}
@@ -245,7 +248,7 @@ function AuditEventList({
                     onClick={() => onPageChange(page - 1)}
                     disabled={!hasPreviousPage || isLoading}
                 >
-                    Anterior
+                    {t("Anterior")}
                 </button>
 
                 <span className={styles.paginationStatus}>
@@ -258,7 +261,7 @@ function AuditEventList({
                     onClick={() => onPageChange(page + 1)}
                     disabled={!hasNextPage || isLoading}
                 >
-                    Siguiente
+                    {t("Siguiente")}
                 </button>
             </div>
         </section>

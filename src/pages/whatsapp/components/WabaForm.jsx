@@ -5,7 +5,6 @@ import {
     createWhatsAppBusinessAccount,
     deactivateWhatsAppBusinessAccount,
     disconnectWhatsAppBusinessAccount,
-    getMetaIntegrations,
     getWhatsAppBusinessAccount,
     getWhatsAppBusinessAccounts,
     refreshWhatsAppBusinessAccount,
@@ -13,6 +12,8 @@ import {
 } from "../../../services/whatsapp.js";
 
 import styles from "./WabaForm.module.css";
+import { getLanguageLocale } from "../../../utils/i18n.js";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
@@ -22,29 +23,27 @@ import styles from "./WabaForm.module.css";
  * - Administrar las cuentas de WhatsApp Business pertenecientes a una empresa.
  *
  * Notes:
- * - Permite crear, consultar, actualizar y desactivar cuentas WABA.
- * - Permite conectar, refrescar y desconectar una cuenta contra Meta.
- * - La integración seleccionada debe pertenecer a la misma empresa.
- * - Los campos de conexión son controlados exclusivamente por el backend.
+ * - Cada cuenta WABA pertenece directamente a una empresa de Dialoqo.
+ * - La Meta App y sus credenciales pertenecen globalmente a Dialoqo.
+ * - El administrador no selecciona ni administra credenciales de Meta.
+ * - Permite crear, consultar, actualizar, conectar, refrescar, desconectar y desactivar cuentas WABA.
+ * - Los campos de estado de conexión son controlados exclusivamente por el backend.
  */
 function WabaForm({
     companyId,
     onError,
     onSuccess,
 }) {
+    const { t } = usePageTranslation();
     const [accounts, setAccounts] = useState([]);
-    const [integrations, setIntegrations] = useState([]);
-
     const [selectedAccount, setSelectedAccount] = useState(null);
 
-    const [metaIntegrationId, setMetaIntegrationId] = useState("");
     const [metaWabaId, setMetaWabaId] = useState("");
     const [metaBusinessId, setMetaBusinessId] = useState("");
     const [displayName, setDisplayName] = useState("");
     const [notes, setNotes] = useState("");
 
     const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingIntegrations, setIsLoadingIntegrations] = useState(false);
     const [isLoadingDetail, setIsLoadingDetail] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -53,70 +52,54 @@ function WabaForm({
     const [isDisconnecting, setIsDisconnecting] = useState(false);
 
 
+    /**
+     * clearParentMessages
+     *
+     * Description:
+     * - Limpiar los mensajes administrados por la página padre.
+     */
     function clearParentMessages() {
         onError?.("");
         onSuccess?.("");
     }
 
 
+    /**
+     * resetForm
+     *
+     * Description:
+     * - Restablecer el formulario WABA.
+     */
     function resetForm() {
         setSelectedAccount(null);
         setMetaWabaId("");
         setMetaBusinessId("");
         setDisplayName("");
         setNotes("");
-
-        setMetaIntegrationId(
-            integrations.length > 0
-                ? String(integrations[0].id)
-                : ""
-        );
     }
 
 
-    async function loadIntegrations() {
-        if (!companyId) {
-            setIntegrations([]);
-            setMetaIntegrationId("");
-            return;
-        }
-
-        setIsLoadingIntegrations(true);
-
-        try {
-            const response = await getMetaIntegrations(companyId);
-            const integrationList = response?.data || [];
-
-            setIntegrations(integrationList);
-
-            setMetaIntegrationId((currentValue) => {
-                const stillExists = integrationList.some(
-                    (integration) =>
-                        String(integration.id) === String(currentValue)
-                );
-
-                if (stillExists) {
-                    return currentValue;
-                }
-
-                return integrationList.length > 0
-                    ? String(integrationList[0].id)
-                    : "";
-            });
-        } catch (error) {
-            setIntegrations([]);
-            setMetaIntegrationId("");
-
-            onError?.(
-                error.message ||
-                "No fue posible cargar las integraciones de Meta."
-            );
-        } finally {
-            setIsLoadingIntegrations(false);
-        }
+    /**
+     * applyAccountDetail
+     *
+     * Description:
+     * - Aplicar al formulario la representación detallada de una cuenta WABA.
+     */
+    function applyAccountDetail(accountDetail) {
+        setSelectedAccount(accountDetail);
+        setMetaWabaId(accountDetail.meta_waba_id || "");
+        setMetaBusinessId(accountDetail.meta_business_id || "");
+        setDisplayName(accountDetail.display_name || "");
+        setNotes(accountDetail.notes || "");
     }
 
 
+    /**
+     * loadAccounts
+     *
+     * Description:
+     * - Obtener las cuentas WABA activas pertenecientes a la empresa.
+     */
     async function loadAccounts() {
         if (!companyId) {
             setAccounts([]);
@@ -125,6 +108,7 @@ function WabaForm({
         }
 
         setIsLoading(true);
+        clearParentMessages();
 
         try {
             const response = await getWhatsAppBusinessAccounts(companyId);
@@ -135,7 +119,7 @@ function WabaForm({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar las cuentas de WhatsApp Business."
+                t("No fue posible cargar las cuentas de WhatsApp Business.")
             );
         } finally {
             setIsLoading(false);
@@ -143,18 +127,26 @@ function WabaForm({
     }
 
 
+    /**
+     * handleNewAccount
+     *
+     * Description:
+     * - Preparar el formulario para registrar una nueva cuenta WABA.
+     */
     function handleNewAccount() {
         clearParentMessages();
         resetForm();
     }
 
 
+    /**
+     * handleSelectAccount
+     *
+     * Description:
+     * - Obtener el detalle completo de una cuenta WABA seleccionada.
+     */
     async function handleSelectAccount(account) {
-        if (
-            !companyId ||
-            !account?.id ||
-            isLoadingDetail
-        ) {
+        if (!companyId || !account?.id || isLoadingDetail) {
             return;
         }
 
@@ -171,26 +163,15 @@ function WabaForm({
 
             if (!accountDetail) {
                 throw new Error(
-                    "No fue posible obtener el detalle de la cuenta."
+                    t("No fue posible obtener el detalle de la cuenta.")
                 );
             }
 
-            setSelectedAccount(accountDetail);
-
-            setMetaIntegrationId(
-                accountDetail.meta_integration
-                    ? String(accountDetail.meta_integration)
-                    : ""
-            );
-
-            setMetaWabaId(accountDetail.meta_waba_id || "");
-            setMetaBusinessId(accountDetail.meta_business_id || "");
-            setDisplayName(accountDetail.display_name || "");
-            setNotes(accountDetail.notes || "");
+            applyAccountDetail(accountDetail);
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible cargar la cuenta de WhatsApp Business."
+                t("No fue posible cargar la cuenta de WhatsApp Business.")
             );
         } finally {
             setIsLoadingDetail(false);
@@ -198,7 +179,17 @@ function WabaForm({
     }
 
 
+    /**
+     * reloadSelectedAccount
+     *
+     * Description:
+     * - Sincronizar nuevamente el detalle de la cuenta WABA seleccionada.
+     */
     async function reloadSelectedAccount(accountId) {
+        if (!companyId || !accountId) {
+            return;
+        }
+
         const response = await getWhatsAppBusinessAccount(
             companyId,
             accountId
@@ -207,30 +198,25 @@ function WabaForm({
         const accountDetail = response?.data;
 
         if (accountDetail) {
-            setSelectedAccount(accountDetail);
-
-            setMetaIntegrationId(
-                accountDetail.meta_integration
-                    ? String(accountDetail.meta_integration)
-                    : ""
-            );
-
-            setMetaWabaId(accountDetail.meta_waba_id || "");
-            setMetaBusinessId(accountDetail.meta_business_id || "");
-            setDisplayName(accountDetail.display_name || "");
-            setNotes(accountDetail.notes || "");
+            applyAccountDetail(accountDetail);
         }
     }
 
 
+    /**
+     * handleSubmit
+     *
+     * Description:
+     * - Crear o actualizar una cuenta WABA.
+     *
+     * Notes:
+     * - La cuenta queda asociada directamente a la empresa determinada por la URL.
+     * - No se envía ninguna referencia a MetaIntegration.
+     */
     async function handleSubmit(event) {
         event.preventDefault();
 
-        if (
-            !companyId ||
-            !metaIntegrationId ||
-            isSaving
-        ) {
+        if (!companyId || isSaving) {
             return;
         }
 
@@ -238,7 +224,6 @@ function WabaForm({
         clearParentMessages();
 
         const accountData = {
-            meta_integration: Number(metaIntegrationId),
             meta_waba_id: metaWabaId.trim(),
             meta_business_id: metaBusinessId.trim(),
             display_name: displayName.trim(),
@@ -254,7 +239,7 @@ function WabaForm({
                 );
 
                 onSuccess?.(
-                    "Cuenta de WhatsApp Business actualizada correctamente."
+                    t("Cuenta de WhatsApp Business actualizada correctamente.")
                 );
             } else {
                 await createWhatsAppBusinessAccount(
@@ -263,16 +248,17 @@ function WabaForm({
                 );
 
                 onSuccess?.(
-                    "Cuenta de WhatsApp Business creada correctamente."
+                    t("Cuenta de WhatsApp Business creada correctamente.")
                 );
             }
 
             resetForm();
+
             await loadAccounts();
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible guardar la cuenta de WhatsApp Business."
+                t("No fue posible guardar la cuenta de WhatsApp Business.")
             );
         } finally {
             setIsSaving(false);
@@ -280,12 +266,18 @@ function WabaForm({
     }
 
 
+    /**
+     * handleConnect
+     *
+     * Description:
+     * - Conectar la cuenta WABA seleccionada con Meta utilizando la configuración global de Dialoqo.
+     *
+     * Notes:
+     * - El backend valida que Dialoqo tenga acceso a la WABA.
+     * - El backend administra la suscripción de la aplicación de Dialoqo a la WABA.
+     */
     async function handleConnect() {
-        if (
-            !companyId ||
-            !selectedAccount ||
-            isConnecting
-        ) {
+        if (!companyId || !selectedAccount || isConnecting) {
             return;
         }
 
@@ -300,7 +292,7 @@ function WabaForm({
 
             onSuccess?.(
                 response?.success_message ||
-                "Cuenta de WhatsApp Business conectada correctamente."
+                t("Cuenta de WhatsApp Business conectada correctamente.")
             );
 
             await reloadSelectedAccount(selectedAccount.id);
@@ -308,7 +300,7 @@ function WabaForm({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible conectar la cuenta con Meta."
+                t("No fue posible conectar la cuenta con Meta.")
             );
         } finally {
             setIsConnecting(false);
@@ -316,12 +308,14 @@ function WabaForm({
     }
 
 
+    /**
+     * handleRefresh
+     *
+     * Description:
+     * - Refrescar desde Meta el estado real de la cuenta WABA seleccionada.
+     */
     async function handleRefresh() {
-        if (
-            !companyId ||
-            !selectedAccount ||
-            isRefreshing
-        ) {
+        if (!companyId || !selectedAccount || isRefreshing) {
             return;
         }
 
@@ -336,7 +330,7 @@ function WabaForm({
 
             onSuccess?.(
                 response?.success_message ||
-                "Estado de la cuenta actualizado correctamente."
+                t("Estado de la cuenta actualizado correctamente.")
             );
 
             await reloadSelectedAccount(selectedAccount.id);
@@ -344,7 +338,7 @@ function WabaForm({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible refrescar el estado de la cuenta."
+                t("No fue posible refrescar el estado de la cuenta.")
             );
         } finally {
             setIsRefreshing(false);
@@ -352,17 +346,19 @@ function WabaForm({
     }
 
 
+    /**
+     * handleDisconnect
+     *
+     * Description:
+     * - Desconectar la cuenta WABA seleccionada de la aplicación de Meta utilizada por Dialoqo.
+     */
     async function handleDisconnect() {
-        if (
-            !companyId ||
-            !selectedAccount ||
-            isDisconnecting
-        ) {
+        if (!companyId || !selectedAccount || isDisconnecting) {
             return;
         }
 
         const confirmed = window.confirm(
-            `¿Desea desconectar la cuenta "${selectedAccount.display_name}" de Meta?`
+            `${t("¿Desea desconectar la cuenta")} "${selectedAccount.display_name}" ${t("de Meta?")}`
         );
 
         if (!confirmed) {
@@ -380,7 +376,7 @@ function WabaForm({
 
             onSuccess?.(
                 response?.success_message ||
-                "Cuenta desconectada correctamente."
+                t("Cuenta desconectada correctamente.")
             );
 
             await reloadSelectedAccount(selectedAccount.id);
@@ -388,7 +384,7 @@ function WabaForm({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible desconectar la cuenta de Meta."
+                t("No fue posible desconectar la cuenta de Meta.")
             );
         } finally {
             setIsDisconnecting(false);
@@ -396,17 +392,19 @@ function WabaForm({
     }
 
 
+    /**
+     * handleDeactivate
+     *
+     * Description:
+     * - Desactivar la cuenta WABA seleccionada.
+     */
     async function handleDeactivate() {
-        if (
-            !companyId ||
-            !selectedAccount ||
-            isDeleting
-        ) {
+        if (!companyId || !selectedAccount || isDeleting) {
             return;
         }
 
         const confirmed = window.confirm(
-            `¿Desea desactivar la cuenta "${selectedAccount.display_name}"?`
+            `${t("¿Desea desactivar la cuenta")} "${selectedAccount.display_name}"?`
         );
 
         if (!confirmed) {
@@ -423,15 +421,16 @@ function WabaForm({
             );
 
             onSuccess?.(
-                "Cuenta de WhatsApp Business desactivada correctamente."
+                t("Cuenta de WhatsApp Business desactivada correctamente.")
             );
 
             resetForm();
+
             await loadAccounts();
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible desactivar la cuenta de WhatsApp Business."
+                t("No fue posible desactivar la cuenta de WhatsApp Business.")
             );
         } finally {
             setIsDeleting(false);
@@ -439,6 +438,12 @@ function WabaForm({
     }
 
 
+    /**
+     * formatDateTime
+     *
+     * Description:
+     * - Convertir una fecha ISO a una representación legible.
+     */
     function formatDateTime(value) {
         if (!value) {
             return "—";
@@ -450,7 +455,7 @@ function WabaForm({
             return value;
         }
 
-        return new Intl.DateTimeFormat("es-HN", {
+        return new Intl.DateTimeFormat(getLanguageLocale(), {
             dateStyle: "medium",
             timeStyle: "short",
         }).format(date);
@@ -467,10 +472,8 @@ function WabaForm({
 
     useEffect(() => {
         setAccounts([]);
-        setIntegrations([]);
-        setSelectedAccount(null);
+        resetForm();
 
-        loadIntegrations();
         loadAccounts();
     }, [companyId]);
 
@@ -485,11 +488,11 @@ function WabaForm({
                         </span>
 
                         <h2>
-                            Cuentas WABA
+                            {t("Cuentas WABA")}
                         </h2>
 
                         <p>
-                            Cuentas de WhatsApp Business configuradas para la empresa.
+                            {t("Cuentas de WhatsApp Business registradas para la empresa.")}
                         </p>
                     </div>
 
@@ -499,13 +502,13 @@ function WabaForm({
                         onClick={handleNewAccount}
                         disabled={lifecycleBusy}
                     >
-                        Nueva cuenta
+                        {t("Nueva cuenta")}
                     </button>
                 </div>
 
                 {isLoading ? (
                     <div className={styles.loadingState}>
-                        Cargando cuentas...
+                        {t("Cargando cuentas...")}
                     </div>
                 ) : accounts.length === 0 ? (
                     <div className={styles.emptyState}>
@@ -526,11 +529,11 @@ function WabaForm({
                         </div>
 
                         <strong>
-                            No existen cuentas WABA configuradas.
+                            {t("No existen cuentas WABA configuradas.")}
                         </strong>
 
                         <span>
-                            Cree una cuenta de WhatsApp Business después de configurar una integración de Meta.
+                            {t("Registre una cuenta de WhatsApp Business para comenzar.")}
                         </span>
                     </div>
                 ) : (
@@ -584,8 +587,8 @@ function WabaForm({
                                         }
                                     >
                                         {account.is_connected
-                                            ? "Conectada"
-                                            : "Desconectada"}
+                                            ? t("Conectada")
+                                            : t("Desconectada")}
                                     </span>
 
                                     <span
@@ -596,8 +599,8 @@ function WabaForm({
                                         }
                                     >
                                         {account.is_webhook_configured
-                                            ? "Webhook"
-                                            : "Sin webhook"}
+                                            ? t("Webhook")
+                                            : t("Sin webhook")}
                                     </span>
                                 </div>
                             </button>
@@ -610,19 +613,19 @@ function WabaForm({
                 <div className={styles.panelHeader}>
                     <div>
                         <span className={styles.eyebrow}>
-                            Configuración
+                            {t("Configuración")}
                         </span>
 
                         <h2>
                             {selectedAccount
-                                ? "Editar cuenta WABA"
-                                : "Nueva cuenta WABA"}
+                                ? t("Editar cuenta WABA")
+                                : t("Nueva cuenta WABA")}
                         </h2>
 
                         <p>
                             {selectedAccount
-                                ? "Modifique la configuración o gestione su conexión con Meta."
-                                : "Registre una cuenta de WhatsApp Business para la empresa."}
+                                ? t("Modifique la configuración o gestione su conexión con Meta.")
+                                : t("Registre una cuenta de WhatsApp Business para la empresa.")}
                         </p>
                     </div>
 
@@ -635,8 +638,8 @@ function WabaForm({
                             }
                         >
                             {selectedAccount.is_connected
-                                ? "Conectada"
-                                : "Desconectada"}
+                                ? t("Conectada")
+                                : t("Desconectada")}
                         </span>
                     )}
                 </div>
@@ -645,49 +648,45 @@ function WabaForm({
                     className={styles.wabaForm}
                     onSubmit={handleSubmit}
                 >
-                    <div className={styles.formField}>
-                        <label htmlFor="waba-integration">
-                            Integración de Meta
-                        </label>
+                    <div className={styles.lifecycleSection}>
+                        <div className={styles.lifecycleHeader}>
+                            <div>
+                                <h3>
+                                    {t("Plataforma Meta")}
+                                </h3>
 
-                        <select
-                            id="waba-integration"
-                            value={metaIntegrationId}
-                            onChange={(event) => setMetaIntegrationId(event.target.value)}
-                            disabled={
-                                isLoadingIntegrations ||
-                                integrations.length === 0 ||
-                                lifecycleBusy
-                            }
-                            required
-                        >
-                            {integrations.length === 0 && (
-                                <option value="">
-                                    No existen integraciones disponibles
-                                </option>
-                            )}
+                                <p>
+                                    {t("Esta cuenta utilizará la Meta App y las credenciales globales administradas por Dialoqo.")}
+                                </p>
+                            </div>
+                        </div>
 
-                            {integrations.map((integration) => (
-                                <option
-                                    key={integration.id}
-                                    value={integration.id}
-                                >
-                                    {integration.meta_app_id}
-                                    {integration.is_connected
-                                        ? " — Conectada"
-                                        : " — Sin validar"}
-                                </option>
-                            ))}
-                        </select>
+                        <div className={styles.lifecycleGrid}>
+                            <div className={styles.lifecycleField}>
+                                <span>
+                                    Meta App
+                                </span>
 
-                        <span className={styles.fieldHelp}>
-                            La cuenta WABA utilizará las credenciales de esta integración.
-                        </span>
+                                <strong>
+                                    Dialoqo
+                                </strong>
+                            </div>
+
+                            <div className={styles.lifecycleField}>
+                                <span>
+                                    {t("Configuración")}
+                                </span>
+
+                                <strong>
+                                    {t("Administrada por Dialoqo")}
+                                </strong>
+                            </div>
+                        </div>
                     </div>
 
                     <div className={styles.formField}>
                         <label htmlFor="waba-display-name">
-                            Nombre
+                            {t("Nombre")}
                         </label>
 
                         <input
@@ -695,7 +694,7 @@ function WabaForm({
                             type="text"
                             value={displayName}
                             onChange={(event) => setDisplayName(event.target.value)}
-                            placeholder="Nombre de la cuenta"
+                            placeholder={t("Nombre de la cuenta")}
                             disabled={lifecycleBusy}
                             required
                         />
@@ -703,7 +702,7 @@ function WabaForm({
 
                     <div className={styles.formField}>
                         <label htmlFor="waba-meta-id">
-                            Meta WABA ID
+                            {t("Meta WABA ID")}
                         </label>
 
                         <input
@@ -711,7 +710,7 @@ function WabaForm({
                             type="text"
                             value={metaWabaId}
                             onChange={(event) => setMetaWabaId(event.target.value)}
-                            placeholder="Identificador de WhatsApp Business Account"
+                            placeholder={t("Identificador de WhatsApp Business Account")}
                             disabled={lifecycleBusy}
                             required
                         />
@@ -719,7 +718,7 @@ function WabaForm({
 
                     <div className={styles.formField}>
                         <label htmlFor="waba-business-id">
-                            Meta Business ID
+                            {t("Meta Business ID")}
                         </label>
 
                         <input
@@ -727,7 +726,7 @@ function WabaForm({
                             type="text"
                             value={metaBusinessId}
                             onChange={(event) => setMetaBusinessId(event.target.value)}
-                            placeholder="Identificador de Meta Business"
+                            placeholder={t("Identificador de Meta Business")}
                             disabled={lifecycleBusy}
                             required
                         />
@@ -735,14 +734,14 @@ function WabaForm({
 
                     <div className={styles.formField}>
                         <label htmlFor="waba-notes">
-                            Notas
+                            {t("Notas")}
                         </label>
 
                         <textarea
                             id="waba-notes"
                             value={notes}
                             onChange={(event) => setNotes(event.target.value)}
-                            placeholder="Información administrativa opcional"
+                            placeholder={t("Información administrativa opcional")}
                             disabled={lifecycleBusy}
                             rows="4"
                         />
@@ -753,11 +752,11 @@ function WabaForm({
                             <div className={styles.lifecycleHeader}>
                                 <div>
                                     <h3>
-                                        Estado en Meta
+                                        {t("Estado en Meta")}
                                     </h3>
 
                                     <p>
-                                        Estado real sincronizado por las operaciones de conexión.
+                                        {t("Estado real sincronizado mediante la plataforma Meta.")}
                                     </p>
                                 </div>
                             </div>
@@ -765,45 +764,49 @@ function WabaForm({
                             <div className={styles.lifecycleGrid}>
                                 <div className={styles.lifecycleField}>
                                     <span>
-                                        Conexión
+                                        {t("Conexión")}
                                     </span>
 
                                     <strong>
                                         {selectedAccount.is_connected
-                                            ? "Conectada"
-                                            : "Desconectada"}
+                                            ? t("Conectada")
+                                            : t("Desconectada")}
                                     </strong>
                                 </div>
 
                                 <div className={styles.lifecycleField}>
                                     <span>
-                                        Webhook
+                                        {t("Webhook")}
                                     </span>
 
                                     <strong>
                                         {selectedAccount.is_webhook_configured
-                                            ? "Configurado"
-                                            : "No configurado"}
+                                            ? t("Configurado")
+                                            : t("No configurado")}
                                     </strong>
                                 </div>
 
                                 <div className={styles.lifecycleField}>
                                     <span>
-                                        Conectada desde
+                                        {t("Conectada desde")}
                                     </span>
 
                                     <strong>
-                                        {formatDateTime(selectedAccount.connected_at)}
+                                        {formatDateTime(
+                                            selectedAccount.connected_at
+                                        )}
                                     </strong>
                                 </div>
 
                                 <div className={styles.lifecycleField}>
                                     <span>
-                                        Desconectada
+                                        {t("Desconectada")}
                                     </span>
 
                                     <strong>
-                                        {formatDateTime(selectedAccount.disconnected_at)}
+                                        {formatDateTime(
+                                            selectedAccount.disconnected_at
+                                        )}
                                     </strong>
                                 </div>
                             </div>
@@ -817,8 +820,8 @@ function WabaForm({
                                         disabled={lifecycleBusy}
                                     >
                                         {isConnecting
-                                            ? "Conectando..."
-                                            : "Conectar con Meta"}
+                                            ? t("Conectando...")
+                                            : t("Conectar con Meta")}
                                     </button>
                                 ) : (
                                     <>
@@ -829,8 +832,8 @@ function WabaForm({
                                             disabled={lifecycleBusy}
                                         >
                                             {isRefreshing
-                                                ? "Actualizando..."
-                                                : "Actualizar estado"}
+                                                ? t("Actualizando...")
+                                                : t("Actualizar estado")}
                                         </button>
 
                                         <button
@@ -840,8 +843,8 @@ function WabaForm({
                                             disabled={lifecycleBusy}
                                         >
                                             {isDisconnecting
-                                                ? "Desconectando..."
-                                                : "Desconectar"}
+                                                ? t("Desconectando...")
+                                                : t("Desconectar")}
                                         </button>
                                     </>
                                 )}
@@ -858,8 +861,8 @@ function WabaForm({
                                 disabled={lifecycleBusy}
                             >
                                 {isDeleting
-                                    ? "Desactivando..."
-                                    : "Desactivar"}
+                                    ? t("Desactivando...")
+                                    : t("Desactivar")}
                             </button>
                         )}
 
@@ -871,24 +874,20 @@ function WabaForm({
                                     onClick={resetForm}
                                     disabled={lifecycleBusy}
                                 >
-                                    Cancelar
+                                    {t("Cancelar")}
                                 </button>
                             )}
 
                             <button
                                 className={styles.primaryButton}
                                 type="submit"
-                                disabled={
-                                    !companyId ||
-                                    !metaIntegrationId ||
-                                    lifecycleBusy
-                                }
+                                disabled={!companyId || lifecycleBusy}
                             >
                                 {isSaving
-                                    ? "Guardando..."
+                                    ? t("Guardando...")
                                     : selectedAccount
-                                        ? "Guardar cambios"
-                                        : "Crear cuenta"}
+                                        ? t("Guardar cambios")
+                                        : t("Crear cuenta")}
                             </button>
                         </div>
                     </div>

@@ -19,28 +19,33 @@ import ConversationPanel from "./ConversationPanel.jsx";
 import NewConversationPanel from "./NewConversationPanel.jsx";
 
 import styles from "./MonitoringWorkspace.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
  * MonitoringWorkspace
  *
  * Description:
- * - Proporcionar el espacio principal de monitoreo realtime de un número de WhatsApp.
+ * - Proporcionar el espacio principal realtime para consultar y operar conversaciones de un número de WhatsApp.
  *
  * Notes:
  * - Mantiene una conexión WebSocket para la combinación empresa y número.
  * - Cambiar de conversación no provoca una nueva conexión.
- * - Permite iniciar nuevas conversaciones mediante templates aprobados.
- * - Cuando una nueva conversación es creada, CentralChat la abre automáticamente.
+ * - MONITOR utiliza el workspace en modo lectura.
+ * - MEMBER puede enviar mensajes e iniciar conversaciones mediante templates aprobados.
+ * - Cuando una nueva conversación es creada, Dialoqo la abre automáticamente.
  * - Los mensajes inbound recibidos en la conversación abierta son reconocidos como leídos.
  */
 function MonitoringWorkspace({
     company,
     branch,
     number,
+    canSendMessages = false,
+    canStartConversations = false,
     onChangeNumber,
     onError,
 }) {
+    const { t } = usePageTranslation();
     const [
         selectedConversation,
         setSelectedConversation,
@@ -74,6 +79,9 @@ function MonitoringWorkspace({
 
     const isAcknowledgingRealtimeMessageRef =
         useRef(false);
+
+    const conversationSelectionRequestRef =
+        useRef(0);
 
 
     /**
@@ -121,17 +129,48 @@ function MonitoringWorkspace({
      * Description:
      * - Seleccionar una conversación.
      */
-    function handleConversationSelect(
+    async function handleConversationSelect(
         conversation
     ) {
-        selectedConversationRef.current =
-            conversation;
+        const requestId =
+            conversationSelectionRequestRef.current + 1;
 
-        setSelectedConversation(
-            conversation
-        );
+        conversationSelectionRequestRef.current =
+            requestId;
 
+        if (!conversation) {
+            selectedConversationRef.current = null;
+            setSelectedConversation(null);
+            clearRealtimeError();
+            return;
+        }
+
+        // Apply the list snapshot immediately for responsive selection, then
+        // replace it with the authoritative detail. This prevents stale customer
+        // or assignment data from remaining in the conversation header.
+        selectedConversationRef.current = conversation;
+        setSelectedConversation(conversation);
         clearRealtimeError();
+
+        if (!company?.id || !branch?.id || !number?.id || !conversation?.id) return;
+
+        try {
+            const response = await getConversation(
+                company.id,
+                branch.id,
+                number.id,
+                conversation.id
+            );
+
+            if (conversationSelectionRequestRef.current !== requestId) return;
+
+            const conversationDetail = response?.data || conversation;
+            selectedConversationRef.current = conversationDetail;
+            setSelectedConversation(conversationDetail);
+        } catch (error) {
+            if (conversationSelectionRequestRef.current !== requestId) return;
+            onError?.(error.message || t("No fue posible obtener el detalle de la conversación."));
+        }
     }
 
 
@@ -169,7 +208,7 @@ function MonitoringWorkspace({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible actualizar el estado de lectura de la conversación."
+                t("No fue posible actualizar el estado de lectura de la conversación.")
             );
         } finally {
             isAcknowledgingRealtimeMessageRef.current =
@@ -339,7 +378,7 @@ function MonitoringWorkspace({
 
             if (!conversation) {
                 throw new Error(
-                    "No fue posible obtener la nueva conversación."
+                    t("No fue posible obtener la nueva conversación.")
                 );
             }
 
@@ -356,7 +395,7 @@ function MonitoringWorkspace({
         } catch (error) {
             onError?.(
                 error.message ||
-                "La conversación fue creada, pero no fue posible abrirla automáticamente."
+                t("La conversación fue creada, pero no fue posible abrirla automáticamente.")
             );
         }
     }
@@ -423,6 +462,8 @@ function MonitoringWorkspace({
 
         selectedConversationRef.current =
             null;
+
+        conversationSelectionRequestRef.current += 1;
 
         isAcknowledgingRealtimeMessageRef.current =
             false;
@@ -508,26 +549,26 @@ function MonitoringWorkspace({
         <section className={styles.workspace}>
             <header className={styles.workspaceHeader}>
                 <div className={styles.workspaceIdentity}>
-                    <button
-                        className={styles.backButton}
-                        type="button"
-                        onClick={
-                            onChangeNumber
-                        }
-                        aria-label="Cambiar número"
-                    >
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
+                    {onChangeNumber && (
+                        <button
+                            className={styles.backButton}
+                            type="button"
+                            onClick={onChangeNumber}
+                            aria-label={t("Cambiar número")}
                         >
-                            <path d="m15 18-6-6 6-6" />
-                        </svg>
-                    </button>
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path d="m15 18-6-6 6-6" />
+                            </svg>
+                        </button>
+                    )}
 
                     <div className={styles.numberIcon}>
                         <svg
@@ -567,7 +608,7 @@ function MonitoringWorkspace({
                 <div className={styles.workspaceContext}>
                     <div>
                         <span>
-                            Empresa
+                            {t("Empresa")}
                         </span>
 
                         <strong>
@@ -578,7 +619,7 @@ function MonitoringWorkspace({
 
                     <div>
                         <span>
-                            Sucursal
+                            {t("Sucursal")}
                         </span>
 
                         <strong>
@@ -590,17 +631,18 @@ function MonitoringWorkspace({
                     <div className={styles.statuses}>
                         {number?.is_connected && (
                             <span className={styles.connectedBadge}>
-                                Conectado
+                                {t("Conectado")}
                             </span>
                         )}
 
                         {number?.is_monitoring_enabled && (
                             <span className={styles.monitoringBadge}>
-                                Monitoreando
+                                {t("Monitoreando")}
                             </span>
                         )}
 
                         <span
+                            title={t("La conexión en tiempo real permite que nuevos mensajes y cambios aparezcan sin recargar la página.")}
                             className={
                                 isRealtimeConnected
                                     ? styles.realtimeConnectedBadge
@@ -608,21 +650,19 @@ function MonitoringWorkspace({
                             }
                         >
                             {isRealtimeConnected
-                                ? "Tiempo real"
-                                : "Sin tiempo real"}
+                                ? "Tiempo real activo"
+                                : "Tiempo real desconectado"}
                         </span>
 
-                        <button
-                            className={styles.newConversationButton}
-                            type="button"
-                            onClick={() => {
-                                clearRealtimeError();
-
-                                setIsNewConversationOpen(
-                                    true
-                                );
-                            }}
-                        >
+                        {canStartConversations && (
+                            <button
+                                className={styles.newConversationButton}
+                                type="button"
+                                onClick={() => {
+                                    clearRealtimeError();
+                                    setIsNewConversationOpen(true);
+                                }}
+                            >
                             <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -636,8 +676,9 @@ function MonitoringWorkspace({
                                 <path d="M5 12h14" />
                             </svg>
 
-                            Nueva conversación
-                        </button>
+                                {t("Nueva conversación")}
+                            </button>
+                        )}
                     </div>
                 </div>
             </header>
@@ -668,6 +709,7 @@ function MonitoringWorkspace({
                 />
 
                 <ConversationPanel
+                    key={selectedConversation?.id || "empty"}
                     companyId={
                         company?.id
                     }
@@ -679,6 +721,9 @@ function MonitoringWorkspace({
                     }
                     conversation={
                         selectedConversation
+                    }
+                    canSendMessages={
+                        canSendMessages
                     }
                     realtimeRefreshKey={
                         messageRefreshKey
@@ -695,7 +740,7 @@ function MonitoringWorkspace({
                 />
             </div>
 
-            {isNewConversationOpen && (
+            {canStartConversations && isNewConversationOpen && (
                 <NewConversationPanel
                     companyId={
                         company?.id

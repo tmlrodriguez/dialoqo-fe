@@ -292,3 +292,38 @@
         padding: 18px;
     }
 }
+.assignmentInformation {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 9px;
+}
+
+.assignmentInformation .assignmentLabel {
+    flex-shrink: 0;
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.assignmentInformation .assignmentName,
+.assignmentInformation .unassignedName {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9px;
+    font-weight: 600;
+}
+
+.assignmentInformation .assignmentName {
+    color: var(--color-text-primary);
+}
+
+.assignmentInformation .unassignedName {
+    color: var(--color-text-muted);
+}

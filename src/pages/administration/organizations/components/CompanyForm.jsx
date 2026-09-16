@@ -2,6 +2,7 @@ import FormActions from "../../../../components/common/FormActions/FormActions.j
 import FormField from "../../../../components/common/FormField/FormField.jsx";
 
 import styles from "./OrganizationForms.module.css";
+import { usePageTranslation } from "../../../usePageTranslation.js";
 
 
 /**
@@ -27,18 +28,19 @@ function CompanyForm({
     onReset,
     onDeactivate,
 }) {
+    const { t } = usePageTranslation();
     return (
         <section className={styles.formPanel}>
             <div className={styles.panelHeader}>
                 <div>
                     <h2>
-                        {selectedCompany ? "Editar empresa" : "Nueva empresa"}
+                        {selectedCompany ? t("Editar empresa") : t("Nueva empresa")}
                     </h2>
 
                     <p>
                         {selectedCompany
-                            ? "Modifique la información de la empresa seleccionada."
-                            : "Complete la información para registrar una nueva empresa."}
+                            ? t("Modifique la información de la empresa seleccionada.")
+                            : t("Complete la información para registrar una nueva empresa.")}
                     </p>
                 </div>
             </div>
@@ -46,31 +48,31 @@ function CompanyForm({
             <form className={styles.entityForm} onSubmit={onSubmit}>
                 <FormField
                     id="company-name"
-                    label="Nombre"
+                    label={t("Nombre")}
                     value={name}
                     onChange={onNameChange}
-                    placeholder="Nombre de la empresa"
+                    placeholder={t("Nombre de la empresa")}
                     disabled={isSaving || isDeleting}
                     required
                 />
 
                 <FormField
                     id="company-code"
-                    label="Código"
+                    label={t("Código")}
                     value={code}
                     onChange={onCodeChange}
-                    placeholder="Código único"
+                    placeholder={t("Código único")}
                     disabled={isSaving || isDeleting}
                     required
                 />
 
                 <FormField
                     id="company-description"
-                    label="Descripción"
+                    label={t("Descripción")}
                     type="textarea"
                     value={description}
                     onChange={onDescriptionChange}
-                    placeholder="Descripción opcional"
+                    placeholder={t("Descripción opcional")}
                     disabled={isSaving || isDeleting}
                 />
 
@@ -83,7 +85,7 @@ function CompanyForm({
                                 onClick={onDeactivate}
                                 disabled={isSaving || isDeleting}
                             >
-                                {isDeleting ? "Desactivando..." : "Desactivar"}
+                                {isDeleting ? t("Desactivando...") : t("Desactivar")}
                             </button>
                         ) : null
                     }
@@ -95,7 +97,7 @@ function CompanyForm({
                             onClick={onReset}
                             disabled={isSaving || isDeleting}
                         >
-                            Cancelar
+                            {t("Cancelar")}
                         </button>
                     )}
 
@@ -105,10 +107,10 @@ function CompanyForm({
                         disabled={isSaving || isDeleting}
                     >
                         {isSaving
-                            ? "Guardando..."
+                            ? t("Guardando...")
                             : selectedCompany
-                                ? "Guardar cambios"
-                                : "Crear empresa"}
+                                ? t("Guardar cambios")
+                                : t("Crear empresa")}
                     </button>
                 </FormActions>
             </form>

@@ -5,6 +5,7 @@ import {
 } from "react";
 
 import styles from "./TemplateParameterForm.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
@@ -24,6 +25,7 @@ function TemplateParameterForm({
     onBack,
     onSubmit,
 }) {
+    const { t } = usePageTranslation();
     const [values, setValues] =
         useState({});
 
@@ -347,7 +349,7 @@ function TemplateParameterForm({
                         <path d="m15 18-6-6 6-6" />
                     </svg>
 
-                    Plantillas
+                    {t("Plantillas")}
                 </button>
 
                 <div>
@@ -442,7 +444,7 @@ function TemplateParameterForm({
                     onClick={onBack}
                     disabled={isSending}
                 >
-                    Cancelar
+                    {t("Cancelar")}
                 </button>
 
                 <button
@@ -473,7 +475,7 @@ function TemplateParameterForm({
                                 <path d="M22 2 11 13" />
                             </svg>
 
-                            Enviar plantilla
+                            {t("Enviar plantilla")}
                         </>
                     )}
                 </button>

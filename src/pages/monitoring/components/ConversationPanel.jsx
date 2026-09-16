@@ -11,16 +11,19 @@ import MessageComposer from "./MessageComposer.jsx";
 import MessageList from "./MessageList.jsx";
 
 import styles from "./ConversationPanel.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
  * ConversationPanel
  *
  * Description:
- * - Mostrar la conversación seleccionada y permitir interacción con sus mensajes.
+ * - Mostrar la conversación seleccionada y permitir interacción según las capacidades del usuario.
  *
  * Notes:
- * - Al abrir una conversación se marca como leída para el monitor autenticado.
+ * - Al abrir una conversación se marca como leída para el usuario autenticado.
+ * - MONITOR consulta la conversación en modo lectura.
+ * - MEMBER puede responder mediante texto o plantillas cuando el backend lo autoriza.
  * - El historial puede refrescarse después de enviar mensajes de texto o plantillas.
  * - Los eventos realtime pueden solicitar una recarga adicional del historial.
  */
@@ -29,11 +32,13 @@ function ConversationPanel({
     branchId,
     numberId,
     conversation,
+    canSendMessages = false,
     realtimeRefreshKey = 0,
     onConversationRead,
     onMessageSent,
     onError,
 }) {
+    const { t } = usePageTranslation();
     const [
         isMarkingRead,
         setIsMarkingRead,
@@ -129,7 +134,7 @@ function ConversationPanel({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible marcar la conversación como leída."
+                t("No fue posible marcar la conversación como leída.")
             );
         } finally {
             setIsMarkingRead(false);
@@ -191,7 +196,7 @@ function ConversationPanel({
                 </div>
 
                 <span className={styles.eyebrow}>
-                    Monitoreo
+                    {t("Conversaciones")}
                 </span>
 
                 <h2>
@@ -199,7 +204,9 @@ function ConversationPanel({
                 </h2>
 
                 <p>
-                    Seleccione una conversación del panel izquierdo para consultar su historial y enviar mensajes.
+                    {canSendMessages
+                        ? t("Seleccione una conversación del panel izquierdo para consultar su historial y enviar mensajes.")
+                        : t("Seleccione una conversación del panel izquierdo para consultar su historial.")}
                 </p>
             </div>
         );
@@ -243,7 +250,7 @@ function ConversationPanel({
                     {assignmentName && (
                         <div className={styles.assignment}>
                             <span>
-                                Responsable
+                                {t("Responsable")}
                             </span>
 
                             <strong>
@@ -273,18 +280,16 @@ function ConversationPanel({
                 onError={onError}
             />
 
-            <MessageComposer
-                companyId={companyId}
-                branchId={branchId}
-                numberId={numberId}
-                conversationId={
-                    conversation.id
-                }
-                onMessageSent={
-                    handleMessageSent
-                }
-                onError={onError}
-            />
+            {canSendMessages && (
+                <MessageComposer
+                    companyId={companyId}
+                    branchId={branchId}
+                    numberId={numberId}
+                    conversationId={conversation.id}
+                    onMessageSent={handleMessageSent}
+                    onError={onError}
+                />
+            )}
         </section>
     );
 }

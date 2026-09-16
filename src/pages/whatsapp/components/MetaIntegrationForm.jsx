@@ -10,36 +10,38 @@ import {
 } from "../../../services/whatsapp.js";
 
 import styles from "./MetaIntegrationForm.module.css";
+import { getLanguageLocale } from "../../../utils/i18n.js";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
  * MetaIntegrationForm
  *
  * Description:
- * - Administrar las integraciones de Meta pertenecientes a una empresa.
+ * - Administrar la conexión de una empresa con la plataforma Meta utilizada por Dialoqo.
  *
  * Notes:
- * - Permite crear, consultar, actualizar y desactivar integraciones.
- * - Permite validar la configuración almacenada contra Meta.
- * - Los campos de conexión son controlados exclusivamente por el backend.
- * - Las credenciales sensibles no son administradas directamente desde este componente.
+ * - Cada empresa mantiene una única conexión de Meta.
+ * - La Meta App pertenece globalmente a Dialoqo.
+ * - El Meta App ID es informativo y controlado exclusivamente por el backend.
+ * - Access tokens, App Secret y Verify Token permanecen exclusivamente en el backend.
+ * - Los administradores nunca administran credenciales sensibles de Meta.
+ * - La desconexión no elimina ni desactiva el registro MetaIntegration.
+ * - El backend es autoritativo sobre el estado real de conexión.
  */
 function MetaIntegrationForm({
     companyId,
     onError,
     onSuccess,
 }) {
-    const [integrations, setIntegrations] = useState([]);
-    const [selectedIntegration, setSelectedIntegration] = useState(null);
-
-    const [metaAppId, setMetaAppId] = useState("");
-    const [credentialReference, setCredentialReference] = useState("");
+    const { t } = usePageTranslation();
+    const [integration, setIntegration] = useState(null);
     const [notes, setNotes] = useState("");
 
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingDetail, setIsLoadingDetail] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
+    const [isDisconnecting, setIsDisconnecting] = useState(false);
     const [isValidating, setIsValidating] = useState(false);
 
 
@@ -56,105 +58,64 @@ function MetaIntegrationForm({
 
 
     /**
-     * resetForm
+     * resetConnection
      *
      * Description:
-     * - Restablecer el formulario de integración.
+     * - Restablecer el estado local de la conexión.
+     *
+     * Notes:
+     * - Debe utilizarse únicamente cuando realmente no existe un MetaIntegration.
      */
-    function resetForm() {
-        setSelectedIntegration(null);
-        setMetaAppId("");
-        setCredentialReference("");
+    function resetConnection() {
+        setIntegration(null);
         setNotes("");
     }
 
 
     /**
-     * loadIntegrations
+     * applyIntegrationDetail
      *
      * Description:
-     * - Obtener las integraciones activas de la empresa seleccionada.
+     * - Aplicar al estado local el detalle completo de una conexión Meta.
      */
-    async function loadIntegrations() {
-        if (!companyId) {
-            setIntegrations([]);
-            resetForm();
-            return;
-        }
-
-        setIsLoading(true);
-
-        try {
-            const response = await getMetaIntegrations(companyId);
-
-            setIntegrations(response?.data || []);
-        } catch (error) {
-            setIntegrations([]);
-
-            onError?.(
-                error.message ||
-                "No fue posible cargar las integraciones de Meta."
-            );
-        } finally {
-            setIsLoading(false);
-        }
+    function applyIntegrationDetail(integrationDetail) {
+        setIntegration(integrationDetail);
+        setNotes(integrationDetail?.notes || "");
     }
 
 
     /**
-     * handleNewIntegration
+     * loadIntegrationDetail
      *
      * Description:
-     * - Preparar el formulario para crear una integración.
+     * - Obtener el detalle completo de la conexión Meta de la empresa.
      */
-    function handleNewIntegration() {
-        clearParentMessages();
-        resetForm();
-    }
-
-
-    /**
-     * handleSelectIntegration
-     *
-     * Description:
-     * - Obtener el detalle completo de una integración seleccionada.
-     */
-    async function handleSelectIntegration(integration) {
-        if (
-            !companyId ||
-            !integration?.id ||
-            isLoadingDetail
-        ) {
+    async function loadIntegrationDetail(integrationId) {
+        if (!companyId || !integrationId) {
             return;
         }
 
         setIsLoadingDetail(true);
-        clearParentMessages();
 
         try {
             const response = await getMetaIntegration(
                 companyId,
-                integration.id
+                integrationId
             );
 
             const integrationDetail = response?.data;
 
             if (!integrationDetail) {
                 throw new Error(
-                    "No fue posible obtener el detalle de la integración."
+                    t("No fue posible obtener el detalle de la conexión con Meta.")
                 );
             }
 
-            setSelectedIntegration(integrationDetail);
-            setMetaAppId(integrationDetail.meta_app_id || "");
-            setCredentialReference(
-                integrationDetail.credential_reference || ""
-            );
-            setNotes(integrationDetail.notes || "");
+            applyIntegrationDetail(integrationDetail);
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible cargar la integración de Meta."
+                t("No fue posible cargar la conexión con Meta.")
             );
         } finally {
             setIsLoadingDetail(false);
@@ -163,58 +124,142 @@ function MetaIntegrationForm({
 
 
     /**
-     * handleSubmit
+     * loadIntegration
      *
      * Description:
-     * - Crear o actualizar una integración de Meta.
+     * - Obtener la conexión Meta correspondiente a la empresa seleccionada.
+     *
+     * Notes:
+     * - Solo se espera una conexión activa por empresa.
+     * - Una conexión desconectada continúa existiendo y debe seguir mostrándose.
      */
-    async function handleSubmit(event) {
-        event.preventDefault();
+    async function loadIntegration() {
+        if (!companyId) {
+            resetConnection();
+            return;
+        }
 
-        if (
-            !companyId ||
-            isSaving
-        ) {
+        setIsLoading(true);
+        clearParentMessages();
+
+        try {
+            const response = await getMetaIntegrations(companyId);
+            const integrations = response?.data || [];
+            const currentIntegration = integrations[0] || null;
+
+            if (!currentIntegration) {
+                resetConnection();
+                return;
+            }
+
+            await loadIntegrationDetail(currentIntegration.id);
+        } catch (error) {
+            resetConnection();
+
+            onError?.(
+                error.message ||
+                t("No fue posible cargar la conexión con Meta.")
+            );
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+
+    /**
+     * handleCreateConnection
+     *
+     * Description:
+     * - Crear el contexto inicial de conexión Meta para la empresa.
+     *
+     * Notes:
+     * - Esta operación se ejecuta solamente cuando todavía no existe un MetaIntegration.
+     * - La creación del contexto no significa necesariamente que la conexión ya esté validada.
+     * - Las credenciales y la Meta App son proporcionadas globalmente por Dialoqo.
+     */
+    async function handleCreateConnection() {
+        if (!companyId || isSaving || integration) {
             return;
         }
 
         setIsSaving(true);
         clearParentMessages();
 
-        const integrationData = {
-            meta_app_id: metaAppId.trim(),
-            credential_reference: credentialReference.trim(),
-            notes: notes.trim(),
-        };
-
         try {
-            if (selectedIntegration) {
-                await updateMetaIntegration(
-                    companyId,
-                    selectedIntegration.id,
-                    integrationData
-                );
+            const response = await createMetaIntegration(
+                companyId,
+                {
+                    notes: notes.trim(),
+                }
+            );
 
-                onSuccess?.(
-                    "Integración de Meta actualizada correctamente."
+            const createdIntegration = response?.data;
+
+            onSuccess?.(
+                response?.success_message ||
+                t("Conexión con Meta creada correctamente.")
+            );
+
+            if (createdIntegration?.id) {
+                await loadIntegrationDetail(
+                    createdIntegration.id
                 );
             } else {
-                await createMetaIntegration(
-                    companyId,
-                    integrationData
-                );
-
-                onSuccess?.(
-                    "Integración de Meta creada correctamente."
-                );
+                await loadIntegration();
             }
-
-            resetForm();
-            await loadIntegrations();
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible guardar la integración de Meta."
+                t("No fue posible crear la conexión con Meta.")
+            );
+
+            await loadIntegration();
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+
+    /**
+     * handleSaveNotes
+     *
+     * Description:
+     * - Actualizar la información administrativa de la conexión.
+     *
+     * Notes:
+     * - Esta operación no modifica el estado de conexión.
+     */
+    async function handleSaveNotes(event) {
+        event.preventDefault();
+
+        if (!companyId || !integration || isSaving) {
+            return;
+        }
+
+        setIsSaving(true);
+        clearParentMessages();
+
+        try {
+            const response = await updateMetaIntegration(
+                companyId,
+                integration.id,
+                {
+                    notes: notes.trim(),
+                }
+            );
+
+            onSuccess?.(
+                response?.success_message ||
+                t("Información de la conexión actualizada correctamente.")
+            );
+
+            await loadIntegrationDetail(
+                integration.id
+            );
+        } catch (error) {
+            onError?.(
+                error.message ||
+                t("No fue posible actualizar la conexión con Meta.")
             );
         } finally {
             setIsSaving(false);
@@ -226,15 +271,18 @@ function MetaIntegrationForm({
      * handleValidate
      *
      * Description:
-     * - Validar la integración seleccionada contra Meta.
+     * - Validar o restablecer la conexión de la empresa con Meta.
      *
      * Notes:
-     * - El backend sincroniza is_connected según el resultado real.
+     * - El backend utiliza las credenciales globales de Dialoqo.
+     * - El administrador nunca proporciona tokens o secretos.
+     * - El backend es autoritativo sobre is_connected, connected_at y disconnected_at.
+     * - El recurso se vuelve a consultar después de completar la operación.
      */
     async function handleValidate() {
         if (
             !companyId ||
-            !selectedIntegration ||
+            !integration ||
             isValidating
         ) {
             return;
@@ -246,30 +294,34 @@ function MetaIntegrationForm({
         try {
             const response = await validateMetaIntegration(
                 companyId,
-                selectedIntegration.id
+                integration.id
             );
-
-            const validatedIntegration =
-                response?.data?.meta_integration;
 
             onSuccess?.(
                 response?.success_message ||
-                "Integración de Meta validada correctamente."
+                (
+                    integration.is_connected
+                        ? t("Conexión con Meta verificada correctamente.")
+                        : t("Conexión con Meta establecida correctamente.")
+                )
             );
 
-            if (validatedIntegration) {
-                setSelectedIntegration((currentIntegration) => ({
-                    ...currentIntegration,
-                    ...validatedIntegration,
-                }));
-            }
-
-            await loadIntegrations();
+            await loadIntegrationDetail(
+                integration.id
+            );
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible validar la integración contra Meta."
+                t("No fue posible validar la conexión con Meta.")
             );
+
+            try {
+                await loadIntegrationDetail(
+                    integration.id
+                );
+            } catch {
+                // El error principal ya fue comunicado al usuario.
+            }
         } finally {
             setIsValidating(false);
         }
@@ -277,97 +329,177 @@ function MetaIntegrationForm({
 
 
     /**
-     * handleDeactivate
+     * handleDisconnect
      *
      * Description:
-     * - Desactivar la integración seleccionada.
+     * - Desconectar de Meta la conexión existente de la empresa.
+     *
+     * Notes:
+     * - El registro MetaIntegration permanece activo.
+     * - La operación únicamente modifica el estado de conexión.
+     * - La conexión puede volver a validarse posteriormente.
+     * - El estado completo se recarga desde el backend después de desconectar.
      */
-    async function handleDeactivate() {
+    async function handleDisconnect() {
         if (
             !companyId ||
-            !selectedIntegration ||
-            isDeleting
+            !integration ||
+            !integration.is_connected ||
+            isDisconnecting
         ) {
             return;
         }
 
         const confirmed = window.confirm(
-            `¿Desea desactivar la integración de Meta "${selectedIntegration.meta_app_id}"?`
+            t("¿Desea desconectar esta empresa de Meta?")
         );
 
         if (!confirmed) {
             return;
         }
 
-        setIsDeleting(true);
+        setIsDisconnecting(true);
         clearParentMessages();
 
         try {
-            await deactivateMetaIntegration(
+            const response = await deactivateMetaIntegration(
                 companyId,
-                selectedIntegration.id
+                integration.id
             );
 
             onSuccess?.(
-                "Integración de Meta desactivada correctamente."
+                response?.success_message ||
+                t("Conexión con Meta desconectada correctamente.")
             );
 
-            resetForm();
-            await loadIntegrations();
+            await loadIntegrationDetail(
+                integration.id
+            );
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible desactivar la integración de Meta."
+                t("No fue posible desconectar la conexión con Meta.")
             );
+
+            try {
+                await loadIntegrationDetail(
+                    integration.id
+                );
+            } catch {
+                // El error principal ya fue comunicado al usuario.
+            }
         } finally {
-            setIsDeleting(false);
+            setIsDisconnecting(false);
         }
     }
 
 
+    /**
+     * formatDateTime
+     *
+     * Description:
+     * - Convertir una fecha ISO a una representación legible.
+     */
+    function formatDateTime(value) {
+        if (!value) {
+            return "—";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return value;
+        }
+
+        return new Intl.DateTimeFormat(
+            getLanguageLocale(),
+            {
+                dateStyle: "medium",
+                timeStyle: "short",
+            }
+        ).format(date);
+    }
+
+
+    const operationInProgress =
+        isSaving ||
+        isDisconnecting ||
+        isValidating;
+
+
     useEffect(() => {
-        resetForm();
-        loadIntegrations();
+        resetConnection();
+        loadIntegration();
     }, [companyId]);
 
 
-    return (
-        <div className={styles.integrationWorkspace}>
-            <section className={styles.listPanel}>
+    if (!companyId) {
+        return (
+            <section className={styles.formPanel}>
+                <div className={styles.emptyState}>
+                    <div className={styles.emptyIcon}>
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                        >
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M8 12h8" />
+                        </svg>
+                    </div>
+
+                    <strong>
+                        {t("Seleccione una empresa.")}
+                    </strong>
+
+                    <span>
+                        {t("Debe seleccionar una empresa antes de administrar su conexión con Meta.")}
+                    </span>
+                </div>
+            </section>
+        );
+    }
+
+
+    if (isLoading || isLoadingDetail) {
+        return (
+            <section className={styles.formPanel}>
+                <div className={styles.loadingState}>
+                    {t("Cargando conexión con Meta...")}
+                </div>
+            </section>
+        );
+    }
+
+
+    if (!integration) {
+        return (
+            <section className={styles.formPanel}>
                 <div className={styles.panelHeader}>
                     <div>
                         <span className={styles.eyebrow}>
-                            Meta
+                            WhatsApp Business
                         </span>
 
                         <h2>
-                            Integraciones
+                            {t("Conexión con Meta")}
                         </h2>
 
                         <p>
-                            Aplicaciones de Meta configuradas para la empresa.
+                            {t("Cree el contexto de conexión de esta empresa con la plataforma Meta utilizada por Dialoqo.")}
                         </p>
                     </div>
 
-                    <button
-                        className={styles.secondaryButton}
-                        type="button"
-                        onClick={handleNewIntegration}
-                        disabled={
-                            isSaving ||
-                            isDeleting ||
-                            isValidating
-                        }
-                    >
-                        Nueva integración
-                    </button>
+                    <span className={styles.disconnectedBadge}>
+                        {t("No configurada")}
+                    </span>
                 </div>
 
-                {isLoading ? (
-                    <div className={styles.loadingState}>
-                        Cargando integraciones...
-                    </div>
-                ) : integrations.length === 0 ? (
+                <div className={styles.integrationForm}>
                     <div className={styles.emptyState}>
                         <div className={styles.emptyIcon}>
                             <svg
@@ -379,340 +511,232 @@ function MetaIntegrationForm({
                                 strokeLinejoin="round"
                                 aria-hidden="true"
                             >
-                                <circle cx="12" cy="12" r="9" />
                                 <path d="M8 12h8" />
                                 <path d="M12 8v8" />
+                                <circle cx="12" cy="12" r="9" />
                             </svg>
                         </div>
 
                         <strong>
-                            No existen integraciones configuradas.
+                            {t("Esta empresa todavía no tiene una conexión Meta configurada.")}
                         </strong>
 
                         <span>
-                            Cree una integración para conectar esta empresa con Meta.
-                        </span>
-                    </div>
-                ) : (
-                    <div className={styles.integrationList}>
-                        {integrations.map((integration) => (
-                            <button
-                                key={integration.id}
-                                className={`${styles.integrationCard} ${
-                                    selectedIntegration?.id === integration.id
-                                        ? styles.integrationCardActive
-                                        : ""
-                                }`}
-                                type="button"
-                                onClick={() => handleSelectIntegration(integration)}
-                                disabled={isLoadingDetail}
-                            >
-                                <div className={styles.integrationCardMain}>
-                                    <div className={styles.integrationIcon}>
-                                        <svg
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="1.8"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            aria-hidden="true"
-                                        >
-                                            <circle cx="12" cy="12" r="9" />
-                                            <path d="M7.5 14.5c2.2-5.3 3.8-8 5.2-8 1.5 0 2.3 2.8 3.8 6.1 1 2.2 1.8 3.4 3 3.4" />
-                                            <path d="M4.5 16c1.2 0 2-1.2 3-3.4 1.5-3.3 2.3-6.1 3.8-6.1 1.4 0 3 2.7 5.2 8" />
-                                        </svg>
-                                    </div>
-
-                                    <div className={styles.integrationInformation}>
-                                        <strong>
-                                            {integration.meta_app_id}
-                                        </strong>
-
-                                        <span>
-                                            Meta App ID
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <span
-                                    className={
-                                        integration.is_connected
-                                            ? styles.connectedBadge
-                                            : styles.disconnectedBadge
-                                    }
-                                >
-                                    {integration.is_connected
-                                        ? "Conectada"
-                                        : "Sin validar"}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                )}
-            </section>
-
-            <section className={styles.formPanel}>
-                <div className={styles.panelHeader}>
-                    <div>
-                        <span className={styles.eyebrow}>
-                            Configuración
-                        </span>
-
-                        <h2>
-                            {selectedIntegration
-                                ? "Editar integración"
-                                : "Nueva integración"}
-                        </h2>
-
-                        <p>
-                            {selectedIntegration
-                                ? "Modifique o valide la configuración seleccionada."
-                                : "Registre la aplicación y referencia segura de credenciales."}
-                        </p>
-                    </div>
-
-                    {selectedIntegration && (
-                        <span
-                            className={
-                                selectedIntegration.is_connected
-                                    ? styles.connectedBadge
-                                    : styles.disconnectedBadge
-                            }
-                        >
-                            {selectedIntegration.is_connected
-                                ? "Conectada"
-                                : "Sin validar"}
-                        </span>
-                    )}
-                </div>
-
-                <form
-                    className={styles.integrationForm}
-                    onSubmit={handleSubmit}
-                >
-                    <div className={styles.formField}>
-                        <label htmlFor="meta-app-id">
-                            Meta App ID
-                        </label>
-
-                        <input
-                            id="meta-app-id"
-                            type="text"
-                            value={metaAppId}
-                            onChange={(event) => setMetaAppId(event.target.value)}
-                            placeholder="Identificador de la aplicación en Meta"
-                            disabled={
-                                isSaving ||
-                                isDeleting ||
-                                isValidating
-                            }
-                            required
-                        />
-
-                        <span className={styles.fieldHelp}>
-                            Identificador de la aplicación configurada en Meta.
-                        </span>
-                    </div>
-
-                    <div className={styles.formField}>
-                        <label htmlFor="credential-reference">
-                            Referencia de credenciales
-                        </label>
-
-                        <input
-                            id="credential-reference"
-                            type="text"
-                            value={credentialReference}
-                            onChange={(event) => setCredentialReference(event.target.value)}
-                            placeholder="Referencia del almacén seguro"
-                            autoComplete="off"
-                            disabled={
-                                isSaving ||
-                                isDeleting ||
-                                isValidating
-                            }
-                            required
-                        />
-
-                        <span className={styles.fieldHelp}>
-                            Referencia al secreto almacenado externamente. No ingrese tokens o secretos directamente.
+                            {t("Dialoqo utilizará su aplicación y credenciales globales de Meta para establecer el contexto de conexión.")}
                         </span>
                     </div>
 
                     <div className={styles.formField}>
                         <label htmlFor="meta-notes">
-                            Notas
+                            {t("Notas")}
                         </label>
 
                         <textarea
                             id="meta-notes"
                             value={notes}
                             onChange={(event) => setNotes(event.target.value)}
-                            placeholder="Información administrativa opcional"
-                            disabled={
-                                isSaving ||
-                                isDeleting ||
-                                isValidating
-                            }
+                            placeholder={t("Información administrativa opcional")}
+                            disabled={isSaving}
                             rows="4"
                         />
+
+                        <span className={styles.fieldHelp}>
+                            {t("Campo opcional para información interna relacionada con esta conexión.")}
+                        </span>
                     </div>
 
-                    {selectedIntegration && (
-                        <div className={styles.lifecycleSection}>
-                            <div className={styles.lifecycleHeader}>
-                                <div>
-                                    <h3>
-                                        Estado de integración
-                                    </h3>
+                    <div className={styles.formActions}>
+                        <div />
 
-                                    <p>
-                                        Información controlada por CentralChat y Meta.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className={styles.lifecycleGrid}>
-                                <div className={styles.lifecycleField}>
-                                    <span>
-                                        Webhook Key
-                                    </span>
-
-                                    <strong>
-                                        {selectedIntegration.webhook_key || "—"}
-                                    </strong>
-                                </div>
-
-                                <div className={styles.lifecycleField}>
-                                    <span>
-                                        Estado
-                                    </span>
-
-                                    <strong>
-                                        {selectedIntegration.is_connected
-                                            ? "Conectada"
-                                            : "No conectada"}
-                                    </strong>
-                                </div>
-
-                                <div className={styles.lifecycleField}>
-                                    <span>
-                                        Conectada desde
-                                    </span>
-
-                                    <strong>
-                                        {selectedIntegration.connected_at
-                                            ? new Intl.DateTimeFormat(
-                                                "es-HN",
-                                                {
-                                                    dateStyle: "medium",
-                                                    timeStyle: "short",
-                                                }
-                                            ).format(
-                                                new Date(
-                                                    selectedIntegration.connected_at
-                                                )
-                                            )
-                                            : "—"}
-                                    </strong>
-                                </div>
-
-                                <div className={styles.lifecycleField}>
-                                    <span>
-                                        Desconectada
-                                    </span>
-
-                                    <strong>
-                                        {selectedIntegration.disconnected_at
-                                            ? new Intl.DateTimeFormat(
-                                                "es-HN",
-                                                {
-                                                    dateStyle: "medium",
-                                                    timeStyle: "short",
-                                                }
-                                            ).format(
-                                                new Date(
-                                                    selectedIntegration.disconnected_at
-                                                )
-                                            )
-                                            : "—"}
-                                    </strong>
-                                </div>
-                            </div>
-
+                        <div className={styles.primaryActions}>
                             <button
-                                className={styles.validateButton}
+                                className={styles.primaryButton}
                                 type="button"
-                                onClick={handleValidate}
-                                disabled={
-                                    isSaving ||
-                                    isDeleting ||
-                                    isValidating
-                                }
+                                onClick={handleCreateConnection}
+                                disabled={isSaving}
                             >
-                                {isValidating
-                                    ? "Validando con Meta..."
-                                    : "Validar integración con Meta"}
+                                {isSaving
+                                    ? t("Creando conexión...")
+                                    : t("Crear conexión con Meta")}
                             </button>
                         </div>
-                    )}
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
-                    <div className={styles.formActions}>
-                        {selectedIntegration && (
+
+    return (
+        <section className={styles.formPanel}>
+            <div className={styles.panelHeader}>
+                <div>
+                    <span className={styles.eyebrow}>
+                        WhatsApp Business
+                    </span>
+
+                    <h2>
+                        {t("Conexión con Meta")}
+                    </h2>
+
+                    <p>
+                        {t("Estado de la conexión de esta empresa con la plataforma Meta de Dialoqo.")}
+                    </p>
+                </div>
+
+                <span
+                    className={
+                        integration.is_connected
+                            ? styles.connectedBadge
+                            : styles.disconnectedBadge
+                    }
+                >
+                    {integration.is_connected
+                        ? t("Conectada")
+                        : t("No conectada")}
+                </span>
+            </div>
+
+            <form
+                className={styles.integrationForm}
+                onSubmit={handleSaveNotes}
+            >
+                <div className={styles.lifecycleSection}>
+                    <div className={styles.lifecycleHeader}>
+                        <div>
+                            <h3>
+                                {t("Plataforma Meta")}
+                            </h3>
+
+                            <p>
+                                {t("La aplicación y las credenciales son administradas centralmente por Dialoqo.")}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className={styles.lifecycleGrid}>
+                        <div className={styles.lifecycleField}>
+                            <span>
+                                Meta App
+                            </span>
+
+                            <strong>
+                                Dialoqo
+                            </strong>
+                        </div>
+
+                        <div className={styles.lifecycleField}>
+                            <span>
+                                Meta App ID
+                            </span>
+
+                            <strong>
+                                {integration.meta_app_id || t("Configurado por Dialoqo")}
+                            </strong>
+                        </div>
+
+                        <div className={styles.lifecycleField}>
+                            <span>
+                                {t("Estado")}
+                            </span>
+
+                            <strong>
+                                {integration.is_connected
+                                    ? t("Conectada")
+                                    : t("No conectada")}
+                            </strong>
+                        </div>
+
+                        <div className={styles.lifecycleField}>
+                            <span>
+                                {t("Conectada desde")}
+                            </span>
+
+                            <strong>
+                                {formatDateTime(
+                                    integration.connected_at
+                                )}
+                            </strong>
+                        </div>
+
+                        <div className={styles.lifecycleField}>
+                            <span>
+                                {t("Última desconexión")}
+                            </span>
+
+                            <strong>
+                                {formatDateTime(
+                                    integration.disconnected_at
+                                )}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <button
+                        className={styles.validateButton}
+                        type="button"
+                        onClick={handleValidate}
+                        disabled={operationInProgress}
+                    >
+                        {isValidating
+                            ? integration.is_connected
+                                ? t("Verificando conexión...")
+                                : t("Conectando con Meta...")
+                            : integration.is_connected
+                                ? t("Verificar conexión")
+                                : t("Conectar con Meta")}
+                    </button>
+                </div>
+
+                <div className={styles.formField}>
+                    <label htmlFor="meta-notes">
+                        {t("Notas")}
+                    </label>
+
+                    <textarea
+                        id="meta-notes"
+                        value={notes}
+                        onChange={(event) => setNotes(event.target.value)}
+                        placeholder={t("Información administrativa opcional")}
+                        disabled={operationInProgress}
+                        rows="4"
+                    />
+
+                    <span className={styles.fieldHelp}>
+                        {t("Información administrativa interna relacionada con esta conexión.")}
+                    </span>
+                </div>
+
+                <div className={styles.formActions}>
+                    <div>
+                        {integration.is_connected && (
                             <button
                                 className={styles.dangerButton}
                                 type="button"
-                                onClick={handleDeactivate}
-                                disabled={
-                                    isSaving ||
-                                    isDeleting ||
-                                    isValidating
-                                }
+                                onClick={handleDisconnect}
+                                disabled={operationInProgress}
                             >
-                                {isDeleting
-                                    ? "Desactivando..."
-                                    : "Desactivar"}
+                                {isDisconnecting
+                                    ? t("Desconectando...")
+                                    : t("Desconectar de Meta")}
                             </button>
                         )}
-
-                        <div className={styles.primaryActions}>
-                            {selectedIntegration && (
-                                <button
-                                    className={styles.secondaryButton}
-                                    type="button"
-                                    onClick={resetForm}
-                                    disabled={
-                                        isSaving ||
-                                        isDeleting ||
-                                        isValidating
-                                    }
-                                >
-                                    Cancelar
-                                </button>
-                            )}
-
-                            <button
-                                className={styles.primaryButton}
-                                type="submit"
-                                disabled={
-                                    !companyId ||
-                                    isSaving ||
-                                    isDeleting ||
-                                    isValidating
-                                }
-                            >
-                                {isSaving
-                                    ? "Guardando..."
-                                    : selectedIntegration
-                                        ? "Guardar cambios"
-                                        : "Crear integración"}
-                            </button>
-                        </div>
                     </div>
-                </form>
-            </section>
-        </div>
+
+                    <div className={styles.primaryActions}>
+                        <button
+                            className={styles.primaryButton}
+                            type="submit"
+                            disabled={operationInProgress}
+                        >
+                            {isSaving
+                                ? t("Guardando...")
+                                : t("Guardar notas")}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
     );
 }
 

@@ -18,6 +18,7 @@ import AuditEventList from "./components/AuditEventList.jsx";
 import AuditFilters from "./components/AuditFilters.jsx";
 
 import styles from "./AuditEventsPage.module.css";
+import { usePageTranslation } from "../usePageTranslation.js";
 
 
 const INITIAL_FILTERS = {
@@ -50,6 +51,7 @@ const INITIAL_FILTERS = {
  * - Los eventos de auditoría son exclusivamente de lectura.
  */
 function AuditEventsPage() {
+    const { t } = usePageTranslation();
     const [companies, setCompanies] = useState([]);
     const [branches, setBranches] = useState([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState("");
@@ -141,7 +143,7 @@ function AuditEventsPage() {
 
             setErrorMessage(
                 error.message ||
-                "No fue posible cargar las empresas."
+                t("No fue posible cargar las empresas.")
             );
         } finally {
             setIsLoadingCompanies(false);
@@ -172,7 +174,7 @@ function AuditEventsPage() {
 
             setErrorMessage(
                 error.message ||
-                "No fue posible cargar las sucursales."
+                t("No fue posible cargar las sucursales.")
             );
         } finally {
             setIsLoadingBranches(false);
@@ -243,7 +245,7 @@ function AuditEventsPage() {
 
             setErrorMessage(
                 error.message ||
-                "No fue posible cargar los eventos de auditoría."
+                t("No fue posible cargar los eventos de auditoría.")
             );
         } finally {
             setIsLoadingEvents(false);
@@ -407,7 +409,7 @@ function AuditEventsPage() {
 
             if (!eventDetail) {
                 throw new Error(
-                    "No fue posible obtener el detalle del evento."
+                    t("No fue posible obtener el detalle del evento.")
                 );
             }
 
@@ -417,7 +419,7 @@ function AuditEventsPage() {
 
             setErrorMessage(
                 error.message ||
-                "No fue posible cargar el detalle del evento."
+                t("No fue posible cargar el detalle del evento.")
             );
         } finally {
             setIsLoadingEventDetail(false);
@@ -451,14 +453,14 @@ function AuditEventsPage() {
         <section className={styles.auditEventsPage}>
             <PageHeader
                 eyebrow="Control"
-                title="Auditoría"
+                title={t("Auditoría")}
                 description="Consulte y analice el historial inmutable de acciones administrativas, operativas y de seguridad registradas en Dialoqo."
             />
 
             <div className={styles.contextBar}>
                 <div className={styles.contextField}>
                     <label htmlFor="audit-company">
-                        Empresa
+                        {t("Empresa")}
                     </label>
 
                     <select
@@ -472,7 +474,7 @@ function AuditEventsPage() {
                     >
                         {companies.length === 0 && (
                             <option value="">
-                                No existen empresas disponibles
+                                {t("No existen empresas disponibles")}
                             </option>
                         )}
 

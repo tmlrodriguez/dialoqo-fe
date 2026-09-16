@@ -23,6 +23,7 @@ import {
 } from "../../services/organizations.js";
 
 import styles from "./AdministrationPage.module.css";
+import { usePageTranslation } from "../usePageTranslation.js";
 
 
 /**
@@ -35,6 +36,7 @@ import styles from "./AdministrationPage.module.css";
  * - Gestiona empresas, sucursales, monitores y accesos a empresas.
  */
 function AdministrationPage() {
+    const { t } = usePageTranslation();
     const [activeSection, setActiveSection] = useState("companies");
 
     const [companies, setCompanies] = useState([]);
@@ -116,7 +118,7 @@ function AdministrationPage() {
                 setAccessCompanyId(String(companyList[0].id));
             }
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible cargar las empresas.");
+            setErrorMessage(error.message || t("No fue posible cargar las empresas."));
         } finally {
             setIsLoadingCompanies(false);
         }
@@ -145,7 +147,7 @@ function AdministrationPage() {
             const response = await getBranches(companyId);
             setBranches(response?.data || []);
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible cargar las sucursales.");
+            setErrorMessage(error.message || t("No fue posible cargar las sucursales."));
         } finally {
             setIsLoadingBranches(false);
         }
@@ -199,7 +201,7 @@ function AdministrationPage() {
             const response = await getCompanyAccesses();
             setCompanyAccesses(response?.data || []);
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible cargar los accesos.");
+            setErrorMessage(error.message || t("No fue posible cargar los accesos."));
         } finally {
             setIsLoadingAccesses(false);
         }
@@ -344,16 +346,16 @@ function AdministrationPage() {
         try {
             if (selectedCompany) {
                 await updateCompany(selectedCompany.id, companyData);
-                setSuccessMessage("Empresa actualizada correctamente.");
+                setSuccessMessage(t("Empresa actualizada correctamente."));
             } else {
                 await createCompany(companyData);
-                setSuccessMessage("Empresa creada correctamente.");
+                setSuccessMessage(t("Empresa creada correctamente."));
             }
 
             resetCompanyForm();
             await loadCompanies();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible guardar la empresa.");
+            setErrorMessage(error.message || t("No fue posible guardar la empresa."));
         } finally {
             setIsSaving(false);
         }
@@ -385,7 +387,7 @@ function AdministrationPage() {
 
         try {
             await deactivateCompany(selectedCompany.id);
-            setSuccessMessage("Empresa desactivada correctamente.");
+            setSuccessMessage(t("Empresa desactivada correctamente."));
 
             if (String(selectedCompany.id) === String(branchCompanyId)) {
                 setBranchCompanyId("");
@@ -400,7 +402,7 @@ function AdministrationPage() {
             resetCompanyForm();
             await loadCompanies();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible desactivar la empresa.");
+            setErrorMessage(error.message || t("No fue posible desactivar la empresa."));
         } finally {
             setIsDeleting(false);
         }
@@ -469,16 +471,16 @@ function AdministrationPage() {
         try {
             if (selectedBranch) {
                 await updateBranch(branchCompanyId, selectedBranch.id, branchData);
-                setSuccessMessage("Sucursal actualizada correctamente.");
+                setSuccessMessage(t("Sucursal actualizada correctamente."));
             } else {
                 await createBranch(branchCompanyId, branchData);
-                setSuccessMessage("Sucursal creada correctamente.");
+                setSuccessMessage(t("Sucursal creada correctamente."));
             }
 
             resetBranchForm();
             await loadBranches(branchCompanyId);
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible guardar la sucursal.");
+            setErrorMessage(error.message || t("No fue posible guardar la sucursal."));
         } finally {
             setIsSaving(false);
         }
@@ -510,11 +512,11 @@ function AdministrationPage() {
 
         try {
             await deactivateBranch(branchCompanyId, selectedBranch.id);
-            setSuccessMessage("Sucursal desactivada correctamente.");
+            setSuccessMessage(t("Sucursal desactivada correctamente."));
             resetBranchForm();
             await loadBranches(branchCompanyId);
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible desactivar la sucursal.");
+            setErrorMessage(error.message || t("No fue posible desactivar la sucursal."));
         } finally {
             setIsDeleting(false);
         }
@@ -543,7 +545,7 @@ function AdministrationPage() {
             const monitorDetail = response?.data;
 
             if (!monitorDetail) {
-                throw new Error("No fue posible obtener la información del monitor.");
+                throw new Error(t("No fue posible obtener la información del monitor."));
             }
 
             setSelectedMonitor(monitorDetail);
@@ -553,7 +555,7 @@ function AdministrationPage() {
             setMonitorLastName(monitorDetail.last_name || "");
             setMonitorPassword("");
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible cargar el monitor.");
+            setErrorMessage(error.message || t("No fue posible cargar el monitor."));
         } finally {
             setIsLoadingMonitorDetail(false);
         }
@@ -593,16 +595,16 @@ function AdministrationPage() {
         try {
             if (selectedMonitor) {
                 await updateMonitor(selectedMonitor.id, monitorData);
-                setSuccessMessage("Monitor actualizado correctamente.");
+                setSuccessMessage(t("Monitor actualizado correctamente."));
             } else {
                 await createMonitor(monitorData);
-                setSuccessMessage("Monitor creado correctamente.");
+                setSuccessMessage(t("Monitor creado correctamente."));
             }
 
             resetMonitorForm();
             await loadMonitors();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible guardar el monitor.");
+            setErrorMessage(error.message || t("No fue posible guardar el monitor."));
         } finally {
             setIsSaving(false);
         }
@@ -635,7 +637,7 @@ function AdministrationPage() {
 
         try {
             await deactivateMonitor(selectedMonitor.id);
-            setSuccessMessage("Monitor desactivado correctamente.");
+            setSuccessMessage(t("Monitor desactivado correctamente."));
 
             if (String(selectedMonitor.id) === String(accessMonitorId)) {
                 setAccessMonitorId("");
@@ -644,7 +646,7 @@ function AdministrationPage() {
             resetMonitorForm();
             await loadMonitors();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible desactivar el monitor.");
+            setErrorMessage(error.message || t("No fue posible desactivar el monitor."));
         } finally {
             setIsDeleting(false);
         }
@@ -677,10 +679,10 @@ function AdministrationPage() {
 
         try {
             await grantCompanyAccess(accessData);
-            setSuccessMessage("Acceso de empresa asignado correctamente.");
+            setSuccessMessage(t("Acceso de empresa asignado correctamente."));
             await loadCompanyAccesses();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible asignar el acceso.");
+            setErrorMessage(error.message || t("No fue posible asignar el acceso."));
         } finally {
             setIsSaving(false);
         }
@@ -701,7 +703,7 @@ function AdministrationPage() {
             return;
         }
 
-        const monitorName = [access.user?.first_name, access.user?.last_name].filter(Boolean).join(" ") || access.user?.username || "Monitor";
+        const monitorName = [access.user?.first_name, access.user?.last_name].filter(Boolean).join(" ") || access.user?.username || t("Monitor");
         const companyName = access.company?.name || "empresa";
         const confirmed = window.confirm(`¿Desea revocar el acceso de "${monitorName}" a "${companyName}"?`);
 
@@ -714,10 +716,10 @@ function AdministrationPage() {
 
         try {
             await revokeCompanyAccess(access.id);
-            setSuccessMessage("Acceso de empresa revocado correctamente.");
+            setSuccessMessage(t("Acceso de empresa revocado correctamente."));
             await loadCompanyAccesses();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible revocar el acceso.");
+            setErrorMessage(error.message || t("No fue posible revocar el acceso."));
         } finally {
             setIsDeleting(false);
         }
@@ -742,23 +744,23 @@ function AdministrationPage() {
         <section className={styles.administrationPage}>
             <header className={styles.pageHeader}>
                 <div>
-                    <span className={styles.eyebrow}>Administración</span>
-                    <h1>Gestión administrativa</h1>
-                    <p>Administre las empresas, sucursales, monitores y accesos de Dialoqo.</p>
+                    <span className={styles.eyebrow}>{t("Administración")}</span>
+                    <h1>{t("Gestión administrativa")}</h1>
+                    <p>{t("Administre las empresas, sucursales, monitores y accesos de Dialoqo.")}</p>
                 </div>
             </header>
 
             <div className={styles.sectionTabs}>
                 <button className={`${styles.sectionTab} ${activeSection === "companies" ? styles.sectionTabActive : ""}`} type="button" onClick={() => handleSectionChange("companies")}>
-                    Empresas
+                    {t("Empresas")}
                 </button>
 
                 <button className={`${styles.sectionTab} ${activeSection === "branches" ? styles.sectionTabActive : ""}`} type="button" onClick={() => handleSectionChange("branches")}>
-                    Sucursales
+                    {t("Sucursales")}
                 </button>
 
                 <button className={`${styles.sectionTab} ${activeSection === "monitors" ? styles.sectionTabActive : ""}`} type="button" onClick={() => handleSectionChange("monitors")}>
-                    Monitores
+                    {t("Monitores")}
                 </button>
 
                 <button className={`${styles.sectionTab} ${activeSection === "accesses" ? styles.sectionTabActive : ""}`} type="button" onClick={() => handleSectionChange("accesses")}>
@@ -783,22 +785,22 @@ function AdministrationPage() {
                     <section className={styles.listPanel}>
                         <div className={styles.panelHeader}>
                             <div>
-                                <h2>Empresas</h2>
-                                <p>Empresas activas administradas por su usuario.</p>
+                                <h2>{t("Empresas")}</h2>
+                                <p>{t("Empresas activas administradas por su usuario.")}</p>
                             </div>
 
                             <button className={styles.secondaryButton} type="button" onClick={resetCompanyForm}>
-                                Nueva empresa
+                                {t("Nueva empresa")}
                             </button>
                         </div>
 
                         {isLoadingCompanies ? (
-                            <div className={styles.loadingState}>Cargando empresas...</div>
+                            <div className={styles.loadingState}>{t("Cargando empresas...")}</div>
                         ) : companies.length === 0 ? (
                             <div className={styles.emptyState}>
                                 <div className={styles.emptyStateIcon}>▦</div>
-                                <strong>No existen empresas registradas.</strong>
-                                <span>Cree la primera empresa para comenzar a configurar Dialoqo.</span>
+                                <strong>{t("No existen empresas registradas.")}</strong>
+                                <span>{t("Cree la primera empresa para comenzar a configurar Dialoqo.")}</span>
                             </div>
                         ) : (
                             <div className={styles.entityList}>
@@ -820,7 +822,7 @@ function AdministrationPage() {
                                             </div>
                                         </div>
 
-                                        <span className={styles.statusBadge}>Activa</span>
+                                        <span className={styles.statusBadge}>{t("Activa")}</span>
                                     </button>
                                 ))}
                             </div>
@@ -830,43 +832,43 @@ function AdministrationPage() {
                     <section className={styles.formPanel}>
                         <div className={styles.panelHeader}>
                             <div>
-                                <h2>{selectedCompany ? "Editar empresa" : "Nueva empresa"}</h2>
-                                <p>{selectedCompany ? "Modifique la información de la empresa seleccionada." : "Complete la información para registrar una nueva empresa."}</p>
+                                <h2>{selectedCompany ? t("Editar empresa") : t("Nueva empresa")}</h2>
+                                <p>{selectedCompany ? t("Modifique la información de la empresa seleccionada.") : t("Complete la información para registrar una nueva empresa.")}</p>
                             </div>
                         </div>
 
                         <form className={styles.entityForm} onSubmit={handleCompanySubmit}>
                             <div className={styles.formField}>
-                                <label htmlFor="company-name">Nombre</label>
-                                <input id="company-name" type="text" value={companyName} onChange={(event) => setCompanyName(event.target.value)} placeholder="Nombre de la empresa" disabled={isSaving || isDeleting} required />
+                                <label htmlFor="company-name">{t("Nombre")}</label>
+                                <input id="company-name" type="text" value={companyName} onChange={(event) => setCompanyName(event.target.value)} placeholder={t("Nombre de la empresa")} disabled={isSaving || isDeleting} required />
                             </div>
 
                             <div className={styles.formField}>
-                                <label htmlFor="company-code">Código</label>
-                                <input id="company-code" type="text" value={companyCode} onChange={(event) => setCompanyCode(event.target.value)} placeholder="Código único" disabled={isSaving || isDeleting} required />
+                                <label htmlFor="company-code">{t("Código")}</label>
+                                <input id="company-code" type="text" value={companyCode} onChange={(event) => setCompanyCode(event.target.value)} placeholder={t("Código único")} disabled={isSaving || isDeleting} required />
                             </div>
 
                             <div className={styles.formField}>
-                                <label htmlFor="company-description">Descripción</label>
-                                <textarea id="company-description" value={companyDescription} onChange={(event) => setCompanyDescription(event.target.value)} placeholder="Descripción opcional" disabled={isSaving || isDeleting} rows="5" />
+                                <label htmlFor="company-description">{t("Descripción")}</label>
+                                <textarea id="company-description" value={companyDescription} onChange={(event) => setCompanyDescription(event.target.value)} placeholder={t("Descripción opcional")} disabled={isSaving || isDeleting} rows="5" />
                             </div>
 
                             <div className={styles.formActions}>
                                 {selectedCompany && (
                                     <button className={styles.dangerButton} type="button" onClick={handleDeactivateCompany} disabled={isSaving || isDeleting}>
-                                        {isDeleting ? "Desactivando..." : "Desactivar"}
+                                        {isDeleting ? t("Desactivando...") : t("Desactivar")}
                                     </button>
                                 )}
 
                                 <div className={styles.formPrimaryActions}>
                                     {selectedCompany && (
                                         <button className={styles.secondaryButton} type="button" onClick={resetCompanyForm} disabled={isSaving || isDeleting}>
-                                            Cancelar
+                                            {t("Cancelar")}
                                         </button>
                                     )}
 
                                     <button className={styles.primaryButton} type="submit" disabled={isSaving || isDeleting}>
-                                        {isSaving ? "Guardando..." : selectedCompany ? "Guardar cambios" : "Crear empresa"}
+                                        {isSaving ? t("Guardando...") : selectedCompany ? t("Guardar cambios") : t("Crear empresa")}
                                     </button>
                                 </div>
                             </div>
@@ -879,11 +881,11 @@ function AdministrationPage() {
                 <>
                     <div className={styles.contextBar}>
                         <div className={styles.contextField}>
-                            <label htmlFor="branch-company">Empresa</label>
+                            <label htmlFor="branch-company">{t("Empresa")}</label>
 
                             <select id="branch-company" value={branchCompanyId} onChange={handleBranchCompanyChange} disabled={isLoadingCompanies || companies.length === 0}>
                                 {companies.length === 0 && (
-                                    <option value="">No existen empresas disponibles</option>
+                                    <option value="">{t("No existen empresas disponibles")}</option>
                                 )}
 
                                 {companies.map((company) => (
@@ -899,28 +901,28 @@ function AdministrationPage() {
                         <section className={styles.listPanel}>
                             <div className={styles.panelHeader}>
                                 <div>
-                                    <h2>Sucursales</h2>
-                                    <p>Sucursales activas de la empresa seleccionada.</p>
+                                    <h2>{t("Sucursales")}</h2>
+                                    <p>{t("Sucursales activas de la empresa seleccionada.")}</p>
                                 </div>
 
                                 <button className={styles.secondaryButton} type="button" onClick={resetBranchForm} disabled={!branchCompanyId}>
-                                    Nueva sucursal
+                                    {t("Nueva sucursal")}
                                 </button>
                             </div>
 
                             {!branchCompanyId ? (
                                 <div className={styles.emptyState}>
                                     <div className={styles.emptyStateIcon}>⌂</div>
-                                    <strong>Seleccione una empresa.</strong>
-                                    <span>Debe seleccionar una empresa antes de administrar sus sucursales.</span>
+                                    <strong>{t("Seleccione una empresa.")}</strong>
+                                    <span>{t("Debe seleccionar una empresa antes de administrar sus sucursales.")}</span>
                                 </div>
                             ) : isLoadingBranches ? (
-                                <div className={styles.loadingState}>Cargando sucursales...</div>
+                                <div className={styles.loadingState}>{t("Cargando sucursales...")}</div>
                             ) : branches.length === 0 ? (
                                 <div className={styles.emptyState}>
                                     <div className={styles.emptyStateIcon}>⌂</div>
-                                    <strong>No existen sucursales registradas.</strong>
-                                    <span>Cree la primera sucursal para la empresa seleccionada.</span>
+                                    <strong>{t("No existen sucursales registradas.")}</strong>
+                                    <span>{t("Cree la primera sucursal para la empresa seleccionada.")}</span>
                                 </div>
                             ) : (
                                 <div className={styles.entityList}>
@@ -942,7 +944,7 @@ function AdministrationPage() {
                                                 </div>
                                             </div>
 
-                                            <span className={styles.statusBadge}>Activa</span>
+                                            <span className={styles.statusBadge}>{t("Activa")}</span>
                                         </button>
                                     ))}
                                 </div>
@@ -952,43 +954,43 @@ function AdministrationPage() {
                         <section className={styles.formPanel}>
                             <div className={styles.panelHeader}>
                                 <div>
-                                    <h2>{selectedBranch ? "Editar sucursal" : "Nueva sucursal"}</h2>
-                                    <p>{selectedBranch ? "Modifique la información de la sucursal seleccionada." : "Complete la información para registrar una nueva sucursal."}</p>
+                                    <h2>{selectedBranch ? t("Editar sucursal") : t("Nueva sucursal")}</h2>
+                                    <p>{selectedBranch ? t("Modifique la información de la sucursal seleccionada.") : t("Complete la información para registrar una nueva sucursal.")}</p>
                                 </div>
                             </div>
 
                             <form className={styles.entityForm} onSubmit={handleBranchSubmit}>
                                 <div className={styles.formField}>
-                                    <label htmlFor="branch-name">Nombre</label>
-                                    <input id="branch-name" type="text" value={branchName} onChange={(event) => setBranchName(event.target.value)} placeholder="Nombre de la sucursal" disabled={!branchCompanyId || isSaving || isDeleting} required />
+                                    <label htmlFor="branch-name">{t("Nombre")}</label>
+                                    <input id="branch-name" type="text" value={branchName} onChange={(event) => setBranchName(event.target.value)} placeholder={t("Nombre de la sucursal")} disabled={!branchCompanyId || isSaving || isDeleting} required />
                                 </div>
 
                                 <div className={styles.formField}>
-                                    <label htmlFor="branch-code">Código</label>
-                                    <input id="branch-code" type="text" value={branchCode} onChange={(event) => setBranchCode(event.target.value)} placeholder="Código de la sucursal" disabled={!branchCompanyId || isSaving || isDeleting} required />
+                                    <label htmlFor="branch-code">{t("Código")}</label>
+                                    <input id="branch-code" type="text" value={branchCode} onChange={(event) => setBranchCode(event.target.value)} placeholder={t("Código de la sucursal")} disabled={!branchCompanyId || isSaving || isDeleting} required />
                                 </div>
 
                                 <div className={styles.formField}>
-                                    <label htmlFor="branch-description">Descripción</label>
-                                    <textarea id="branch-description" value={branchDescription} onChange={(event) => setBranchDescription(event.target.value)} placeholder="Descripción opcional" disabled={!branchCompanyId || isSaving || isDeleting} rows="5" />
+                                    <label htmlFor="branch-description">{t("Descripción")}</label>
+                                    <textarea id="branch-description" value={branchDescription} onChange={(event) => setBranchDescription(event.target.value)} placeholder={t("Descripción opcional")} disabled={!branchCompanyId || isSaving || isDeleting} rows="5" />
                                 </div>
 
                                 <div className={styles.formActions}>
                                     {selectedBranch && (
                                         <button className={styles.dangerButton} type="button" onClick={handleDeactivateBranch} disabled={isSaving || isDeleting}>
-                                            {isDeleting ? "Desactivando..." : "Desactivar"}
+                                            {isDeleting ? t("Desactivando...") : t("Desactivar")}
                                         </button>
                                     )}
 
                                     <div className={styles.formPrimaryActions}>
                                         {selectedBranch && (
                                             <button className={styles.secondaryButton} type="button" onClick={resetBranchForm} disabled={isSaving || isDeleting}>
-                                                Cancelar
+                                                {t("Cancelar")}
                                             </button>
                                         )}
 
                                         <button className={styles.primaryButton} type="submit" disabled={!branchCompanyId || isSaving || isDeleting}>
-                                            {isSaving ? "Guardando..." : selectedBranch ? "Guardar cambios" : "Crear sucursal"}
+                                            {isSaving ? t("Guardando...") : selectedBranch ? t("Guardar cambios") : t("Crear sucursal")}
                                         </button>
                                     </div>
                                 </div>
@@ -1003,22 +1005,22 @@ function AdministrationPage() {
                     <section className={styles.listPanel}>
                         <div className={styles.panelHeader}>
                             <div>
-                                <h2>Monitores</h2>
-                                <p>Usuarios de monitoreo administrados por su usuario.</p>
+                                <h2>{t("Monitores")}</h2>
+                                <p>{t("Usuarios de monitoreo administrados por su usuario.")}</p>
                             </div>
 
                             <button className={styles.secondaryButton} type="button" onClick={resetMonitorForm}>
-                                Nuevo monitor
+                                {t("Nuevo monitor")}
                             </button>
                         </div>
 
                         {isLoadingMonitors ? (
-                            <div className={styles.loadingState}>Cargando monitores...</div>
+                            <div className={styles.loadingState}>{t("Cargando monitores...")}</div>
                         ) : monitors.length === 0 ? (
                             <div className={styles.emptyState}>
                                 <div className={styles.emptyStateIcon}>●</div>
-                                <strong>No existen monitores registrados.</strong>
-                                <span>Cree el primer monitor para posteriormente asignarle acceso a empresas.</span>
+                                <strong>{t("No existen monitores registrados.")}</strong>
+                                <span>{t("Cree el primer monitor para posteriormente asignarle acceso a empresas.")}</span>
                             </div>
                         ) : (
                             <div className={styles.entityList}>
@@ -1044,7 +1046,7 @@ function AdministrationPage() {
                                                 </div>
                                             </div>
 
-                                            <span className={styles.statusBadge}>Activo</span>
+                                            <span className={styles.statusBadge}>{t("Activo")}</span>
                                         </button>
                                     );
                                 })}
@@ -1055,55 +1057,55 @@ function AdministrationPage() {
                     <section className={styles.formPanel}>
                         <div className={styles.panelHeader}>
                             <div>
-                                <h2>{selectedMonitor ? "Editar monitor" : "Nuevo monitor"}</h2>
-                                <p>{selectedMonitor ? "Modifique la información del monitor seleccionado." : "Complete la información para registrar un nuevo monitor."}</p>
+                                <h2>{selectedMonitor ? t("Editar monitor") : t("Nuevo monitor")}</h2>
+                                <p>{selectedMonitor ? t("Modifique la información del monitor seleccionado.") : t("Complete la información para registrar un nuevo monitor.")}</p>
                             </div>
                         </div>
 
                         <form className={styles.entityForm} onSubmit={handleMonitorSubmit}>
                             <div className={styles.formField}>
-                                <label htmlFor="monitor-first-name">Nombre</label>
-                                <input id="monitor-first-name" type="text" value={monitorFirstName} onChange={(event) => setMonitorFirstName(event.target.value)} placeholder="Nombre" disabled={isSaving || isDeleting || isLoadingMonitorDetail} />
+                                <label htmlFor="monitor-first-name">{t("Nombre")}</label>
+                                <input id="monitor-first-name" type="text" value={monitorFirstName} onChange={(event) => setMonitorFirstName(event.target.value)} placeholder={t("Nombre")} disabled={isSaving || isDeleting || isLoadingMonitorDetail} />
                             </div>
 
                             <div className={styles.formField}>
-                                <label htmlFor="monitor-last-name">Apellido</label>
-                                <input id="monitor-last-name" type="text" value={monitorLastName} onChange={(event) => setMonitorLastName(event.target.value)} placeholder="Apellido" disabled={isSaving || isDeleting || isLoadingMonitorDetail} />
+                                <label htmlFor="monitor-last-name">{t("Apellido")}</label>
+                                <input id="monitor-last-name" type="text" value={monitorLastName} onChange={(event) => setMonitorLastName(event.target.value)} placeholder={t("Apellido")} disabled={isSaving || isDeleting || isLoadingMonitorDetail} />
                             </div>
 
                             <div className={styles.formField}>
-                                <label htmlFor="monitor-username">Usuario</label>
-                                <input id="monitor-username" type="text" value={monitorUsername} onChange={(event) => setMonitorUsername(event.target.value)} placeholder="Nombre de usuario" autoComplete="off" disabled={isSaving || isDeleting || isLoadingMonitorDetail} required />
+                                <label htmlFor="monitor-username">{t("Usuario")}</label>
+                                <input id="monitor-username" type="text" value={monitorUsername} onChange={(event) => setMonitorUsername(event.target.value)} placeholder={t("Nombre de usuario")} autoComplete="off" disabled={isSaving || isDeleting || isLoadingMonitorDetail} required />
                             </div>
 
                             <div className={styles.formField}>
-                                <label htmlFor="monitor-email">Correo electrónico</label>
+                                <label htmlFor="monitor-email">{t("Correo electrónico")}</label>
                                 <input id="monitor-email" type="email" value={monitorEmail} onChange={(event) => setMonitorEmail(event.target.value)} placeholder="correo@empresa.com" autoComplete="off" disabled={isSaving || isDeleting || isLoadingMonitorDetail} />
                             </div>
 
                             {!selectedMonitor && (
                                 <div className={styles.formField}>
-                                    <label htmlFor="monitor-password">Contraseña</label>
-                                    <input id="monitor-password" type="password" value={monitorPassword} onChange={(event) => setMonitorPassword(event.target.value)} placeholder="Contraseña inicial" autoComplete="new-password" disabled={isSaving || isDeleting} required />
+                                    <label htmlFor="monitor-password">{t("Contraseña")}</label>
+                                    <input id="monitor-password" type="password" value={monitorPassword} onChange={(event) => setMonitorPassword(event.target.value)} placeholder={t("Contraseña inicial")} autoComplete="new-password" disabled={isSaving || isDeleting} required />
                                 </div>
                             )}
 
                             <div className={styles.formActions}>
                                 {selectedMonitor && (
                                     <button className={styles.dangerButton} type="button" onClick={handleDeactivateMonitor} disabled={isSaving || isDeleting || isLoadingMonitorDetail}>
-                                        {isDeleting ? "Desactivando..." : "Desactivar"}
+                                        {isDeleting ? t("Desactivando...") : t("Desactivar")}
                                     </button>
                                 )}
 
                                 <div className={styles.formPrimaryActions}>
                                     {selectedMonitor && (
                                         <button className={styles.secondaryButton} type="button" onClick={resetMonitorForm} disabled={isSaving || isDeleting}>
-                                            Cancelar
+                                            {t("Cancelar")}
                                         </button>
                                     )}
 
                                     <button className={styles.primaryButton} type="submit" disabled={isSaving || isDeleting || isLoadingMonitorDetail}>
-                                        {isSaving ? "Guardando..." : selectedMonitor ? "Guardar cambios" : "Crear monitor"}
+                                        {isSaving ? t("Guardando...") : selectedMonitor ? t("Guardar cambios") : t("Crear monitor")}
                                     </button>
                                 </div>
                             </div>
@@ -1117,14 +1119,14 @@ function AdministrationPage() {
                     <section className={styles.formPanel}>
                         <div className={styles.panelHeader}>
                             <div>
-                                <h2>Asignar acceso</h2>
-                                <p>Seleccione un monitor y una empresa para autorizar su monitoreo.</p>
+                                <h2>{t("Asignar acceso")}</h2>
+                                <p>{t("Seleccione un monitor y una empresa para autorizar su monitoreo.")}</p>
                             </div>
                         </div>
 
                         <form className={styles.entityForm} onSubmit={handleGrantAccess}>
                             <div className={styles.formField}>
-                                <label htmlFor="access-monitor">Monitor</label>
+                                <label htmlFor="access-monitor">{t("Monitor")}</label>
 
                                 <select
                                     id="access-monitor"
@@ -1134,7 +1136,7 @@ function AdministrationPage() {
                                     required
                                 >
                                     {monitors.length === 0 && (
-                                        <option value="">No existen monitores disponibles</option>
+                                        <option value="">{t("No existen monitores disponibles")}</option>
                                     )}
 
                                     {monitors.map((monitor) => {
@@ -1150,7 +1152,7 @@ function AdministrationPage() {
                             </div>
 
                             <div className={styles.formField}>
-                                <label htmlFor="access-company">Empresa</label>
+                                <label htmlFor="access-company">{t("Empresa")}</label>
 
                                 <select
                                     id="access-company"
@@ -1160,7 +1162,7 @@ function AdministrationPage() {
                                     required
                                 >
                                     {companies.length === 0 && (
-                                        <option value="">No existen empresas disponibles</option>
+                                        <option value="">{t("No existen empresas disponibles")}</option>
                                     )}
 
                                     {companies.map((company) => (
@@ -1174,7 +1176,7 @@ function AdministrationPage() {
                             <div className={styles.formActions}>
                                 <div className={styles.formPrimaryActions}>
                                     <button className={styles.primaryButton} type="submit" disabled={!accessMonitorId || !accessCompanyId || isSaving}>
-                                        {isSaving ? "Asignando..." : "Asignar acceso"}
+                                        {isSaving ? t("Asignando...") : t("Asignar acceso")}
                                     </button>
                                 </div>
                             </div>
@@ -1184,18 +1186,18 @@ function AdministrationPage() {
                     <section className={styles.listPanel}>
                         <div className={styles.panelHeader}>
                             <div>
-                                <h2>Accesos activos</h2>
-                                <p>Asignaciones de monitoreo actualmente vigentes.</p>
+                                <h2>{t("Accesos activos")}</h2>
+                                <p>{t("Asignaciones de monitoreo actualmente vigentes.")}</p>
                             </div>
                         </div>
 
                         {isLoadingAccesses ? (
-                            <div className={styles.loadingState}>Cargando accesos...</div>
+                            <div className={styles.loadingState}>{t("Cargando accesos...")}</div>
                         ) : activeAccesses.length === 0 ? (
                             <div className={styles.emptyState}>
                                 <div className={styles.emptyStateIcon}>✓</div>
-                                <strong>No existen accesos activos.</strong>
-                                <span>Asigne una empresa a un monitor para comenzar.</span>
+                                <strong>{t("No existen accesos activos.")}</strong>
+                                <span>{t("Asigne una empresa a un monitor para comenzar.")}</span>
                             </div>
                         ) : (
                             <div className={styles.accessList}>
@@ -1216,10 +1218,10 @@ function AdministrationPage() {
                                             </div>
 
                                             <div className={styles.accessActions}>
-                                                <span className={styles.statusBadge}>Activo</span>
+                                                <span className={styles.statusBadge}>{t("Activo")}</span>
 
                                                 <button className={styles.dangerButtonSmall} type="button" onClick={() => handleRevokeAccess(access)} disabled={isDeleting}>
-                                                    Revocar
+                                                    {t("Revocar")}
                                                 </button>
                                             </div>
                                         </div>
@@ -1233,8 +1235,8 @@ function AdministrationPage() {
                         <section className={styles.historyPanel}>
                             <div className={styles.panelHeader}>
                                 <div>
-                                    <h2>Historial de accesos</h2>
-                                    <p>Accesos anteriormente revocados.</p>
+                                    <h2>{t("Historial de accesos")}</h2>
+                                    <p>{t("Accesos anteriormente revocados.")}</p>
                                 </div>
                             </div>
 
@@ -1255,7 +1257,7 @@ function AdministrationPage() {
                                                 </div>
                                             </div>
 
-                                            <span className={styles.inactiveBadge}>Revocado</span>
+                                            <span className={styles.inactiveBadge}>{t("Revocado")}</span>
                                         </div>
                                     );
                                 })}

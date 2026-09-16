@@ -8,7 +8,11 @@ import {
  * getMonitoringContext
  *
  * Description:
- * - Obtener el contexto operativo disponible para el monitor autenticado.
+ * - Obtener el contexto de conversaciones autorizado para el usuario autenticado.
+ *
+ * Notes:
+ * - MONITOR recibe los números autorizados para supervisión.
+ * - MEMBER debe recibir exclusivamente los números que tenga asignados.
  */
 export function getMonitoringContext() {
     return apiRequest(
@@ -176,7 +180,7 @@ export function getMessages(
  * sendTextMessage
  *
  * Description:
- * - Enviar un mensaje de texto desde una conversación monitoreada.
+ * - Enviar un mensaje de texto desde una conversación operada por un usuario MEMBER.
  */
 export function sendTextMessage(
     companyId,
@@ -296,7 +300,7 @@ export function sendConversationTemplate(
  * - Iniciar o reutilizar una conversación mediante una plantilla aprobada.
  *
  * Notes:
- * - El destinatario es proporcionado explícitamente por el monitor.
+ * - El destinatario es proporcionado explícitamente por el usuario MEMBER.
  * - La plantilla debe pertenecer al WABA asociado al número origen.
  * - Customer y Conversation se crean únicamente después de que Meta acepta el mensaje.
  */

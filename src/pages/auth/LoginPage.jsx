@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 import dialoqoLogo from "../../assets/dialoqo-logo.png";
+import LanguageSelector from "../../components/common/LanguageSelector/LanguageSelector.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 
 import styles from "./LoginPage.module.css";
+import { usePageTranslation } from "../usePageTranslation.js";
 
 
 /**
@@ -18,6 +20,7 @@ import styles from "./LoginPage.module.css";
  * - Los errores de autenticación del backend se muestran dentro del formulario.
  */
 function LoginPage() {
+    const { t } = usePageTranslation();
     const navigate = useNavigate();
     const { login, isAuthenticated, isLoading } = useAuth();
 
@@ -30,7 +33,7 @@ function LoginPage() {
         return (
             <main className={styles.loginPage}>
                 <div className={styles.loginLoading}>
-                    Cargando Dialoqo...
+                    {t("Cargando Dialoqo...")}
                 </div>
             </main>
         );
@@ -61,15 +64,16 @@ function LoginPage() {
         setIsSubmitting(true);
 
         try {
-            await login({ username, password });
+            const authenticatedUser = await login({ username, password });
+            const destination = authenticatedUser?.role === "MEMBER" ? "/app/monitoring" : "/app";
 
-            navigate("/app", {
+            navigate(destination, {
                 replace: true,
             });
         } catch (error) {
             setErrorMessage(
                 error.message ||
-                "No fue posible iniciar sesión."
+                t("No fue posible iniciar sesión.")
             );
         } finally {
             setIsSubmitting(false);
@@ -78,6 +82,7 @@ function LoginPage() {
 
     return (
         <main className={styles.loginPage}>
+            <div style={{ position: "fixed", top: "18px", right: "22px", zIndex: 20 }}><LanguageSelector /></div>
             <section className={styles.loginPanel}>
                 <div className={styles.loginBrand}>
                     <div className={styles.loginBrandLogoWrap}>
@@ -92,17 +97,17 @@ function LoginPage() {
                         <h1>Dialoqo</h1>
 
                         <p>
-                            Plataforma de inteligencia conversacional
+                            {t("Plataforma de inteligencia conversacional")}
                         </p>
                     </div>
                 </div>
 
                 <div className={styles.loginContent}>
                     <div className={styles.loginHeading}>
-                        <h2>Bienvenido</h2>
+                        <h2>{t("Bienvenido")}</h2>
 
                         <p>
-                            Inicia sesión para acceder a la inteligencia detrás de tus conversaciones.
+                            {t("Inicia sesión para acceder a la inteligencia detrás de tus conversaciones.")}
                         </p>
                     </div>
 
@@ -112,7 +117,7 @@ function LoginPage() {
                     >
                         <div className={styles.loginField}>
                             <label htmlFor="username">
-                                Usuario
+                                {t("Usuario")}
                             </label>
 
                             <input
@@ -123,7 +128,7 @@ function LoginPage() {
                                     setUsername(event.target.value)
                                 }
                                 autoComplete="username"
-                                placeholder="Ingresa tu usuario"
+                                placeholder={t("Ingresa tu usuario")}
                                 disabled={isSubmitting}
                                 required
                                 autoFocus
@@ -132,7 +137,7 @@ function LoginPage() {
 
                         <div className={styles.loginField}>
                             <label htmlFor="password">
-                                Contraseña
+                                {t("Contraseña")}
                             </label>
 
                             <input
@@ -143,7 +148,7 @@ function LoginPage() {
                                     setPassword(event.target.value)
                                 }
                                 autoComplete="current-password"
-                                placeholder="Ingresa tu contraseña"
+                                placeholder={t("Ingresa tu contraseña")}
                                 disabled={isSubmitting}
                                 required
                             />
@@ -164,8 +169,8 @@ function LoginPage() {
                             disabled={isSubmitting}
                         >
                             {isSubmitting
-                                ? "Iniciando sesión..."
-                                : "Iniciar sesión"}
+                                ? t("Iniciando sesión...")
+                                : t("Iniciar sesión")}
                         </button>
                     </form>
                 </div>
@@ -174,7 +179,7 @@ function LoginPage() {
                     <span>Dialoqo</span>
 
                     <span>
-                        Inteligencia detrás de cada conversación
+                        {t("Inteligencia detrás de cada conversación")}
                     </span>
                 </footer>
             </section>
@@ -191,26 +196,25 @@ function LoginPage() {
                     </div>
 
                     <span className={styles.loginEyebrow}>
-                        Inteligencia conversacional
+                        {t("Inteligencia conversacional")}
                     </span>
 
                     <h2>
-                        Convierte cada conversación en información que tu empresa puede entender y utilizar.
+                        {t("Convierte cada conversación en información que tu empresa puede entender y utilizar.")}
                     </h2>
 
                     <p>
-                        Dialoqo centraliza las comunicaciones de tu organización para escuchar,
-                        observar, interpretar y detectar lo que ocurre en cada conversación.
+                        {t("Dialoqo centraliza las comunicaciones de tu organización para escuchar, observar, interpretar y detectar lo que ocurre en cada conversación.")}
                     </p>
 
                     <div className={styles.loginFeatureList}>
                         <div className={styles.loginFeature}>
                             <strong>
-                                Escucha y observa
+                                {t("Escucha y observa")}
                             </strong>
 
                             <span>
-                                Mantén visibles las conversaciones de tu organización en tiempo real.
+                                {t("Mantén visibles las conversaciones de tu organización en tiempo real.")}
                             </span>
                         </div>
 

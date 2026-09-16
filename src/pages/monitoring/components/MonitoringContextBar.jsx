@@ -1,4 +1,5 @@
 import styles from "./MonitoringContextBar.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 /**
  * MonitoringContextBar
  *
@@ -22,6 +23,7 @@ function MonitoringContextBar({
     onBranchChange,
     onNumberChange,
 }) {
+    const { t } = usePageTranslation();
     const selectedCompany = companies.find(
         (company) =>
             String(company.id) === String(selectedCompanyId)
@@ -64,7 +66,7 @@ function MonitoringContextBar({
             <div className={styles.contextGrid}>
                 <div className={styles.contextField}>
                     <label htmlFor="monitoring-company">
-                        Empresa
+                        {t("Empresa")}
                     </label>
 
                     <select
@@ -78,7 +80,7 @@ function MonitoringContextBar({
                     >
                         {companies.length === 0 && (
                             <option value="">
-                                No existen empresas disponibles
+                                {t("No existen empresas disponibles")}
                             </option>
                         )}
 
@@ -95,7 +97,7 @@ function MonitoringContextBar({
 
                 <div className={styles.contextField}>
                     <label htmlFor="monitoring-branch">
-                        Sucursal
+                        {t("Sucursal")}
                     </label>
 
                     <select
@@ -127,7 +129,7 @@ function MonitoringContextBar({
 
                 <div className={styles.contextField}>
                     <label htmlFor="monitoring-number">
-                        Número de WhatsApp
+                        {t("Número de WhatsApp")}
                     </label>
 
                     <select
@@ -187,7 +189,7 @@ function MonitoringContextBar({
                             {numbers.find(
                                 (number) =>
                                     String(number.id) === String(selectedNumberId)
-                            )?.display_name || "Número seleccionado"}
+                            )?.display_name || t("Número seleccionado")}
                         </strong>
 
                         <span>
@@ -200,11 +202,11 @@ function MonitoringContextBar({
 
                     <div className={styles.numberStatuses}>
                         <span className={styles.connectedBadge}>
-                            Conectado
+                            {t("Conectado")}
                         </span>
 
                         <span className={styles.monitoringBadge}>
-                            Monitoreando
+                            {t("Monitoreando")}
                         </span>
                     </div>
                 </div>

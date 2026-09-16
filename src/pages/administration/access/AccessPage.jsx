@@ -9,10 +9,15 @@ import PageHeader from "../../../components/common/PageHeader/PageHeader.jsx";
 import SectionTabs from "../../../components/common/SectionTabs/SectionTabs.jsx";
 
 import {
+    createMember,
     createMonitor,
+    deactivateMember,
     deactivateMonitor,
+    getMember,
+    getMembers,
     getMonitor,
     getMonitors,
+    updateMember,
     updateMonitor,
 } from "../../../services/access.js";
 
@@ -24,9 +29,11 @@ import {
 } from "../../../services/organizations.js";
 
 import CompanyAccessForm from "./components/CompanyAccessForm.jsx";
+import MemberForm from "./components/MemberForm.jsx";
 import MonitorForm from "./components/MonitorForm.jsx";
 
 import styles from "./AccessPage.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 const SECTIONS = [
@@ -35,8 +42,12 @@ const SECTIONS = [
         label: "Monitores",
     },
     {
+        value: "members",
+        label: "Miembros",
+    },
+    {
         value: "accesses",
-        label: "Accesos a empresas",
+        label: "Accesos de Monitores",
     },
 ];
 
@@ -45,13 +56,15 @@ const SECTIONS = [
  * AccessPage
  *
  * Description:
- * - Gestionar monitores y accesos a empresas.
+ * - Gestionar usuarios MONITOR, usuarios MEMBER y accesos de MONITOR a empresas.
  *
  * Notes:
- * - Los monitores son usuarios autenticados de Dialoqo.
- * - Los accesos determinan qué empresas puede monitorear cada usuario.
+ * - Los monitores son usuarios autorizados para funciones de monitoreo.
+ * - Los miembros son usuarios autenticados que pueden recibir asignaciones de números.
+ * - Los accesos de monitoreo a empresas se asignan exclusivamente a usuarios MONITOR.
  */
 function AccessPage() {
+    const { t } = usePageTranslation();
     const [activeSection, setActiveSection] = useState("monitors");
 
     const [monitors, setMonitors] = useState([]);
@@ -63,6 +76,15 @@ function AccessPage() {
     const [monitorLastName, setMonitorLastName] = useState("");
     const [monitorPassword, setMonitorPassword] = useState("");
 
+    const [members, setMembers] = useState([]);
+    const [selectedMember, setSelectedMember] = useState(null);
+
+    const [memberUsername, setMemberUsername] = useState("");
+    const [memberEmail, setMemberEmail] = useState("");
+    const [memberFirstName, setMemberFirstName] = useState("");
+    const [memberLastName, setMemberLastName] = useState("");
+    const [memberPassword, setMemberPassword] = useState("");
+
     const [companies, setCompanies] = useState([]);
     const [companyAccesses, setCompanyAccesses] = useState([]);
 
@@ -71,8 +93,13 @@ function AccessPage() {
 
     const [isLoadingMonitors, setIsLoadingMonitors] = useState(true);
     const [isLoadingMonitorDetail, setIsLoadingMonitorDetail] = useState(false);
+
+    const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+    const [isLoadingMemberDetail, setIsLoadingMemberDetail] = useState(false);
+
     const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
     const [isLoadingAccesses, setIsLoadingAccesses] = useState(false);
+
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -93,6 +120,19 @@ function AccessPage() {
 
 
     /**
+     * getDetailData
+     *
+     * Description:
+     * - Normalizar respuestas de detalle tanto planas como envueltas por recurso.
+     */
+    function getDetailData(response, resourceKey) {
+        const data = response?.data;
+        if (!data) return null;
+        return data?.[resourceKey] || data?.user || data;
+    }
+
+
+    /**
      * resetMonitorForm
      *
      * Description:
@@ -105,6 +145,22 @@ function AccessPage() {
         setMonitorFirstName("");
         setMonitorLastName("");
         setMonitorPassword("");
+    }
+
+
+    /**
+     * resetMemberForm
+     *
+     * Description:
+     * - Restablecer el formulario de miembro.
+     */
+    function resetMemberForm() {
+        setSelectedMember(null);
+        setMemberUsername("");
+        setMemberEmail("");
+        setMemberFirstName("");
+        setMemberLastName("");
+        setMemberPassword("");
     }
 
 
@@ -136,6 +192,28 @@ function AccessPage() {
 
 
     /**
+     * loadMembers
+     *
+     * Description:
+     * - Obtener los miembros administrados por el usuario.
+     */
+    async function loadMembers() {
+        setIsLoadingMembers(true);
+        setErrorMessage("");
+
+        try {
+            const response = await getMembers();
+
+            setMembers(response?.data || []);
+        } catch (error) {
+            setErrorMessage(error.message || t("No fue posible cargar los miembros."));
+        } finally {
+            setIsLoadingMembers(false);
+        }
+    }
+
+
+    /**
      * loadCompanies
      *
      * Description:
@@ -155,7 +233,7 @@ function AccessPage() {
                 setAccessCompanyId(String(companyList[0].id));
             }
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible cargar las empresas.");
+            setErrorMessage(error.message || t("No fue posible cargar las empresas."));
         } finally {
             setIsLoadingCompanies(false);
         }
@@ -177,7 +255,7 @@ function AccessPage() {
 
             setCompanyAccesses(response?.data || []);
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible cargar los accesos.");
+            setErrorMessage(error.message || t("No fue posible cargar los accesos."));
         } finally {
             setIsLoadingAccesses(false);
         }
@@ -196,6 +274,14 @@ function AccessPage() {
 
         if (section === "monitors") {
             resetMonitorForm();
+        }
+
+        if (section === "members") {
+            resetMemberForm();
+
+            if (members.length === 0) {
+                await loadMembers();
+            }
         }
 
         if (section === "accesses") {
@@ -224,10 +310,10 @@ function AccessPage() {
 
         try {
             const response = await getMonitor(monitor.id);
-            const monitorDetail = response?.data;
+            const monitorDetail = getDetailData(response, "monitor");
 
             if (!monitorDetail) {
-                throw new Error("No fue posible obtener la información del monitor.");
+                throw new Error(t("No fue posible obtener la información del monitor."));
             }
 
             setSelectedMonitor(monitorDetail);
@@ -237,9 +323,45 @@ function AccessPage() {
             setMonitorLastName(monitorDetail.last_name || "");
             setMonitorPassword("");
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible cargar el monitor.");
+            setErrorMessage(error.message || t("No fue posible cargar el monitor."));
         } finally {
             setIsLoadingMonitorDetail(false);
+        }
+    }
+
+
+    /**
+     * handleSelectMember
+     *
+     * Description:
+     * - Obtener y seleccionar un miembro para edición.
+     */
+    async function handleSelectMember(member) {
+        if (isLoadingMemberDetail) {
+            return;
+        }
+
+        setIsLoadingMemberDetail(true);
+        clearMessages();
+
+        try {
+            const response = await getMember(member.id);
+            const memberDetail = getDetailData(response, "member");
+
+            if (!memberDetail) {
+                throw new Error(t("No fue posible obtener la información del miembro."));
+            }
+
+            setSelectedMember(memberDetail);
+            setMemberUsername(memberDetail.username || "");
+            setMemberEmail(memberDetail.email || "");
+            setMemberFirstName(memberDetail.first_name || "");
+            setMemberLastName(memberDetail.last_name || "");
+            setMemberPassword("");
+        } catch (error) {
+            setErrorMessage(error.message || t("No fue posible cargar el miembro."));
+        } finally {
+            setIsLoadingMemberDetail(false);
         }
     }
 
@@ -273,18 +395,89 @@ function AccessPage() {
 
         try {
             if (selectedMonitor) {
-                await updateMonitor(selectedMonitor.id, monitorData);
-                setSuccessMessage("Monitor actualizado correctamente.");
+                const monitorId = selectedMonitor.id;
+                await updateMonitor(monitorId, monitorData);
+                await loadMonitors();
+
+                const detailResponse = await getMonitor(monitorId);
+                const monitorDetail = getDetailData(detailResponse, "monitor");
+                if (monitorDetail) {
+                    setSelectedMonitor(monitorDetail);
+                    setMonitorUsername(monitorDetail.username || "");
+                    setMonitorEmail(monitorDetail.email || "");
+                    setMonitorFirstName(monitorDetail.first_name || "");
+                    setMonitorLastName(monitorDetail.last_name || "");
+                }
+
+                setMonitorPassword("");
+                setSuccessMessage(t("Monitor actualizado correctamente."));
             } else {
                 await createMonitor(monitorData);
-                setSuccessMessage("Monitor creado correctamente.");
+                resetMonitorForm();
+                await loadMonitors();
+                setSuccessMessage(t("Monitor creado correctamente."));
             }
-
-            resetMonitorForm();
-
-            await loadMonitors();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible guardar el monitor.");
+            setErrorMessage(error.message || t("No fue posible guardar el monitor."));
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+
+    /**
+     * handleMemberSubmit
+     *
+     * Description:
+     * - Crear o actualizar un miembro.
+     */
+    async function handleMemberSubmit(event) {
+        event.preventDefault();
+
+        if (isSaving) {
+            return;
+        }
+
+        setIsSaving(true);
+        clearMessages();
+
+        const memberData = {
+            username: memberUsername.trim(),
+            email: memberEmail.trim(),
+            first_name: memberFirstName.trim(),
+            last_name: memberLastName.trim(),
+        };
+
+        if (!selectedMember) {
+            memberData.password = memberPassword;
+        }
+
+        try {
+            if (selectedMember) {
+                const memberId = selectedMember.id;
+                await updateMember(memberId, memberData);
+                await loadMembers();
+
+                const detailResponse = await getMember(memberId);
+                const memberDetail = getDetailData(detailResponse, "member");
+                if (memberDetail) {
+                    setSelectedMember(memberDetail);
+                    setMemberUsername(memberDetail.username || "");
+                    setMemberEmail(memberDetail.email || "");
+                    setMemberFirstName(memberDetail.first_name || "");
+                    setMemberLastName(memberDetail.last_name || "");
+                }
+
+                setMemberPassword("");
+                setSuccessMessage(t("Miembro actualizado correctamente."));
+            } else {
+                await createMember(memberData);
+                resetMemberForm();
+                await loadMembers();
+                setSuccessMessage(t("Miembro creado correctamente."));
+            }
+        } catch (error) {
+            setErrorMessage(error.message || t("No fue posible guardar el miembro."));
         } finally {
             setIsSaving(false);
         }
@@ -324,11 +517,51 @@ function AccessPage() {
 
             resetMonitorForm();
 
-            setSuccessMessage("Monitor desactivado correctamente.");
+            setSuccessMessage(t("Monitor desactivado correctamente."));
 
             await loadMonitors();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible desactivar el monitor.");
+            setErrorMessage(error.message || t("No fue posible desactivar el monitor."));
+        } finally {
+            setIsDeleting(false);
+        }
+    }
+
+
+    /**
+     * handleDeactivateMember
+     *
+     * Description:
+     * - Desactivar el miembro seleccionado.
+     */
+    async function handleDeactivateMember() {
+        if (!selectedMember || isDeleting) {
+            return;
+        }
+
+        const memberName = [selectedMember.first_name, selectedMember.last_name].filter(Boolean).join(" ") || selectedMember.username;
+
+        const confirmed = window.confirm(
+            `¿Desea desactivar el miembro "${memberName}"?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        setIsDeleting(true);
+        clearMessages();
+
+        try {
+            await deactivateMember(selectedMember.id);
+
+            resetMemberForm();
+
+            setSuccessMessage(t("Miembro desactivado correctamente."));
+
+            await loadMembers();
+        } catch (error) {
+            setErrorMessage(error.message || t("No fue posible desactivar el miembro."));
         } finally {
             setIsDeleting(false);
         }
@@ -359,11 +592,11 @@ function AccessPage() {
         try {
             await grantCompanyAccess(accessData);
 
-            setSuccessMessage("Acceso de empresa asignado correctamente.");
+            setSuccessMessage(t("Acceso de empresa asignado correctamente."));
 
             await loadCompanyAccesses();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible asignar el acceso.");
+            setErrorMessage(error.message || t("No fue posible asignar el acceso."));
         } finally {
             setIsSaving(false);
         }
@@ -381,7 +614,7 @@ function AccessPage() {
             return;
         }
 
-        const monitorName = [access.user?.first_name, access.user?.last_name].filter(Boolean).join(" ") || access.user?.username || "Monitor";
+        const monitorName = [access.user?.first_name, access.user?.last_name].filter(Boolean).join(" ") || access.user?.username || t("Monitor");
         const companyName = access.company?.name || "empresa";
 
         const confirmed = window.confirm(
@@ -398,78 +631,61 @@ function AccessPage() {
         try {
             await revokeCompanyAccess(access.id);
 
-            setSuccessMessage("Acceso de empresa revocado correctamente.");
+            setSuccessMessage(t("Acceso de empresa revocado correctamente."));
 
             await loadCompanyAccesses();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible revocar el acceso.");
+            setErrorMessage(error.message || t("No fue posible revocar el acceso."));
         } finally {
             setIsDeleting(false);
         }
     }
 
+
     useEffect(() => {
         loadMonitors();
     }, []);
 
-    const activeAccesses = companyAccesses.filter(
-        (access) => access.is_active
-    );
 
-    const historicalAccesses = companyAccesses.filter(
-        (access) => !access.is_active
-    );
+    const activeAccesses = companyAccesses.filter((access) => access.is_active);
+    const historicalAccesses = companyAccesses.filter((access) => !access.is_active);
+
 
     return (
         <section className={styles.accessPage}>
             <PageHeader
-                eyebrow="Administración"
-                title="Usuarios y accesos"
-                description="Administre los usuarios de monitoreo y las empresas que pueden consultar."
+                eyebrow={t("Administración")}
+                title={t("Usuarios y accesos")}
+                description={t("Administre usuarios MONITOR, usuarios MEMBER y accesos de monitoreo a empresas.")}
             />
 
             <SectionTabs
-                sections={SECTIONS}
+                sections={SECTIONS.map((section) => ({ ...section, label: t(section.label) }))}
                 activeSection={activeSection}
                 onChange={handleSectionChange}
             />
 
-            <AlertMessage
-                message={errorMessage}
-                type="error"
-            />
-
-            <AlertMessage
-                message={successMessage}
-                type="success"
-            />
+            <AlertMessage message={errorMessage} type="error" />
+            <AlertMessage message={successMessage} type="success" />
 
             {activeSection === "monitors" && (
                 <div className={styles.workspace}>
                     <section className={styles.listPanel}>
                         <div className={styles.panelHeader}>
                             <div>
-                                <h2>Monitores</h2>
-                                <p>Usuarios autorizados para utilizar las funciones de monitoreo.</p>
+                                <h2>{t("Monitores")}</h2>
+                                <p>{t("Usuarios autorizados para utilizar las funciones de monitoreo.")}</p>
                             </div>
 
-                            <button
-                                className={styles.secondaryButton}
-                                type="button"
-                                onClick={resetMonitorForm}
-                            >
-                                Nuevo monitor
+                            <button className={styles.secondaryButton} type="button" onClick={resetMonitorForm}>
+                                {t("Nuevo monitor")}
                             </button>
                         </div>
 
                         {isLoadingMonitors ? (
-                            <LoadingState message="Cargando monitores..." />
+                            <LoadingState message={t("Cargando monitores...")} />
                         ) : monitors.length === 0 ? (
-                            <EmptyState
-                                icon="●"
-                                title="No existen monitores registrados."
-                                description="Cree el primer monitor para posteriormente asignarle acceso a empresas."
-                            />
+                            <EmptyState icon="●" title={t("No existen monitores registrados.")} description={t("Cree el primer monitor para posteriormente asignarle acceso a empresas.")} />
                         ) : (
                             <EntityList>
                                 {monitors.map((monitor) => {
@@ -481,7 +697,7 @@ function AccessPage() {
                                             title={monitorName}
                                             subtitle={monitor.username}
                                             initial={(monitor.first_name || monitor.username || "M").charAt(0).toUpperCase()}
-                                            status="Activo"
+                                            status={t("Activo")}
                                             isActive={selectedMonitor?.id === monitor.id}
                                             disabled={isLoadingMonitorDetail}
                                             onClick={() => handleSelectMonitor(monitor)}
@@ -514,6 +730,68 @@ function AccessPage() {
                 </div>
             )}
 
+            {activeSection === "members" && (
+                <div className={styles.workspace}>
+                    <section className={styles.listPanel}>
+                        <div className={styles.panelHeader}>
+                            <div>
+                                <h2>{t("Miembros")}</h2>
+                                <p>{t("Usuarios que pueden recibir la asignación de números corporativos.")}</p>
+                            </div>
+
+                            <button className={styles.secondaryButton} type="button" onClick={resetMemberForm}>
+                                {t("Nuevo miembro")}
+                            </button>
+                        </div>
+
+                        {isLoadingMembers ? (
+                            <LoadingState message={t("Cargando miembros...")} />
+                        ) : members.length === 0 ? (
+                            <EmptyState icon="●" title={t("No existen miembros registrados.")} description={t("Cree el primer miembro para posteriormente asignarle un número corporativo.")} />
+                        ) : (
+                            <EntityList>
+                                {members.map((member) => {
+                                    const memberName = [member.first_name, member.last_name].filter(Boolean).join(" ") || member.username;
+
+                                    return (
+                                        <EntityListItem
+                                            key={member.id}
+                                            title={memberName}
+                                            subtitle={member.username}
+                                            initial={(member.first_name || member.username || "M").charAt(0).toUpperCase()}
+                                            status={t("Activo")}
+                                            isActive={selectedMember?.id === member.id}
+                                            disabled={isLoadingMemberDetail}
+                                            onClick={() => handleSelectMember(member)}
+                                        />
+                                    );
+                                })}
+                            </EntityList>
+                        )}
+                    </section>
+
+                    <MemberForm
+                        selectedMember={selectedMember}
+                        username={memberUsername}
+                        email={memberEmail}
+                        firstName={memberFirstName}
+                        lastName={memberLastName}
+                        password={memberPassword}
+                        isSaving={isSaving}
+                        isDeleting={isDeleting}
+                        isLoadingDetail={isLoadingMemberDetail}
+                        onUsernameChange={(event) => setMemberUsername(event.target.value)}
+                        onEmailChange={(event) => setMemberEmail(event.target.value)}
+                        onFirstNameChange={(event) => setMemberFirstName(event.target.value)}
+                        onLastNameChange={(event) => setMemberLastName(event.target.value)}
+                        onPasswordChange={(event) => setMemberPassword(event.target.value)}
+                        onSubmit={handleMemberSubmit}
+                        onReset={resetMemberForm}
+                        onDeactivate={handleDeactivateMember}
+                    />
+                </div>
+            )}
+
             {activeSection === "accesses" && (
                 <div className={styles.accessWorkspace}>
                     <CompanyAccessForm
@@ -532,29 +810,22 @@ function AccessPage() {
                     <section className={styles.listPanel}>
                         <div className={styles.panelHeader}>
                             <div>
-                                <h2>Accesos activos</h2>
-                                <p>Asignaciones de monitoreo actualmente vigentes.</p>
+                                <h2>{t("Accesos de Monitores activos")}</h2>
+                                <p>{t("Empresas que cada usuario MONITOR tiene autorizadas para supervisión.")}</p>
                             </div>
                         </div>
 
                         {isLoadingAccesses ? (
-                            <LoadingState message="Cargando accesos..." />
+                            <LoadingState message={t("Cargando accesos...")} />
                         ) : activeAccesses.length === 0 ? (
-                            <EmptyState
-                                icon="✓"
-                                title="No existen accesos activos."
-                                description="Asigne una empresa a un monitor para comenzar."
-                            />
+                            <EmptyState icon="✓" title={t("No existen accesos activos.")} description={t("Asigne una empresa a un monitor para comenzar.")} />
                         ) : (
                             <div className={styles.accessList}>
                                 {activeAccesses.map((access) => {
                                     const monitorName = [access.user?.first_name, access.user?.last_name].filter(Boolean).join(" ") || access.user?.username;
 
                                     return (
-                                        <div
-                                            key={access.id}
-                                            className={styles.accessCard}
-                                        >
+                                        <div key={access.id} className={styles.accessCard}>
                                             <div className={styles.accessInformation}>
                                                 <div className={styles.accessAvatar}>
                                                     {(access.user?.first_name || access.user?.username || "M").charAt(0).toUpperCase()}
@@ -567,17 +838,10 @@ function AccessPage() {
                                             </div>
 
                                             <div className={styles.accessActions}>
-                                                <span className={styles.statusBadge}>
-                                                    Activo
-                                                </span>
+                                                <span className={styles.statusBadge}>{t("Activo")}</span>
 
-                                                <button
-                                                    className={styles.dangerButtonSmall}
-                                                    type="button"
-                                                    onClick={() => handleRevokeAccess(access)}
-                                                    disabled={isDeleting}
-                                                >
-                                                    Revocar
+                                                <button className={styles.dangerButtonSmall} type="button" onClick={() => handleRevokeAccess(access)} disabled={isDeleting}>
+                                                    {t("Revocar")}
                                                 </button>
                                             </div>
                                         </div>
@@ -591,8 +855,8 @@ function AccessPage() {
                         <section className={styles.historyPanel}>
                             <div className={styles.panelHeader}>
                                 <div>
-                                    <h2>Historial de accesos</h2>
-                                    <p>Accesos que fueron revocados anteriormente.</p>
+                                    <h2>{t("Historial de Accesos de Monitores")}</h2>
+                                    <p>{t("Accesos que fueron revocados anteriormente.")}</p>
                                 </div>
                             </div>
 
@@ -601,10 +865,7 @@ function AccessPage() {
                                     const monitorName = [access.user?.first_name, access.user?.last_name].filter(Boolean).join(" ") || access.user?.username;
 
                                     return (
-                                        <div
-                                            key={access.id}
-                                            className={styles.accessCard}
-                                        >
+                                        <div key={access.id} className={styles.accessCard}>
                                             <div className={styles.accessInformation}>
                                                 <div className={styles.accessAvatarMuted}>
                                                     {(access.user?.first_name || access.user?.username || "M").charAt(0).toUpperCase()}
@@ -616,9 +877,7 @@ function AccessPage() {
                                                 </div>
                                             </div>
 
-                                            <span className={styles.inactiveBadge}>
-                                                Revocado
-                                            </span>
+                                            <span className={styles.inactiveBadge}>{t("Revocado")}</span>
                                         </div>
                                     );
                                 })}

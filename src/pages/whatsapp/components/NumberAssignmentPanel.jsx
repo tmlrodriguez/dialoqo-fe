@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 
-import {
-    getBranches,
-} from "../../../services/organizations.js";
-
-import {
-    getBranchMembers,
-} from "../../../services/members.js";
-
+import { getMembers } from "../../../services/access.js";
+import { getBranches } from "../../../services/organizations.js";
 import {
     assignWhatsAppNumber,
     getNumberAssignments,
@@ -16,19 +10,21 @@ import {
 } from "../../../services/whatsapp.js";
 
 import styles from "./NumberAssignmentPanel.module.css";
+import { getLanguageLocale } from "../../../utils/i18n.js";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
  * NumberAssignmentPanel
  *
  * Description:
- * - Administrar la responsabilidad de números de WhatsApp mediante miembros.
+ * - Administrar la responsabilidad de números corporativos de WhatsApp mediante usuarios MEMBER.
  *
  * Notes:
  * - La empresa es determinada por la página administrativa padre.
- * - La sucursal debe pertenecer a la empresa seleccionada.
- * - El número debe pertenecer a la sucursal seleccionada.
- * - El miembro debe pertenecer a la misma empresa y sucursal que el número.
+ * - La sucursal determina el contexto del número de WhatsApp.
+ * - Los responsables son usuarios autenticados de Dialoqo con rol MEMBER.
+ * - Los MEMBER son administrados por el mismo ADMINISTRATOR propietario de la empresa.
  * - Solo una asignación activa puede existir por número.
  * - Las reasignaciones preservan el historial en el backend.
  */
@@ -37,6 +33,7 @@ function NumberAssignmentPanel({
     onError,
     onSuccess,
 }) {
+    const { t } = usePageTranslation();
     const [branches, setBranches] = useState([]);
     const [numbers, setNumbers] = useState([]);
     const [members, setMembers] = useState([]);
@@ -73,11 +70,24 @@ function NumberAssignmentPanel({
      * resetAssignmentState
      *
      * Description:
-     * - Limpiar la información de asignación cargada.
+     * - Limpiar la asignación actual y su historial.
+     *
+     * Notes:
+     * - No modifica selectedMemberId para preservar la selección disponible.
      */
     function resetAssignmentState() {
         setCurrentAssignment(null);
         setAssignmentHistory([]);
+    }
+
+
+    /**
+     * resetMemberSelection
+     *
+     * Description:
+     * - Limpiar explícitamente la selección del usuario MEMBER.
+     */
+    function resetMemberSelection() {
         setSelectedMemberId("");
     }
 
@@ -86,7 +96,7 @@ function NumberAssignmentPanel({
      * loadBranches
      *
      * Description:
-     * - Obtener las sucursales activas de la empresa.
+     * - Obtener las sucursales activas de la empresa seleccionada.
      */
     async function loadBranches() {
         if (!companyId) {
@@ -105,8 +115,7 @@ function NumberAssignmentPanel({
 
             setSelectedBranchId((currentBranchId) => {
                 const branchExists = branchList.some(
-                    (branch) =>
-                        String(branch.id) === String(currentBranchId)
+                    (branch) => String(branch.id) === String(currentBranchId)
                 );
 
                 if (branchExists) {
@@ -123,10 +132,63 @@ function NumberAssignmentPanel({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar las sucursales."
+                t("No fue posible cargar las sucursales.")
             );
         } finally {
             setIsLoadingBranches(false);
+        }
+    }
+
+
+    /**
+     * loadMembers
+     *
+     * Description:
+     * - Obtener los usuarios MEMBER administrados por el usuario autenticado.
+     *
+     * Notes:
+     * - Los MEMBER no dependen de la sucursal seleccionada.
+     * - Selecciona automáticamente el primer MEMBER disponible.
+     * - La autorización final de asignación es validada nuevamente por el backend.
+     */
+    async function loadMembers() {
+        if (!companyId) {
+            setMembers([]);
+            setSelectedMemberId("");
+            return;
+        }
+
+        setIsLoadingMembers(true);
+
+        try {
+            const response = await getMembers();
+            const memberList = response?.data || [];
+
+            setMembers(memberList);
+
+            setSelectedMemberId((currentMemberId) => {
+                const memberExists = memberList.some(
+                    (member) => String(member.id) === String(currentMemberId)
+                );
+
+                if (memberExists) {
+                    return currentMemberId;
+                }
+
+                return memberList.length > 0
+                    ? String(memberList[0].id)
+                    : "";
+            });
+        } catch (error) {
+            setMembers([]);
+            setSelectedMemberId("");
+
+            onError?.(
+                error.message ||
+                t("No fue posible cargar los miembros.")
+            );
+        } finally {
+            setIsLoadingMembers(false);
         }
     }
 
@@ -138,10 +200,7 @@ function NumberAssignmentPanel({
      * - Obtener los números activos de la sucursal seleccionada.
      */
     async function loadNumbers(branchId) {
-        if (
-            !companyId ||
-            !branchId
-        ) {
+        if (!companyId || !branchId) {
             setNumbers([]);
             setSelectedNumberId("");
             return;
@@ -161,8 +220,7 @@ function NumberAssignmentPanel({
 
             setSelectedNumberId((currentNumberId) => {
                 const numberExists = numberList.some(
-                    (number) =>
-                        String(number.id) === String(currentNumberId)
+                    (number) => String(number.id) === String(currentNumberId)
                 );
 
                 if (numberExists) {
@@ -179,7 +237,7 @@ function NumberAssignmentPanel({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar los números de WhatsApp."
+                t("No fue posible cargar los números de WhatsApp.")
             );
         } finally {
             setIsLoadingNumbers(false);
@@ -188,73 +246,17 @@ function NumberAssignmentPanel({
 
 
     /**
-     * loadMembers
-     *
-     * Description:
-     * - Obtener los miembros activos de la sucursal seleccionada.
-     */
-    async function loadMembers(branchId) {
-        if (
-            !companyId ||
-            !branchId
-        ) {
-            setMembers([]);
-            setSelectedMemberId("");
-            return;
-        }
-
-        setIsLoadingMembers(true);
-
-        try {
-            const response = await getBranchMembers(
-                companyId,
-                branchId
-            );
-
-            const memberList = response?.data || [];
-
-            setMembers(memberList);
-
-            setSelectedMemberId((currentMemberId) => {
-                const memberExists = memberList.some(
-                    (member) =>
-                        String(member.id) === String(currentMemberId)
-                );
-
-                if (memberExists) {
-                    return currentMemberId;
-                }
-
-                return memberList.length > 0
-                    ? String(memberList[0].id)
-                    : "";
-            });
-        } catch (error) {
-            setMembers([]);
-            setSelectedMemberId("");
-
-            onError?.(
-                error.message ||
-                "No fue posible cargar los miembros de la sucursal."
-            );
-        } finally {
-            setIsLoadingMembers(false);
-        }
-    }
-
-
-    /**
      * loadAssignments
      *
      * Description:
-     * - Obtener la asignación actual y el historial de un número.
+     * - Obtener la asignación actual y el historial del número seleccionado.
+     *
+     * Notes:
+     * - Si existe una asignación activa, selecciona su MEMBER.
+     * - Si no existe asignación, conserva el MEMBER disponible seleccionado.
      */
     async function loadAssignments(numberId) {
-        if (
-            !companyId ||
-            !selectedBranchId ||
-            !numberId
-        ) {
+        if (!companyId || !selectedBranchId || !numberId) {
             resetAssignmentState();
             return;
         }
@@ -269,28 +271,36 @@ function NumberAssignmentPanel({
             );
 
             const assignmentData = response?.data || {};
+            const activeAssignment = assignmentData.current_assignment || null;
 
-            setCurrentAssignment(
-                assignmentData.current_assignment || null
-            );
+            setCurrentAssignment(activeAssignment);
+            setAssignmentHistory(assignmentData.history || []);
 
-            setAssignmentHistory(
-                assignmentData.history || []
-            );
-
-            if (assignmentData.current_assignment?.member?.id) {
+            if (activeAssignment?.member?.id) {
                 setSelectedMemberId(
-                    String(
-                        assignmentData.current_assignment.member.id
-                    )
+                    String(activeAssignment.member.id)
                 );
+            } else {
+                setSelectedMemberId((currentMemberId) => {
+                    const memberExists = members.some(
+                        (member) => String(member.id) === String(currentMemberId)
+                    );
+
+                    if (memberExists) {
+                        return currentMemberId;
+                    }
+
+                    return members.length > 0
+                        ? String(members[0].id)
+                        : "";
+                });
             }
         } catch (error) {
             resetAssignmentState();
 
             onError?.(
                 error.message ||
-                "No fue posible cargar las asignaciones del número."
+                t("No fue posible cargar las asignaciones del número.")
             );
         } finally {
             setIsLoadingAssignments(false);
@@ -302,7 +312,7 @@ function NumberAssignmentPanel({
      * handleBranchChange
      *
      * Description:
-     * - Cambiar la sucursal utilizada para administrar asignaciones.
+     * - Cambiar la sucursal utilizada para administrar los números.
      */
     function handleBranchChange(event) {
         const branchId = event.target.value;
@@ -312,7 +322,6 @@ function NumberAssignmentPanel({
         setSelectedBranchId(branchId);
         setSelectedNumberId("");
         setNumbers([]);
-        setMembers([]);
 
         resetAssignmentState();
     }
@@ -322,14 +331,13 @@ function NumberAssignmentPanel({
      * handleNumberChange
      *
      * Description:
-     * - Cambiar el número utilizado para administrar su asignación.
+     * - Cambiar el número utilizado para administrar la responsabilidad.
      */
     function handleNumberChange(event) {
-        const numberId = event.target.value;
-
         clearParentMessages();
 
-        setSelectedNumberId(numberId);
+        setSelectedNumberId(event.target.value);
+
         resetAssignmentState();
     }
 
@@ -338,7 +346,7 @@ function NumberAssignmentPanel({
      * handleAssign
      *
      * Description:
-     * - Asignar o reasignar el número seleccionado a un miembro.
+     * - Asignar o reasignar el número seleccionado a un usuario MEMBER.
      */
     async function handleAssign(event) {
         event.preventDefault();
@@ -358,7 +366,7 @@ function NumberAssignmentPanel({
             String(currentAssignment.member?.id) === String(selectedMemberId)
         ) {
             onError?.(
-                "El número ya se encuentra asignado al miembro seleccionado."
+                t("El número ya se encuentra asignado al miembro seleccionado.")
             );
 
             return;
@@ -372,14 +380,13 @@ function NumberAssignmentPanel({
             );
 
             const nextMember = members.find(
-                (member) =>
-                    String(member.id) === String(selectedMemberId)
+                (member) => String(member.id) === String(selectedMemberId)
             );
 
             const nextMemberName = getMemberName(nextMember);
 
             confirmed = window.confirm(
-                `El número se encuentra actualmente asignado a "${currentMemberName}". ¿Desea reasignarlo a "${nextMemberName}"?`
+                `${t("El número se encuentra actualmente asignado a")} "${currentMemberName}". ${t("¿Desea reasignarlo a")} "${nextMemberName}"?`
             );
         }
 
@@ -400,14 +407,14 @@ function NumberAssignmentPanel({
 
             onSuccess?.(
                 response?.success_message ||
-                "Número de WhatsApp asignado correctamente."
+                t("Número de WhatsApp asignado correctamente.")
             );
 
             await loadAssignments(selectedNumberId);
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible asignar el número de WhatsApp."
+                t("No fue posible asignar el número de WhatsApp.")
             );
         } finally {
             setIsAssigning(false);
@@ -437,7 +444,7 @@ function NumberAssignmentPanel({
         );
 
         const confirmed = window.confirm(
-            `¿Desea finalizar la asignación de "${memberName}" para este número?`
+            `${t("¿Desea finalizar la asignación de")} "${memberName}" ${t("para este número?")}`
         );
 
         if (!confirmed) {
@@ -456,14 +463,14 @@ function NumberAssignmentPanel({
 
             onSuccess?.(
                 response?.success_message ||
-                "Número de WhatsApp desasignado correctamente."
+                t("Número de WhatsApp desasignado correctamente.")
             );
 
             await loadAssignments(selectedNumberId);
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible finalizar la asignación."
+                t("No fue posible finalizar la asignación.")
             );
         } finally {
             setIsUnassigning(false);
@@ -475,11 +482,11 @@ function NumberAssignmentPanel({
      * getMemberName
      *
      * Description:
-     * - Obtener el nombre visible de un miembro.
+     * - Obtener el nombre visible de un usuario MEMBER.
      */
     function getMemberName(member) {
         if (!member) {
-            return "Miembro";
+            return t("Miembro");
         }
 
         const fullName = [
@@ -489,7 +496,7 @@ function NumberAssignmentPanel({
             .filter(Boolean)
             .join(" ");
 
-        return fullName || member.member_code || "Miembro";
+        return fullName || member.username || t("Miembro");
     }
 
 
@@ -497,24 +504,14 @@ function NumberAssignmentPanel({
      * getMemberDescription
      *
      * Description:
-     * - Obtener información secundaria para identificar al miembro.
+     * - Obtener información secundaria para identificar al usuario MEMBER.
      */
     function getMemberDescription(member) {
         if (!member) {
             return "";
         }
 
-        const parts = [];
-
-        if (member.position?.name) {
-            parts.push(member.position.name);
-        }
-
-        if (member.member_code) {
-            parts.push(member.member_code);
-        }
-
-        return parts.join(" · ");
+        return member.username || "";
     }
 
 
@@ -522,12 +519,11 @@ function NumberAssignmentPanel({
      * getSelectedNumber
      *
      * Description:
-     * - Obtener la representación del número actualmente seleccionado.
+     * - Obtener el número actualmente seleccionado.
      */
     function getSelectedNumber() {
         return numbers.find(
-            (number) =>
-                String(number.id) === String(selectedNumberId)
+            (number) => String(number.id) === String(selectedNumberId)
         ) || null;
     }
 
@@ -549,7 +545,7 @@ function NumberAssignmentPanel({
             return value;
         }
 
-        return new Intl.DateTimeFormat("es-HN", {
+        return new Intl.DateTimeFormat(getLanguageLocale(), {
             dateStyle: "medium",
             timeStyle: "short",
         }).format(date);
@@ -557,6 +553,10 @@ function NumberAssignmentPanel({
 
 
     const selectedNumber = getSelectedNumber();
+
+    const selectedBranch = branches.find(
+        (branch) => String(branch.id) === String(selectedBranchId)
+    ) || null;
 
     const operationInProgress =
         isAssigning ||
@@ -567,25 +567,26 @@ function NumberAssignmentPanel({
         setBranches([]);
         setNumbers([]);
         setMembers([]);
+
         setSelectedBranchId("");
         setSelectedNumberId("");
 
+        resetMemberSelection();
         resetAssignmentState();
 
         loadBranches();
+        loadMembers();
     }, [companyId]);
 
 
     useEffect(() => {
         setNumbers([]);
-        setMembers([]);
         setSelectedNumberId("");
 
         resetAssignmentState();
 
         if (selectedBranchId) {
             loadNumbers(selectedBranchId);
-            loadMembers(selectedBranchId);
         }
     }, [selectedBranchId]);
 
@@ -605,7 +606,7 @@ function NumberAssignmentPanel({
                 <div className={styles.contextGrid}>
                     <div className={styles.contextField}>
                         <label htmlFor="assignment-branch">
-                            Sucursal
+                            {t("Sucursal")}
                         </label>
 
                         <select
@@ -620,7 +621,7 @@ function NumberAssignmentPanel({
                         >
                             {branches.length === 0 && (
                                 <option value="">
-                                    No existen sucursales disponibles
+                                    {t("No existen sucursales disponibles")}
                                 </option>
                             )}
 
@@ -637,7 +638,7 @@ function NumberAssignmentPanel({
 
                     <div className={styles.contextField}>
                         <label htmlFor="assignment-number">
-                            Número de WhatsApp
+                            {t("Número de WhatsApp")}
                         </label>
 
                         <select
@@ -653,7 +654,7 @@ function NumberAssignmentPanel({
                         >
                             {numbers.length === 0 && (
                                 <option value="">
-                                    No existen números disponibles
+                                    {t("No existen números disponibles")}
                                 </option>
                             )}
 
@@ -688,11 +689,11 @@ function NumberAssignmentPanel({
                     </div>
 
                     <strong>
-                        Seleccione una sucursal.
+                        {t("Seleccione una sucursal.")}
                     </strong>
 
                     <span>
-                        Las asignaciones dependen de la sucursal y el número de WhatsApp.
+                        {t("Las asignaciones se administran dentro del contexto de los números de cada sucursal.")}
                     </span>
                 </section>
             ) : !selectedNumberId ? (
@@ -713,11 +714,11 @@ function NumberAssignmentPanel({
                     </div>
 
                     <strong>
-                        Seleccione un número de WhatsApp.
+                        {t("Seleccione un número de WhatsApp.")}
                     </strong>
 
                     <span>
-                        Debe seleccionar un número para consultar o modificar su responsable.
+                        {t("Debe seleccionar un número para consultar o modificar su responsable.")}
                     </span>
                 </section>
             ) : (
@@ -726,51 +727,47 @@ function NumberAssignmentPanel({
                         <div className={styles.panelHeader}>
                             <div>
                                 <span className={styles.eyebrow}>
-                                    Responsabilidad actual
+                                    {t("Responsabilidad actual")}
                                 </span>
 
                                 <h2>
-                                    Asignación
+                                    {t("Asignación")}
                                 </h2>
 
                                 <p>
                                     {selectedNumber
                                         ? `${selectedNumber.display_name} · ${selectedNumber.phone_number}`
-                                        : "Número seleccionado"}
+                                        : t("Número seleccionado")}
                                 </p>
                             </div>
 
                             {currentAssignment && (
                                 <span className={styles.activeBadge}>
-                                    Activa
+                                    {t("Activa")}
                                 </span>
                             )}
                         </div>
 
                         {isLoadingAssignments ? (
                             <div className={styles.loadingState}>
-                                Cargando asignación...
+                                {t("Cargando asignación...")}
                             </div>
                         ) : currentAssignment ? (
                             <div className={styles.currentAssignment}>
                                 <div className={styles.memberSummary}>
                                     <div className={styles.memberAvatar}>
-                                        {(currentAssignment.member?.first_name || "M")
+                                        {(currentAssignment.member?.first_name || currentAssignment.member?.username || "M")
                                             .charAt(0)
                                             .toUpperCase()}
                                     </div>
 
                                     <div className={styles.memberInformation}>
                                         <strong>
-                                            {getMemberName(
-                                                currentAssignment.member
-                                            )}
+                                            {getMemberName(currentAssignment.member)}
                                         </strong>
 
                                         <span>
-                                            {getMemberDescription(
-                                                currentAssignment.member
-                                            ) || "Miembro asignado"}
+                                            {getMemberDescription(currentAssignment.member) || t("Usuario MEMBER")}
                                         </span>
                                     </div>
                                 </div>
@@ -778,23 +775,21 @@ function NumberAssignmentPanel({
                                 <div className={styles.assignmentMetadata}>
                                     <div>
                                         <span>
-                                            Asignado desde
+                                            {t("Asignado desde")}
                                         </span>
 
                                         <strong>
-                                            {formatDateTime(
-                                                currentAssignment.assigned_at
-                                            )}
+                                            {formatDateTime(currentAssignment.assigned_at)}
                                         </strong>
                                     </div>
 
                                     <div>
                                         <span>
-                                            Sucursal
+                                            {t("Sucursal del número")}
                                         </span>
 
                                         <strong>
-                                            {currentAssignment.member?.branch?.name || "—"}
+                                            {selectedBranch?.name || "—"}
                                         </strong>
                                     </div>
                                 </div>
@@ -806,8 +801,8 @@ function NumberAssignmentPanel({
                                     disabled={operationInProgress}
                                 >
                                     {isUnassigning
-                                        ? "Finalizando asignación..."
-                                        : "Finalizar asignación"}
+                                        ? t("Finalizando asignación...")
+                                        : t("Finalizar asignación")}
                                 </button>
                             </div>
                         ) : (
@@ -828,11 +823,11 @@ function NumberAssignmentPanel({
                                 </div>
 
                                 <strong>
-                                    El número no tiene responsable.
+                                    {t("El número no tiene responsable.")}
                                 </strong>
 
                                 <span>
-                                    Seleccione un miembro para establecer la responsabilidad actual.
+                                    {t("Seleccione un usuario MEMBER para establecer la responsabilidad actual.")}
                                 </span>
                             </div>
                         )}
@@ -843,7 +838,7 @@ function NumberAssignmentPanel({
                         >
                             <div className={styles.formField}>
                                 <label htmlFor="assignment-member">
-                                    Miembro
+                                    {t("Miembro")}
                                 </label>
 
                                 <select
@@ -859,7 +854,7 @@ function NumberAssignmentPanel({
                                 >
                                     {members.length === 0 && (
                                         <option value="">
-                                            No existen miembros disponibles
+                                            {t("No existen miembros disponibles")}
                                         </option>
                                     )}
 
@@ -877,7 +872,7 @@ function NumberAssignmentPanel({
                                 </select>
 
                                 <span className={styles.fieldHelp}>
-                                    Solo aparecen miembros activos pertenecientes a la sucursal seleccionada.
+                                    {t("Se muestran los usuarios MEMBER administrados por su cuenta.")}
                                 </span>
                             </div>
 
@@ -892,10 +887,10 @@ function NumberAssignmentPanel({
                                     }
                                 >
                                     {isAssigning
-                                        ? "Asignando..."
+                                        ? t("Asignando...")
                                         : currentAssignment
-                                            ? "Reasignar número"
-                                            : "Asignar número"}
+                                            ? t("Reasignar número")
+                                            : t("Asignar número")}
                                 </button>
                             </div>
                         </form>
@@ -905,31 +900,31 @@ function NumberAssignmentPanel({
                         <div className={styles.panelHeader}>
                             <div>
                                 <span className={styles.eyebrow}>
-                                    Trazabilidad
+                                    {t("Trazabilidad")}
                                 </span>
 
                                 <h2>
-                                    Historial
+                                    {t("Historial")}
                                 </h2>
 
                                 <p>
-                                    Responsables actuales y anteriores del número.
+                                    {t("Responsables actuales y anteriores del número.")}
                                 </p>
                             </div>
                         </div>
 
                         {isLoadingAssignments ? (
                             <div className={styles.loadingState}>
-                                Cargando historial...
+                                {t("Cargando historial...")}
                             </div>
                         ) : assignmentHistory.length === 0 ? (
                             <div className={styles.historyEmpty}>
                                 <strong>
-                                    No existen asignaciones históricas.
+                                    {t("No existen asignaciones históricas.")}
                                 </strong>
 
                                 <span>
-                                    El historial aparecerá cuando el número sea asignado.
+                                    {t("El historial aparecerá cuando el número sea asignado.")}
                                 </span>
                             </div>
                         ) : (
@@ -947,39 +942,31 @@ function NumberAssignmentPanel({
                                                         : styles.historyAvatar
                                                 }
                                             >
-                                                {(assignment.member?.first_name || "M")
+                                                {(assignment.member?.first_name || assignment.member?.username || "M")
                                                     .charAt(0)
                                                     .toUpperCase()}
                                             </div>
 
                                             <div className={styles.historyInformation}>
                                                 <strong>
-                                                    {getMemberName(
-                                                        assignment.member
-                                                    )}
+                                                    {getMemberName(assignment.member)}
                                                 </strong>
 
                                                 <span>
-                                                    {getMemberDescription(
-                                                        assignment.member
-                                                    ) || "Miembro"}
+                                                    {getMemberDescription(assignment.member) || t("Usuario MEMBER")}
                                                 </span>
                                             </div>
                                         </div>
 
                                         <div className={styles.historyDates}>
                                             <span>
-                                                {formatDateTime(
-                                                    assignment.assigned_at
-                                                )}
+                                                {formatDateTime(assignment.assigned_at)}
                                             </span>
 
                                             <span>
                                                 {assignment.is_active
-                                                    ? "Actual"
-                                                    : `Hasta ${formatDateTime(
-                                                        assignment.unassigned_at
-                                                    )}`}
+                                                    ? t("Actual")
+                                                    : `${t("Hasta el")} ${formatDateTime(assignment.unassigned_at)}`}
                                             </span>
                                         </div>
 
@@ -991,8 +978,8 @@ function NumberAssignmentPanel({
                                             }
                                         >
                                             {assignment.is_active
-                                                ? "Activa"
-                                                : "Finalizada"}
+                                                ? t("Activa")
+                                                : t("Finalizada")}
                                         </span>
                                     </article>
                                 ))}
