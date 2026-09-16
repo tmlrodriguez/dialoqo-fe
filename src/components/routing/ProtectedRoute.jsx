@@ -37,6 +37,10 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
         return <Navigate to="/app/administration/organization" replace />;
     }
 
+    if (user?.role === "MEMBER") {
+        return <Navigate to="/app/monitoring" replace />;
+    }
+
     if (user?.role === "MONITOR") {
         return <Navigate to="/app" replace />;
     }

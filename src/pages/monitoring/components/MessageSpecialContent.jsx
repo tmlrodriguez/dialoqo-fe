@@ -1,4 +1,5 @@
 import styles from "./MessageSpecialContent.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
@@ -17,6 +18,7 @@ import styles from "./MessageSpecialContent.module.css";
 function MessageSpecialContent({
     message,
 }) {
+    const { t } = usePageTranslation();
     const messageType =
         String(
             message?.message_type || ""
@@ -142,7 +144,7 @@ function MessageSpecialContent({
 
                 <div className={styles.locationInformation}>
                     <strong>
-                        {name || "Ubicación compartida"}
+                        {name || t("Ubicación compartida")}
                     </strong>
 
                     {address && (
@@ -170,7 +172,7 @@ function MessageSpecialContent({
                             );
                         }}
                     >
-                        Abrir mapa
+                        {t("Abrir mapa")}
                     </button>
                 )}
             </div>
@@ -208,8 +210,8 @@ function MessageSpecialContent({
         ) {
             return (
                 <UnsupportedContent
-                    title="Contacto compartido"
-                    description="No fue posible interpretar los datos del contacto."
+                    title={t("Contacto compartido")}
+                    description={t("No fue posible interpretar los datos del contacto.")}
                 />
             );
         }
@@ -265,7 +267,7 @@ function MessageSpecialContent({
 
                                 <div className={styles.contactInformation}>
                                     <strong>
-                                        {formattedName || "Contacto"}
+                                        {formattedName || t("Contacto")}
                                     </strong>
 
                                     {phones.map(
@@ -360,13 +362,13 @@ function MessageSpecialContent({
 
                 <div className={styles.reactionInformation}>
                     <strong>
-                        Reacción
+                        {t(t("Reacción"))}
                     </strong>
 
                     <span>
                         {message?.context_message_id
                             ? `Mensaje relacionado #${message.context_message_id}`
-                            : "Mensaje relacionado"}
+                            : t("Mensaje relacionado")}
                     </span>
                 </div>
             </div>
@@ -432,11 +434,11 @@ function MessageSpecialContent({
 
                 <div className={styles.selectionInformation}>
                     <span>
-                        Respuesta de botón
+                        {t("Respuesta de botón")}
                     </span>
 
                     <strong>
-                        {title || "Botón seleccionado"}
+                        {title || t("Botón seleccionado")}
                     </strong>
 
                     {payload && (
@@ -519,12 +521,12 @@ function MessageSpecialContent({
                 <div className={styles.selectionInformation}>
                     <span>
                         {interactiveType === "list_reply"
-                            ? "Opción seleccionada"
-                            : "Respuesta interactiva"}
+                            ? t("Opción seleccionada")
+                            : t("Respuesta interactiva")}
                     </span>
 
                     <strong>
-                        {title || "Respuesta recibida"}
+                        {title || t("Respuesta recibida")}
                     </strong>
 
                     {description && (
@@ -608,7 +610,7 @@ function MessageSpecialContent({
 
                     <div>
                         <strong>
-                            Pedido de WhatsApp
+                            {t("Pedido de WhatsApp")}
                         </strong>
 
                         <span>
@@ -747,8 +749,8 @@ function MessageSpecialContent({
     ) {
         return (
             <UnsupportedContent
-                title="Tipo de mensaje no soportado"
-                description="CentralChat conservó el evento, pero todavía no dispone de una representación especializada."
+                title={t("Tipo de mensaje no soportado")}
+                description={t("CentralChat conservó el evento, pero todavía no dispone de una representación especializada.")}
             />
         );
     }
@@ -767,6 +769,7 @@ function UnsupportedContent({
     title,
     description,
 }) {
+    const { t } = usePageTranslation();
     return (
         <div className={styles.unsupported}>
             <svg

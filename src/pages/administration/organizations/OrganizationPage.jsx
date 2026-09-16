@@ -23,6 +23,7 @@ import BranchForm from "./components/BranchForm.jsx";
 import CompanyForm from "./components/CompanyForm.jsx";
 
 import styles from "./OrganizationPage.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 const SECTIONS = [
@@ -47,6 +48,7 @@ const SECTIONS = [
  * - Permite administrar empresas y sucursales.
  */
 function OrganizationPage() {
+    const { t } = usePageTranslation();
     const [activeSection, setActiveSection] = useState("companies");
 
     const [companies, setCompanies] = useState([]);
@@ -131,7 +133,7 @@ function OrganizationPage() {
                 setBranchCompanyId(String(companyList[0].id));
             }
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible cargar las empresas.");
+            setErrorMessage(error.message || t("No fue posible cargar las empresas."));
         } finally {
             setIsLoadingCompanies(false);
         }
@@ -158,7 +160,7 @@ function OrganizationPage() {
 
             setBranches(response?.data || []);
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible cargar las sucursales.");
+            setErrorMessage(error.message || t("No fue posible cargar las sucursales."));
         } finally {
             setIsLoadingBranches(false);
         }
@@ -226,17 +228,17 @@ function OrganizationPage() {
         try {
             if (selectedCompany) {
                 await updateCompany(selectedCompany.id, companyData);
-                setSuccessMessage("Empresa actualizada correctamente.");
+                setSuccessMessage(t("Empresa actualizada correctamente."));
             } else {
                 await createCompany(companyData);
-                setSuccessMessage("Empresa creada correctamente.");
+                setSuccessMessage(t("Empresa creada correctamente."));
             }
 
             resetCompanyForm();
 
             await loadCompanies();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible guardar la empresa.");
+            setErrorMessage(error.message || t("No fue posible guardar la empresa."));
         } finally {
             setIsSaving(false);
         }
@@ -276,11 +278,11 @@ function OrganizationPage() {
 
             resetCompanyForm();
 
-            setSuccessMessage("Empresa desactivada correctamente.");
+            setSuccessMessage(t("Empresa desactivada correctamente."));
 
             await loadCompanies();
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible desactivar la empresa.");
+            setErrorMessage(error.message || t("No fue posible desactivar la empresa."));
         } finally {
             setIsDeleting(false);
         }
@@ -346,21 +348,21 @@ function OrganizationPage() {
                     branchData
                 );
 
-                setSuccessMessage("Sucursal actualizada correctamente.");
+                setSuccessMessage(t("Sucursal actualizada correctamente."));
             } else {
                 await createBranch(
                     branchCompanyId,
                     branchData
                 );
 
-                setSuccessMessage("Sucursal creada correctamente.");
+                setSuccessMessage(t("Sucursal creada correctamente."));
             }
 
             resetBranchForm();
 
             await loadBranches(branchCompanyId);
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible guardar la sucursal.");
+            setErrorMessage(error.message || t("No fue posible guardar la sucursal."));
         } finally {
             setIsSaving(false);
         }
@@ -397,11 +399,11 @@ function OrganizationPage() {
 
             resetBranchForm();
 
-            setSuccessMessage("Sucursal desactivada correctamente.");
+            setSuccessMessage(t("Sucursal desactivada correctamente."));
 
             await loadBranches(branchCompanyId);
         } catch (error) {
-            setErrorMessage(error.message || "No fue posible desactivar la sucursal.");
+            setErrorMessage(error.message || t("No fue posible desactivar la sucursal."));
         } finally {
             setIsDeleting(false);
         }
@@ -422,13 +424,13 @@ function OrganizationPage() {
     return (
         <section className={styles.organizationPage}>
             <PageHeader
-                eyebrow="Administración"
-                title="Organización"
-                description="Administre las empresas y sucursales registradas en Dialoqo."
+                eyebrow={t("Administración")}
+                title={t("Organización")}
+                description={t("Administre las empresas y sucursales registradas en Dialoqo.")}
             />
 
             <SectionTabs
-                sections={SECTIONS}
+                sections={SECTIONS.map((section) => ({ ...section, label: t(section.label) }))}
                 activeSection={activeSection}
                 onChange={handleSectionChange}
             />
@@ -448,8 +450,8 @@ function OrganizationPage() {
                     <section className={styles.listPanel}>
                         <div className={styles.panelHeader}>
                             <div>
-                                <h2>Empresas</h2>
-                                <p>Empresas activas administradas por su usuario.</p>
+                                <h2>{t("Empresas")}</h2>
+                                <p>{t("Empresas activas administradas por su usuario.")}</p>
                             </div>
 
                             <button
@@ -457,17 +459,17 @@ function OrganizationPage() {
                                 type="button"
                                 onClick={resetCompanyForm}
                             >
-                                Nueva empresa
+                                {t("Nueva empresa")}
                             </button>
                         </div>
 
                         {isLoadingCompanies ? (
-                            <LoadingState message="Cargando empresas..." />
+                            <LoadingState message={t("Cargando empresas...")} />
                         ) : companies.length === 0 ? (
                             <EmptyState
                                 icon="▦"
-                                title="No existen empresas registradas."
-                                description="Cree la primera empresa para comenzar a configurar Dialoqo."
+                                title={t("No existen empresas registradas.")}
+                                description={t("Cree la primera empresa para comenzar a configurar Dialoqo.")}
                             />
                         ) : (
                             <EntityList>
@@ -477,7 +479,7 @@ function OrganizationPage() {
                                         title={company.name}
                                         subtitle={company.code}
                                         initial={(company.name || "E").charAt(0).toUpperCase()}
-                                        status="Activa"
+                                        status={t("Activa")}
                                         isActive={selectedCompany?.id === company.id}
                                         onClick={() => handleSelectCompany(company)}
                                     />
@@ -508,7 +510,7 @@ function OrganizationPage() {
                     <div className={styles.contextBar}>
                         <div className={styles.contextField}>
                             <label htmlFor="branch-company">
-                                Empresa
+                                {t("Empresa")}
                             </label>
 
                             <select
@@ -519,7 +521,7 @@ function OrganizationPage() {
                             >
                                 {companies.length === 0 && (
                                     <option value="">
-                                        No existen empresas disponibles
+                                        {t("No existen empresas disponibles")}
                                     </option>
                                 )}
 
@@ -539,8 +541,8 @@ function OrganizationPage() {
                         <section className={styles.listPanel}>
                             <div className={styles.panelHeader}>
                                 <div>
-                                    <h2>Sucursales</h2>
-                                    <p>Sucursales activas de la empresa seleccionada.</p>
+                                    <h2>{t("Sucursales")}</h2>
+                                    <p>{t("Sucursales activas de la empresa seleccionada.")}</p>
                                 </div>
 
                                 <button
@@ -549,23 +551,23 @@ function OrganizationPage() {
                                     onClick={resetBranchForm}
                                     disabled={!branchCompanyId}
                                 >
-                                    Nueva sucursal
+                                    {t("Nueva sucursal")}
                                 </button>
                             </div>
 
                             {!branchCompanyId ? (
                                 <EmptyState
                                     icon="⌂"
-                                    title="Seleccione una empresa."
-                                    description="Debe seleccionar una empresa antes de administrar sus sucursales."
+                                    title={t("Seleccione una empresa.")}
+                                    description={t("Debe seleccionar una empresa antes de administrar sus sucursales.")}
                                 />
                             ) : isLoadingBranches ? (
-                                <LoadingState message="Cargando sucursales..." />
+                                <LoadingState message={t("Cargando sucursales...")} />
                             ) : branches.length === 0 ? (
                                 <EmptyState
                                     icon="⌂"
-                                    title="No existen sucursales registradas."
-                                    description="Cree la primera sucursal para la empresa seleccionada."
+                                    title={t("No existen sucursales registradas.")}
+                                    description={t("Cree la primera sucursal para la empresa seleccionada.")}
                                 />
                             ) : (
                                 <EntityList>
@@ -575,7 +577,7 @@ function OrganizationPage() {
                                             title={branch.name}
                                             subtitle={branch.code}
                                             initial={(branch.name || "S").charAt(0).toUpperCase()}
-                                            status="Activa"
+                                            status={t("Activa")}
                                             isActive={selectedBranch?.id === branch.id}
                                             onClick={() => handleSelectBranch(branch)}
                                         />

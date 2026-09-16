@@ -1,0 +1,196 @@
+.hero {
+    position: relative;
+    overflow: hidden;
+    padding: 96px 0 78px;
+    background:
+        radial-gradient(
+            circle at 80% 10%,
+            rgba(0, 190, 230, 0.14),
+            transparent 30%
+        ),
+        linear-gradient(
+            145deg,
+            #00020c,
+            #071c32
+        );
+    color: #fff;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px
+        );
+    background-size: 48px 48px;
+    mask-image: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.45),
+        transparent
+    );
+}
+
+.hero > div,
+.content,
+.contactGrid {
+    position: relative;
+    z-index: 1;
+    width: min(980px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+.hero h1 {
+    max-width: 800px;
+    margin: 0;
+    font-size: clamp(40px, 5vw, 62px);
+    line-height: 1.04;
+    letter-spacing: -0.045em;
+}
+
+.hero p {
+    max-width: 740px;
+    margin: 18px 0 0;
+    color: #b9ccda;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.content {
+    padding: 72px 0 100px;
+}
+
+.content section {
+    position: relative;
+    padding-left: 28px;
+}
+
+.content section::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 0;
+    width: 3px;
+    height: 26px;
+    border-radius: 999px;
+    background: linear-gradient(
+        #0ab7d8,
+        #0869f5
+    );
+}
+
+.content section + section {
+    margin-top: 44px;
+}
+
+.content h2,
+.contactGrid h2 {
+    margin: 0 0 12px;
+    color: #172432;
+    font-size: 23px;
+    letter-spacing: -0.022em;
+}
+
+.content p,
+.contactGrid p {
+    margin: 0;
+    color: #5c7082;
+    line-height: 1.82;
+}
+
+.contactGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    padding: 72px 0 100px;
+}
+
+.contactGrid section {
+    position: relative;
+    overflow: hidden;
+    padding: 32px;
+    border: 1px solid #dfe8ef;
+    border-radius: 20px;
+    background: linear-gradient(
+        180deg,
+        #fff,
+        #fbfcfd
+    );
+    box-shadow: 0 12px 38px rgba(19, 47, 74, 0.055);
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.contactGrid section::before {
+    content: "";
+    position: absolute;
+    width: 170px;
+    height: 170px;
+    top: -90px;
+    right: -80px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(8, 105, 245, 0.09),
+        transparent 70%
+    );
+}
+
+.contactGrid section:hover {
+    transform: translateY(-4px);
+    border-color: #caddea;
+    box-shadow: 0 22px 50px rgba(19, 47, 74, 0.09);
+}
+
+.contactGrid p + p {
+    margin-top: 11px;
+}
+
+.contactGrid strong {
+    color: #23394c;
+}
+
+.contactGrid a {
+    color: #0869f5;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.contactGrid a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 720px) {
+    .hero {
+        padding: 75px 0 62px;
+    }
+
+    .hero > div,
+    .content,
+    .contactGrid {
+        width: calc(100% - 28px);
+    }
+
+    .contactGrid {
+        grid-template-columns: 1fr;
+        padding: 55px 0 75px;
+    }
+
+    .content {
+        padding: 55px 0 75px;
+    }
+
+    .content section {
+        padding-left: 21px;
+    }
+}

@@ -9,16 +9,22 @@ import {
 } from "../../../services/monitoring.js";
 
 import styles from "./MessageMedia.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
-const MAX_RETRIEVAL_ATTEMPTS = 5;
+const MAX_RETRIEVAL_ATTEMPTS = 10;
 
 const RETRY_DELAYS = [
     0,
     1000,
+    1500,
     2000,
+    3000,
     4000,
+    5000,
+    6000,
     8000,
+    10000,
 ];
 
 
@@ -29,11 +35,12 @@ const RETRY_DELAYS = [
  * - Obtener y representar contenido multimedia privado asociado a un mensaje.
  *
  * Notes:
- * - El archivo se obtiene mediante un endpoint autenticado.
- * - El navegador utiliza una Object URL temporal para renderizar el Blob.
+ * - El registro del adjunto puede llegar al frontend antes de que Celery termine
+ *   de descargar y almacenar el binario desde Meta.
+ * - El componente mantiene una ventana de recuperación automática mientras el
+ *   archivo es preparado por el backend.
+ * - Las respuestas pertenecientes a una ejecución anterior son ignoradas.
  * - La Object URL se libera cuando deja de utilizarse.
- * - La recuperación se reintenta automáticamente porque el binario puede no estar disponible inmediatamente después del webhook.
- * - Soporta imágenes, stickers, video, audio y documentos.
  */
 function MessageMedia({
     companyId,
@@ -44,14 +51,15 @@ function MessageMedia({
     messageType,
     attachment,
 }) {
+    const { t } = usePageTranslation();
     const [objectUrl, setObjectUrl] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isRetrying, setIsRetrying] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [attempt, setAttempt] = useState(0);
 
     const retryTimeoutRef = useRef(null);
     const objectUrlRef = useRef("");
+    const requestGenerationRef = useRef(0);
 
 
     /**
@@ -61,13 +69,15 @@ function MessageMedia({
      * - Cancelar un intento diferido pendiente.
      */
     function clearRetryTimeout() {
-        if (retryTimeoutRef.current) {
-            window.clearTimeout(
-                retryTimeoutRef.current
-            );
-
-            retryTimeoutRef.current = null;
+        if (!retryTimeoutRef.current) {
+            return;
         }
+
+        window.clearTimeout(
+            retryTimeoutRef.current
+        );
+
+        retryTimeoutRef.current = null;
     }
 
 
@@ -75,7 +85,7 @@ function MessageMedia({
      * releaseObjectUrl
      *
      * Description:
-     * - Liberar la URL temporal actualmente utilizada por el navegador.
+     * - Liberar la Object URL temporal activa.
      */
     function releaseObjectUrl() {
         if (!objectUrlRef.current) {
@@ -87,139 +97,6 @@ function MessageMedia({
         );
 
         objectUrlRef.current = "";
-
-        setObjectUrl("");
-    }
-
-
-    /**
-     * scheduleRetry
-     *
-     * Description:
-     * - Programar un nuevo intento de recuperación del archivo.
-     */
-    function scheduleRetry(nextAttempt) {
-        if (
-            nextAttempt >=
-            MAX_RETRIEVAL_ATTEMPTS
-        ) {
-            setIsLoading(false);
-            setIsRetrying(false);
-
-            setErrorMessage(
-                "No fue posible obtener el archivo multimedia."
-            );
-
-            return;
-        }
-
-        const delay =
-            RETRY_DELAYS[nextAttempt] ??
-            8000;
-
-        setIsLoading(false);
-        setIsRetrying(true);
-
-        retryTimeoutRef.current =
-            window.setTimeout(
-                () => {
-                    loadAttachment(
-                        nextAttempt
-                    );
-                },
-                delay
-            );
-    }
-
-
-    /**
-     * loadAttachment
-     *
-     * Description:
-     * - Obtener el archivo binario protegido desde CentralChat.
-     *
-     * Notes:
-     * - Los errores iniciales son tratados como potencialmente transitorios.
-     */
-    async function loadAttachment(
-        currentAttempt = 0
-    ) {
-        if (
-            !companyId ||
-            !branchId ||
-            !numberId ||
-            !conversationId ||
-            !messageId ||
-            !attachment?.id
-        ) {
-            setIsLoading(false);
-            setIsRetrying(false);
-
-            return;
-        }
-
-        clearRetryTimeout();
-
-        setAttempt(currentAttempt);
-        setErrorMessage("");
-
-        if (currentAttempt === 0) {
-            setIsLoading(true);
-            setIsRetrying(false);
-        } else {
-            setIsLoading(false);
-            setIsRetrying(true);
-        }
-
-        try {
-            const blob =
-                await getMediaAttachmentContent(
-                    companyId,
-                    branchId,
-                    numberId,
-                    conversationId,
-                    messageId,
-                    attachment.id
-                );
-
-            releaseObjectUrl();
-
-            const url =
-                URL.createObjectURL(
-                    blob
-                );
-
-            objectUrlRef.current =
-                url;
-
-            setObjectUrl(url);
-
-            setIsLoading(false);
-            setIsRetrying(false);
-            setErrorMessage("");
-        } catch {
-            scheduleRetry(
-                currentAttempt + 1
-            );
-        }
-    }
-
-
-    /**
-     * handleManualRetry
-     *
-     * Description:
-     * - Reiniciar manualmente la recuperación después de agotar los intentos automáticos.
-     */
-    function handleManualRetry() {
-        clearRetryTimeout();
-
-        setAttempt(0);
-        setErrorMessage("");
-        setIsLoading(true);
-        setIsRetrying(false);
-
-        loadAttachment(0);
     }
 
 
@@ -227,7 +104,7 @@ function MessageMedia({
      * formatSize
      *
      * Description:
-     * - Convertir el tamaño binario a una representación legible.
+     * - Convertir un tamaño binario a una representación legible.
      */
     function formatSize(size) {
         if (
@@ -273,7 +150,7 @@ function MessageMedia({
      * getNormalizedType
      *
      * Description:
-     * - Determinar el tipo visual utilizando message_type y MIME type.
+     * - Determinar el tipo visual del archivo.
      */
     function getNormalizedType() {
         const normalizedMessageType =
@@ -282,7 +159,9 @@ function MessageMedia({
             ).toUpperCase();
 
         const mimeType =
-            attachment?.mime_type || "";
+            String(
+                attachment?.mime_type || ""
+            ).toLowerCase();
 
         if (
             normalizedMessageType === "IMAGE" ||
@@ -311,10 +190,194 @@ function MessageMedia({
 
 
     /**
+     * scheduleRetry
+     *
+     * Description:
+     * - Programar un nuevo intento mientras Celery prepara el archivo.
+     */
+    function scheduleRetry(
+        nextAttempt,
+        generation
+    ) {
+        if (
+            generation !==
+            requestGenerationRef.current
+        ) {
+            return;
+        }
+
+        if (
+            nextAttempt >=
+            MAX_RETRIEVAL_ATTEMPTS
+        ) {
+            setIsLoading(false);
+            setIsRetrying(false);
+
+            setErrorMessage(
+                t("No fue posible obtener el archivo multimedia.")
+            );
+
+            return;
+        }
+
+        const delay =
+            RETRY_DELAYS[nextAttempt] ??
+            10000;
+
+        setIsLoading(false);
+        setIsRetrying(true);
+
+        retryTimeoutRef.current =
+            window.setTimeout(
+                () => {
+                    loadAttachment(
+                        nextAttempt,
+                        generation
+                    );
+                },
+                delay
+            );
+    }
+
+
+    /**
+     * loadAttachment
+     *
+     * Description:
+     * - Recuperar el binario privado del backend.
+     *
+     * Notes:
+     * - Un error puede representar simplemente que Celery todavía está
+     *   descargando el archivo desde Meta.
+     * - Se ignoran resultados pertenecientes a generaciones anteriores.
+     */
+    async function loadAttachment(
+        currentAttempt,
+        generation
+    ) {
+        if (
+            generation !==
+            requestGenerationRef.current
+        ) {
+            return;
+        }
+
+        if (
+            !companyId ||
+            !branchId ||
+            !numberId ||
+            !conversationId ||
+            !messageId ||
+            !attachment?.id
+        ) {
+            setIsLoading(false);
+            setIsRetrying(false);
+
+            return;
+        }
+
+        clearRetryTimeout();
+
+        if (currentAttempt === 0) {
+            setIsLoading(true);
+            setIsRetrying(false);
+        } else {
+            setIsLoading(false);
+            setIsRetrying(true);
+        }
+
+        setErrorMessage("");
+
+        try {
+            const blob =
+                await getMediaAttachmentContent(
+                    companyId,
+                    branchId,
+                    numberId,
+                    conversationId,
+                    messageId,
+                    attachment.id
+                );
+
+            if (
+                generation !==
+                requestGenerationRef.current
+            ) {
+                return;
+            }
+
+            if (
+                !blob ||
+                blob.size === 0
+            ) {
+                throw new Error(
+                    t("El archivo multimedia todavía no está disponible.")
+                );
+            }
+
+            releaseObjectUrl();
+
+            const url =
+                URL.createObjectURL(
+                    blob
+                );
+
+            objectUrlRef.current =
+                url;
+
+            setObjectUrl(url);
+            setIsLoading(false);
+            setIsRetrying(false);
+            setErrorMessage("");
+        } catch {
+            if (
+                generation !==
+                requestGenerationRef.current
+            ) {
+                return;
+            }
+
+            scheduleRetry(
+                currentAttempt + 1,
+                generation
+            );
+        }
+    }
+
+
+    /**
+     * handleManualRetry
+     *
+     * Description:
+     * - Reiniciar manualmente la recuperación del archivo.
+     */
+    function handleManualRetry() {
+        clearRetryTimeout();
+
+        requestGenerationRef.current += 1;
+
+        const generation =
+            requestGenerationRef.current;
+
+        releaseObjectUrl();
+
+        setObjectUrl("");
+        setErrorMessage("");
+        setIsLoading(true);
+        setIsRetrying(false);
+
+        loadAttachment(
+            0,
+            generation
+        );
+    }
+
+
+    /**
      * handleOpenContent
      *
      * Description:
-     * - Abrir el contenido Blob en una nueva pestaña.
+     * - Abrir el contenido en una nueva pestaña.
      */
     function handleOpenContent() {
         if (!objectUrl) {
@@ -330,25 +393,29 @@ function MessageMedia({
 
 
     useEffect(() => {
-        setAttempt(0);
-        setErrorMessage("");
-        setObjectUrl("");
+        clearRetryTimeout();
+        releaseObjectUrl();
 
-        loadAttachment(0);
+        requestGenerationRef.current += 1;
+
+        const generation =
+            requestGenerationRef.current;
+
+        setObjectUrl("");
+        setErrorMessage("");
+        setIsLoading(true);
+        setIsRetrying(false);
+
+        loadAttachment(
+            0,
+            generation
+        );
 
         return () => {
+            requestGenerationRef.current += 1;
+
             clearRetryTimeout();
-
-            if (
-                objectUrlRef.current
-            ) {
-                URL.revokeObjectURL(
-                    objectUrlRef.current
-                );
-
-                objectUrlRef.current =
-                    "";
-            }
+            releaseObjectUrl();
         };
     }, [
         companyId,
@@ -370,8 +437,8 @@ function MessageMedia({
 
                 <span>
                     {isRetrying
-                        ? "Preparando archivo..."
-                        : "Cargando archivo..."}
+                        ? t("Preparando archivo...")
+                        : t("Cargando archivo...")}
                 </span>
             </div>
         );
@@ -411,7 +478,7 @@ function MessageMedia({
                     className={styles.retryButton}
                     onClick={handleManualRetry}
                 >
-                    Reintentar
+                    {t("Reintentar")}
                 </button>
             </div>
         );
@@ -428,7 +495,7 @@ function MessageMedia({
 
     const filename =
         attachment?.original_filename ||
-        "Archivo de WhatsApp";
+        t("Archivo de WhatsApp");
 
     const formattedSize =
         formatSize(
@@ -442,7 +509,7 @@ function MessageMedia({
                 className={styles.imageButton}
                 type="button"
                 onClick={handleOpenContent}
-                aria-label="Abrir imagen"
+                aria-label={t("Abrir imagen")}
             >
                 <img
                     className={styles.image}

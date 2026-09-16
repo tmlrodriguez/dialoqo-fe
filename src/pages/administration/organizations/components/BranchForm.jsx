@@ -2,6 +2,7 @@ import FormActions from "../../../../components/common/FormActions/FormActions.j
 import FormField from "../../../../components/common/FormField/FormField.jsx";
 
 import styles from "./OrganizationForms.module.css";
+import { usePageTranslation } from "../../../usePageTranslation.js";
 
 
 /**
@@ -28,18 +29,19 @@ function BranchForm({
     onReset,
     onDeactivate,
 }) {
+    const { t } = usePageTranslation();
     return (
         <section className={styles.formPanel}>
             <div className={styles.panelHeader}>
                 <div>
                     <h2>
-                        {selectedBranch ? "Editar sucursal" : "Nueva sucursal"}
+                        {selectedBranch ? t("Editar sucursal") : t("Nueva sucursal")}
                     </h2>
 
                     <p>
                         {selectedBranch
-                            ? "Modifique la información de la sucursal seleccionada."
-                            : "Complete la información para registrar una nueva sucursal."}
+                            ? t("Modifique la información de la sucursal seleccionada.")
+                            : t("Complete la información para registrar una nueva sucursal.")}
                     </p>
                 </div>
             </div>
@@ -47,31 +49,31 @@ function BranchForm({
             <form className={styles.entityForm} onSubmit={onSubmit}>
                 <FormField
                     id="branch-name"
-                    label="Nombre"
+                    label={t("Nombre")}
                     value={name}
                     onChange={onNameChange}
-                    placeholder="Nombre de la sucursal"
+                    placeholder={t("Nombre de la sucursal")}
                     disabled={!companyId || isSaving || isDeleting}
                     required
                 />
 
                 <FormField
                     id="branch-code"
-                    label="Código"
+                    label={t("Código")}
                     value={code}
                     onChange={onCodeChange}
-                    placeholder="Código de la sucursal"
+                    placeholder={t("Código de la sucursal")}
                     disabled={!companyId || isSaving || isDeleting}
                     required
                 />
 
                 <FormField
                     id="branch-description"
-                    label="Descripción"
+                    label={t("Descripción")}
                     type="textarea"
                     value={description}
                     onChange={onDescriptionChange}
-                    placeholder="Descripción opcional"
+                    placeholder={t("Descripción opcional")}
                     disabled={!companyId || isSaving || isDeleting}
                 />
 
@@ -84,7 +86,7 @@ function BranchForm({
                                 onClick={onDeactivate}
                                 disabled={isSaving || isDeleting}
                             >
-                                {isDeleting ? "Desactivando..." : "Desactivar"}
+                                {isDeleting ? t("Desactivando...") : t("Desactivar")}
                             </button>
                         ) : null
                     }
@@ -96,7 +98,7 @@ function BranchForm({
                             onClick={onReset}
                             disabled={isSaving || isDeleting}
                         >
-                            Cancelar
+                            {t("Cancelar")}
                         </button>
                     )}
 
@@ -106,10 +108,10 @@ function BranchForm({
                         disabled={!companyId || isSaving || isDeleting}
                     >
                         {isSaving
-                            ? "Guardando..."
+                            ? t("Guardando...")
                             : selectedBranch
-                                ? "Guardar cambios"
-                                : "Crear sucursal"}
+                                ? t("Guardar cambios")
+                                : t("Crear sucursal")}
                     </button>
                 </FormActions>
             </form>

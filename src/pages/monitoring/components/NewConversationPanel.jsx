@@ -10,6 +10,7 @@ import TemplateParameterForm from "./TemplateParameterForm.jsx";
 import TemplatePicker from "./TemplatePicker.jsx";
 
 import styles from "./NewConversationPanel.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 const STEP_RECIPIENT =
@@ -42,6 +43,7 @@ function NewConversationPanel({
     onConversationCreated,
     onError,
 }) {
+    const { t } = usePageTranslation();
     const [
         step,
         setStep,
@@ -104,7 +106,7 @@ function NewConversationPanel({
             8
         ) {
             onError?.(
-                "Debe proporcionar un número de WhatsApp válido incluyendo el código de país."
+                t("Debe proporcionar un número de WhatsApp válido incluyendo el código de país.")
             );
 
             return;
@@ -192,7 +194,7 @@ function NewConversationPanel({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible iniciar la conversación."
+                t("No fue posible iniciar la conversación.")
             );
         } finally {
             setIsSending(false);
@@ -216,7 +218,7 @@ function NewConversationPanel({
             >
                 <div className={styles.stepHeader}>
                     <span className={styles.eyebrow}>
-                        Nueva conversación
+                        {t("Nueva conversación")}
                     </span>
 
                     <h2>
@@ -230,7 +232,7 @@ function NewConversationPanel({
 
                 <label className={styles.field}>
                     <span>
-                        Número de WhatsApp
+                        {t("Número de WhatsApp")}
                     </span>
 
                     <div className={styles.phoneInput}>
@@ -282,7 +284,7 @@ function NewConversationPanel({
                         type="button"
                         onClick={onClose}
                     >
-                        Cancelar
+                        {t("Cancelar")}
                     </button>
 
                     <button
@@ -365,7 +367,7 @@ function NewConversationPanel({
                             </span>
 
                             <small>
-                                Plantilla
+                                {t("Plantilla")}
                             </small>
                         </div>
 
@@ -391,7 +393,7 @@ function NewConversationPanel({
                             </span>
 
                             <small>
-                                Enviar
+                                {t("Enviar")}
                             </small>
                         </div>
                     </div>
@@ -403,7 +405,7 @@ function NewConversationPanel({
                         disabled={
                             isSending
                         }
-                        aria-label="Cerrar nueva conversación"
+                        aria-label={t("Cerrar nueva conversación")}
                     >
                         <svg
                             viewBox="0 0 24 24"

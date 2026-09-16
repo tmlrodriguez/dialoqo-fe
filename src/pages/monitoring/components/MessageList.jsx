@@ -11,6 +11,8 @@ import {
 import MessageBubble from "./MessageBubble.jsx";
 
 import styles from "./MessageList.module.css";
+import { getLanguageLocale } from "../../../utils/i18n.js";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
@@ -34,6 +36,7 @@ function MessageList({
     refreshKey = 0,
     onError,
 }) {
+    const { t } = usePageTranslation();
     const [messages, setMessages] =
         useState([]);
 
@@ -167,7 +170,7 @@ function MessageList({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar los mensajes."
+                t("No fue posible cargar los mensajes.")
             );
         } finally {
             if (showLoading) {
@@ -284,7 +287,7 @@ function MessageList({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible cargar mensajes anteriores."
+                t("No fue posible cargar mensajes anteriores.")
             );
         } finally {
             setIsLoadingOlder(false);
@@ -343,15 +346,15 @@ function MessageList({
             );
 
         if (difference === 0) {
-            return "Hoy";
+            return t("Hoy");
         }
 
         if (difference === 1) {
-            return "Ayer";
+            return t("Ayer");
         }
 
         return new Intl.DateTimeFormat(
-            "es-HN",
+            getLanguageLocale(),
             {
                 day: "numeric",
                 month: "long",
@@ -503,7 +506,7 @@ function MessageList({
                         }
                     >
                         {isLoadingOlder
-                            ? "Cargando..."
+                            ? t("Cargando...")
                             : "Cargar mensajes anteriores"}
                     </button>
                 </div>

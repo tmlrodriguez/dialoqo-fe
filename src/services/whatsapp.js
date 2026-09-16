@@ -2,82 +2,6 @@ import { apiRequest } from "../api/client.js";
 
 
 /**
- * getMetaIntegrations
- *
- * Description:
- * - Obtener las integraciones de Meta activas de una empresa.
- */
-export function getMetaIntegrations(companyId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/integrations/`);
-}
-
-
-/**
- * getMetaIntegration
- *
- * Description:
- * - Obtener el detalle de una integración de Meta.
- */
-export function getMetaIntegration(companyId, integrationId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/integrations/${integrationId}/`);
-}
-
-
-/**
- * createMetaIntegration
- *
- * Description:
- * - Crear una integración de Meta dentro de una empresa.
- */
-export function createMetaIntegration(companyId, data) {
-    return apiRequest(`/whatsapp/companies/${companyId}/integrations/`, {
-        method: "POST",
-        body: JSON.stringify(data),
-    });
-}
-
-
-/**
- * updateMetaIntegration
- *
- * Description:
- * - Actualizar una integración de Meta existente.
- */
-export function updateMetaIntegration(companyId, integrationId, data) {
-    return apiRequest(`/whatsapp/companies/${companyId}/integrations/${integrationId}/`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-    });
-}
-
-
-/**
- * deactivateMetaIntegration
- *
- * Description:
- * - Desactivar una integración de Meta existente.
- */
-export function deactivateMetaIntegration(companyId, integrationId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/integrations/${integrationId}/`, {
-        method: "DELETE",
-    });
-}
-
-
-/**
- * validateMetaIntegration
- *
- * Description:
- * - Validar contra Meta las credenciales configuradas para una integración.
- */
-export function validateMetaIntegration(companyId, integrationId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/integrations/${integrationId}/validate/`, {
-        method: "POST",
-    });
-}
-
-
-/**
  * getWhatsAppBusinessAccounts
  *
  * Description:
@@ -104,6 +28,10 @@ export function getWhatsAppBusinessAccount(companyId, accountId) {
  *
  * Description:
  * - Crear una cuenta de WhatsApp Business dentro de una empresa.
+ *
+ * Notes:
+ * - La cuenta pertenece directamente a la empresa.
+ * - La Meta App y sus credenciales son administradas globalmente por Dialoqo.
  */
 export function createWhatsAppBusinessAccount(companyId, data) {
     return apiRequest(`/whatsapp/companies/${companyId}/accounts/`, {
@@ -144,7 +72,11 @@ export function deactivateWhatsAppBusinessAccount(companyId, accountId) {
  * connectWhatsAppBusinessAccount
  *
  * Description:
- * - Conectar una cuenta de WhatsApp Business con Meta.
+ * - Conectar una cuenta de WhatsApp Business con la Meta App global de Dialoqo.
+ *
+ * Notes:
+ * - El backend utiliza las credenciales globales configuradas para Dialoqo.
+ * - El frontend nunca administra tokens ni secretos de Meta.
  */
 export function connectWhatsAppBusinessAccount(companyId, accountId) {
     return apiRequest(`/whatsapp/companies/${companyId}/accounts/${accountId}/connection/`, {
@@ -157,7 +89,7 @@ export function connectWhatsAppBusinessAccount(companyId, accountId) {
  * refreshWhatsAppBusinessAccount
  *
  * Description:
- * - Actualizar el estado real de una cuenta de WhatsApp Business contra Meta.
+ * - Actualizar desde Meta el estado real de una cuenta de WhatsApp Business.
  */
 export function refreshWhatsAppBusinessAccount(companyId, accountId) {
     return apiRequest(`/whatsapp/companies/${companyId}/accounts/${accountId}/connection/`, {
@@ -170,7 +102,7 @@ export function refreshWhatsAppBusinessAccount(companyId, accountId) {
  * disconnectWhatsAppBusinessAccount
  *
  * Description:
- * - Desconectar una cuenta de WhatsApp Business de Meta.
+ * - Desconectar una cuenta de WhatsApp Business de la Meta App utilizada por Dialoqo.
  */
 export function disconnectWhatsAppBusinessAccount(companyId, accountId) {
     return apiRequest(`/whatsapp/companies/${companyId}/accounts/${accountId}/connection/`, {
@@ -246,7 +178,7 @@ export function deactivateWhatsAppNumber(companyId, branchId, numberId) {
  * validateWhatsAppNumber
  *
  * Description:
- * - Validar contra Meta la conexión de un número de WhatsApp.
+ * - Validar contra Meta la identidad y disponibilidad de un número de WhatsApp.
  */
 export function validateWhatsAppNumber(companyId, branchId, numberId) {
     return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/validate/`, {

@@ -1,4 +1,6 @@
 import styles from "./ConversationListItem.module.css";
+import { getLanguageLocale } from "../../../utils/i18n.js";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
@@ -16,6 +18,7 @@ function ConversationListItem({
     isSelected,
     onClick,
 }) {
+    const { t } = usePageTranslation();
     const customer = conversation?.customer || {};
     const lastMessage = conversation?.last_message || null;
 
@@ -42,7 +45,7 @@ function ConversationListItem({
      */
     function getMessagePreview(message) {
         if (!message) {
-            return "Sin mensajes todavía.";
+            return t("Sin mensajes todavía.");
         }
 
         if (message.is_revoked) {
@@ -59,13 +62,13 @@ function ConversationListItem({
 
         switch (message.message_type) {
             case "IMAGE":
-                return "Imagen";
+                return t("Imagen");
 
             case "AUDIO":
-                return "Audio";
+                return t("Audio");
 
             case "VIDEO":
-                return "Video";
+                return t("Video");
 
             case "DOCUMENT":
                 return "Documento";
@@ -74,19 +77,19 @@ function ConversationListItem({
                 return "Sticker";
 
             case "LOCATION":
-                return "Ubicación";
+                return t("Ubicación");
 
             case "CONTACTS":
-                return "Contacto";
+                return t("Contacto");
 
             case "TEMPLATE":
-                return "Plantilla";
+                return t("Plantilla");
 
             case "REACTION":
-                return "Reacción";
+                return t(t("Reacción"));
 
             default:
-                return "Mensaje";
+                return t("Mensaje");
         }
     }
 
@@ -116,13 +119,13 @@ function ConversationListItem({
             date.getDate() === now.getDate();
 
         if (sameDay) {
-            return new Intl.DateTimeFormat("es-HN", {
+            return new Intl.DateTimeFormat(getLanguageLocale(), {
                 hour: "numeric",
                 minute: "2-digit",
             }).format(date);
         }
 
-        return new Intl.DateTimeFormat("es-HN", {
+        return new Intl.DateTimeFormat(getLanguageLocale(), {
             day: "2-digit",
             month: "2-digit",
         }).format(date);

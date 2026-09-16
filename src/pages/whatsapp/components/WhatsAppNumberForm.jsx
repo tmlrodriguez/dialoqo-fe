@@ -17,6 +17,8 @@ import {
 } from "../../../services/whatsapp.js";
 
 import styles from "./WhatsAppNumberForm.module.css";
+import { getLanguageLocale } from "../../../utils/i18n.js";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
@@ -38,6 +40,7 @@ function WhatsAppNumberForm({
     onError,
     onSuccess,
 }) {
+    const { t } = usePageTranslation();
     const [branches, setBranches] = useState([]);
     const [accounts, setAccounts] = useState([]);
     const [numbers, setNumbers] = useState([]);
@@ -144,7 +147,7 @@ function WhatsAppNumberForm({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar las sucursales."
+                t("No fue posible cargar las sucursales.")
             );
         } finally {
             setIsLoadingBranches(false);
@@ -198,7 +201,7 @@ function WhatsAppNumberForm({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar las cuentas de WhatsApp Business."
+                t("No fue posible cargar las cuentas de WhatsApp Business.")
             );
         } finally {
             setIsLoadingAccounts(false);
@@ -235,7 +238,7 @@ function WhatsAppNumberForm({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar los números de WhatsApp."
+                t("No fue posible cargar los números de WhatsApp.")
             );
         } finally {
             setIsLoadingNumbers(false);
@@ -303,7 +306,7 @@ function WhatsAppNumberForm({
 
             if (!numberDetail) {
                 throw new Error(
-                    "No fue posible obtener el detalle del número."
+                    t("No fue posible obtener el detalle del número.")
                 );
             }
 
@@ -324,7 +327,7 @@ function WhatsAppNumberForm({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible cargar el número de WhatsApp."
+                t("No fue posible cargar el número de WhatsApp.")
             );
         } finally {
             setIsLoadingDetail(false);
@@ -418,7 +421,7 @@ function WhatsAppNumberForm({
                 );
 
                 onSuccess?.(
-                    "Número de WhatsApp actualizado correctamente."
+                    t("Número de WhatsApp actualizado correctamente.")
                 );
             } else {
                 await createWhatsAppNumber(
@@ -428,7 +431,7 @@ function WhatsAppNumberForm({
                 );
 
                 onSuccess?.(
-                    "Número de WhatsApp creado correctamente."
+                    t("Número de WhatsApp creado correctamente.")
                 );
             }
 
@@ -438,7 +441,7 @@ function WhatsAppNumberForm({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible guardar el número de WhatsApp."
+                t("No fue posible guardar el número de WhatsApp.")
             );
         } finally {
             setIsSaving(false);
@@ -477,7 +480,7 @@ function WhatsAppNumberForm({
 
             onSuccess?.(
                 response?.success_message ||
-                "Número de WhatsApp validado correctamente."
+                t("Número de WhatsApp validado correctamente.")
             );
 
             await reloadSelectedNumber(selectedNumber.id);
@@ -485,7 +488,7 @@ function WhatsAppNumberForm({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible validar el número contra Meta."
+                t("No fue posible validar el número contra Meta.")
             );
         } finally {
             setIsValidating(false);
@@ -521,7 +524,7 @@ function WhatsAppNumberForm({
 
             onSuccess?.(
                 response?.success_message ||
-                "Monitoreo de WhatsApp activado correctamente."
+                t("Monitoreo de WhatsApp activado correctamente.")
             );
 
             await reloadSelectedNumber(selectedNumber.id);
@@ -529,7 +532,7 @@ function WhatsAppNumberForm({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible activar el monitoreo."
+                t("No fue posible activar el monitoreo.")
             );
         } finally {
             setIsChangingMonitoring(false);
@@ -554,7 +557,7 @@ function WhatsAppNumberForm({
         }
 
         const confirmed = window.confirm(
-            `¿Desea detener el monitoreo del número "${selectedNumber.display_name}"?`
+            `${t("¿Desea detener el monitoreo del número")} "${selectedNumber.display_name}"?`
         );
 
         if (!confirmed) {
@@ -573,7 +576,7 @@ function WhatsAppNumberForm({
 
             onSuccess?.(
                 response?.success_message ||
-                "Monitoreo de WhatsApp desactivado correctamente."
+                t("Monitoreo de WhatsApp desactivado correctamente.")
             );
 
             await reloadSelectedNumber(selectedNumber.id);
@@ -581,7 +584,7 @@ function WhatsAppNumberForm({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible desactivar el monitoreo."
+                t("No fue posible desactivar el monitoreo.")
             );
         } finally {
             setIsChangingMonitoring(false);
@@ -609,7 +612,7 @@ function WhatsAppNumberForm({
         }
 
         const confirmed = window.confirm(
-            `¿Desea desactivar el número "${selectedNumber.display_name}"?`
+            `${t("¿Desea desactivar el número")} "${selectedNumber.display_name}"?`
         );
 
         if (!confirmed) {
@@ -627,7 +630,7 @@ function WhatsAppNumberForm({
             );
 
             onSuccess?.(
-                "Número de WhatsApp desactivado correctamente."
+                t("Número de WhatsApp desactivado correctamente.")
             );
 
             resetForm();
@@ -636,7 +639,7 @@ function WhatsAppNumberForm({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible desactivar el número de WhatsApp."
+                t("No fue posible desactivar el número de WhatsApp.")
             );
         } finally {
             setIsDeleting(false);
@@ -661,7 +664,7 @@ function WhatsAppNumberForm({
             return value;
         }
 
-        return new Intl.DateTimeFormat("es-HN", {
+        return new Intl.DateTimeFormat(getLanguageLocale(), {
             dateStyle: "medium",
             timeStyle: "short",
         }).format(date);
@@ -703,7 +706,7 @@ function WhatsAppNumberForm({
             <div className={styles.contextBar}>
                 <div className={styles.contextField}>
                     <label htmlFor="number-branch">
-                        Sucursal
+                        {t("Sucursal")}
                     </label>
 
                     <select
@@ -718,7 +721,7 @@ function WhatsAppNumberForm({
                     >
                         {branches.length === 0 && (
                             <option value="">
-                                No existen sucursales disponibles
+                                {t("No existen sucursales disponibles")}
                             </option>
                         )}
 
@@ -739,15 +742,15 @@ function WhatsAppNumberForm({
                     <div className={styles.panelHeader}>
                         <div>
                             <span className={styles.eyebrow}>
-                                Canales
+                                {t("Canales")}
                             </span>
 
                             <h2>
-                                Números de WhatsApp
+                                {t("Números de WhatsApp")}
                             </h2>
 
                             <p>
-                                Números activos pertenecientes a la sucursal seleccionada.
+                                {t("Números activos pertenecientes a la sucursal seleccionada.")}
                             </p>
                         </div>
 
@@ -760,7 +763,7 @@ function WhatsAppNumberForm({
                                 operationInProgress
                             }
                         >
-                            Nuevo número
+                            {t("Nuevo número")}
                         </button>
                     </div>
 
@@ -782,16 +785,16 @@ function WhatsAppNumberForm({
                             </div>
 
                             <strong>
-                                Seleccione una sucursal.
+                                {t("Seleccione una sucursal.")}
                             </strong>
 
                             <span>
-                                Los números de WhatsApp se administran dentro de una sucursal.
+                                {t("Los números de WhatsApp se administran dentro de una sucursal.")}
                             </span>
                         </div>
                     ) : isLoadingNumbers ? (
                         <div className={styles.loadingState}>
-                            Cargando números...
+                            {t("Cargando números...")}
                         </div>
                     ) : numbers.length === 0 ? (
                         <div className={styles.emptyState}>
@@ -811,11 +814,11 @@ function WhatsAppNumberForm({
                             </div>
 
                             <strong>
-                                No existen números registrados.
+                                {t("No existen números registrados.")}
                             </strong>
 
                             <span>
-                                Registre el primer número de WhatsApp para esta sucursal.
+                                {t("Registre el primer número de WhatsApp para esta sucursal.")}
                             </span>
                         </div>
                     ) : (
@@ -868,8 +871,8 @@ function WhatsAppNumberForm({
                                             }
                                         >
                                             {number.is_connected
-                                                ? "Conectado"
-                                                : "Sin validar"}
+                                                ? t("Conectado")
+                                                : t("Sin validar")}
                                         </span>
 
                                         <span
@@ -880,8 +883,8 @@ function WhatsAppNumberForm({
                                             }
                                         >
                                             {number.is_monitoring_enabled
-                                                ? "Monitoreando"
-                                                : "Sin monitoreo"}
+                                                ? t("Monitoreando")
+                                                : t("Sin monitoreo")}
                                         </span>
                                     </div>
                                 </button>
@@ -894,19 +897,19 @@ function WhatsAppNumberForm({
                     <div className={styles.panelHeader}>
                         <div>
                             <span className={styles.eyebrow}>
-                                Configuración
+                                {t("Configuración")}
                             </span>
 
                             <h2>
                                 {selectedNumber
-                                    ? "Editar número"
-                                    : "Nuevo número"}
+                                    ? t("Editar número")
+                                    : t("Nuevo número")}
                             </h2>
 
                             <p>
                                 {selectedNumber
-                                    ? "Modifique el número o administre su estado operativo."
-                                    : "Registre un número corporativo de WhatsApp."}
+                                    ? t("Modifique el número o administre su estado operativo.")
+                                    : t("Registre un número corporativo de WhatsApp.")}
                             </p>
                         </div>
 
@@ -919,8 +922,8 @@ function WhatsAppNumberForm({
                                 }
                             >
                                 {selectedNumber.is_connected
-                                    ? "Conectado"
-                                    : "Sin validar"}
+                                    ? t("Conectado")
+                                    : t("Sin validar")}
                             </span>
                         )}
                     </div>
@@ -931,7 +934,7 @@ function WhatsAppNumberForm({
                     >
                         <div className={styles.formField}>
                             <label htmlFor="number-waba">
-                                Cuenta WABA
+                                {t("Cuenta WABA")}
                             </label>
 
                             <select
@@ -947,7 +950,7 @@ function WhatsAppNumberForm({
                             >
                                 {accounts.length === 0 && (
                                     <option value="">
-                                        No existen cuentas WABA disponibles
+                                        {t("No existen cuentas WABA disponibles")}
                                     </option>
                                 )}
 
@@ -958,20 +961,20 @@ function WhatsAppNumberForm({
                                     >
                                         {account.display_name}
                                         {account.is_connected
-                                            ? " — Conectada"
-                                            : " — Desconectada"}
+                                            ? ` — ${t("Conectada")}`
+                                            : ` — ${t("Desconectada")}`}
                                     </option>
                                 ))}
                             </select>
 
                             <span className={styles.fieldHelp}>
-                                El número utilizará esta cuenta de WhatsApp Business.
+                                {t("El número utilizará esta cuenta de WhatsApp Business.")}
                             </span>
                         </div>
 
                         <div className={styles.formField}>
                             <label htmlFor="number-display-name">
-                                Nombre
+                                {t("Nombre")}
                             </label>
 
                             <input
@@ -979,7 +982,7 @@ function WhatsAppNumberForm({
                                 type="text"
                                 value={displayName}
                                 onChange={(event) => setDisplayName(event.target.value)}
-                                placeholder="Nombre del número"
+                                placeholder={t("Nombre del número")}
                                 disabled={operationInProgress}
                                 required
                             />
@@ -987,7 +990,7 @@ function WhatsAppNumberForm({
 
                         <div className={styles.formField}>
                             <label htmlFor="number-phone">
-                                Número telefónico
+                                {t("Número telefónico")}
                             </label>
 
                             <input
@@ -1001,7 +1004,7 @@ function WhatsAppNumberForm({
                             />
 
                             <span className={styles.fieldHelp}>
-                                Utilice el número completo con código internacional.
+                                {t("Utilice el número completo con código internacional.")}
                             </span>
                         </div>
 
@@ -1015,7 +1018,7 @@ function WhatsAppNumberForm({
                                 type="text"
                                 value={metaPhoneNumberId}
                                 onChange={(event) => setMetaPhoneNumberId(event.target.value)}
-                                placeholder="Identificador del número en Meta"
+                                placeholder={t("Identificador del número en Meta")}
                                 disabled={operationInProgress}
                                 required
                             />
@@ -1023,14 +1026,14 @@ function WhatsAppNumberForm({
 
                         <div className={styles.formField}>
                             <label htmlFor="number-notes">
-                                Notas
+                                {t("Notas")}
                             </label>
 
                             <textarea
                                 id="number-notes"
                                 value={notes}
                                 onChange={(event) => setNotes(event.target.value)}
-                                placeholder="Información administrativa opcional"
+                                placeholder={t("Información administrativa opcional")}
                                 disabled={operationInProgress}
                                 rows="4"
                             />
@@ -1041,11 +1044,11 @@ function WhatsAppNumberForm({
                                 <div className={styles.lifecycleHeader}>
                                     <div>
                                         <h3>
-                                            Estado operativo
+                                            {t("Estado operativo")}
                                         </h3>
 
                                         <p>
-                                            Conexión con Meta y estado actual de monitoreo.
+                                            {t("Conexión con Meta y estado actual de monitoreo.")}
                                         </p>
                                     </div>
                                 </div>
@@ -1053,31 +1056,31 @@ function WhatsAppNumberForm({
                                 <div className={styles.lifecycleGrid}>
                                     <div className={styles.lifecycleField}>
                                         <span>
-                                            Conexión
+                                            {t("Conexión")}
                                         </span>
 
                                         <strong>
                                             {selectedNumber.is_connected
-                                                ? "Conectado"
-                                                : "No validado"}
+                                                ? t("Conectado")
+                                                : t("No validado")}
                                         </strong>
                                     </div>
 
                                     <div className={styles.lifecycleField}>
                                         <span>
-                                            Monitoreo
+                                            {t("Monitoreo")}
                                         </span>
 
                                         <strong>
                                             {selectedNumber.is_monitoring_enabled
-                                                ? "Activo"
-                                                : "Inactivo"}
+                                                ? t("Activo")
+                                                : t("Inactivo")}
                                         </strong>
                                     </div>
 
                                     <div className={styles.lifecycleField}>
                                         <span>
-                                            Inicio de monitoreo
+                                            {t("Inicio de monitoreo")}
                                         </span>
 
                                         <strong>
@@ -1089,7 +1092,7 @@ function WhatsAppNumberForm({
 
                                     <div className={styles.lifecycleField}>
                                         <span>
-                                            Fin de monitoreo
+                                            {t("Fin de monitoreo")}
                                         </span>
 
                                         <strong>
@@ -1108,8 +1111,8 @@ function WhatsAppNumberForm({
                                         disabled={operationInProgress}
                                     >
                                         {isValidating
-                                            ? "Validando..."
-                                            : "Validar con Meta"}
+                                            ? t("Validando...")
+                                            : t("Validar con Meta")}
                                     </button>
 
                                     {!selectedNumber.is_monitoring_enabled ? (
@@ -1123,8 +1126,8 @@ function WhatsAppNumberForm({
                                             }
                                         >
                                             {isChangingMonitoring
-                                                ? "Activando..."
-                                                : "Activar monitoreo"}
+                                                ? t("Activando...")
+                                                : t("Activar monitoreo")}
                                         </button>
                                     ) : (
                                         <button
@@ -1134,15 +1137,15 @@ function WhatsAppNumberForm({
                                             disabled={operationInProgress}
                                         >
                                             {isChangingMonitoring
-                                                ? "Desactivando..."
-                                                : "Detener monitoreo"}
+                                                ? t("Desactivando...")
+                                                : t("Detener monitoreo")}
                                         </button>
                                     )}
                                 </div>
 
                                 {!selectedNumber.is_connected && (
                                     <div className={styles.lifecycleNotice}>
-                                        Valide primero el número contra Meta antes de activar el monitoreo.
+                                        {t("Valide primero el número contra Meta antes de activar el monitoreo.")}
                                     </div>
                                 )}
                             </div>
@@ -1157,8 +1160,8 @@ function WhatsAppNumberForm({
                                     disabled={operationInProgress}
                                 >
                                     {isDeleting
-                                        ? "Desactivando..."
-                                        : "Desactivar"}
+                                        ? t("Desactivando...")
+                                        : t("Desactivar")}
                                 </button>
                             )}
 
@@ -1170,7 +1173,7 @@ function WhatsAppNumberForm({
                                         onClick={resetForm}
                                         disabled={operationInProgress}
                                     >
-                                        Cancelar
+                                        {t("Cancelar")}
                                     </button>
                                 )}
 
@@ -1185,10 +1188,10 @@ function WhatsAppNumberForm({
                                     }
                                 >
                                     {isSaving
-                                        ? "Guardando..."
+                                        ? t("Guardando...")
                                         : selectedNumber
-                                            ? "Guardar cambios"
-                                            : "Crear número"}
+                                            ? t("Guardar cambios")
+                                            : t("Crear número")}
                                 </button>
                             </div>
                         </div>

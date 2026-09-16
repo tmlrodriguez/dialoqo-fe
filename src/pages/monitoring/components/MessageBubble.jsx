@@ -2,6 +2,8 @@ import MessageMedia from "./MessageMedia.jsx";
 import MessageSpecialContent from "./MessageSpecialContent.jsx";
 
 import styles from "./MessageBubble.module.css";
+import { getLanguageLocale } from "../../../utils/i18n.js";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 const SPECIAL_MESSAGE_TYPES = [
@@ -35,6 +37,7 @@ function MessageBubble({
     numberId,
     conversationId,
 }) {
+    const { t } = usePageTranslation();
     const isOutbound =
         message?.direction === "OUTBOUND";
 
@@ -86,7 +89,7 @@ function MessageBubble({
         }
 
         return new Intl.DateTimeFormat(
-            "es-HN",
+            getLanguageLocale(),
             {
                 hour: "numeric",
                 minute: "2-digit",
@@ -119,7 +122,7 @@ function MessageBubble({
                 return "Entregado";
 
             case "READ":
-                return "Leído";
+                return t("Leído");
 
             case "FAILED":
                 return "Fallido";

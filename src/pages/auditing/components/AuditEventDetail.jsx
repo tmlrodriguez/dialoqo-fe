@@ -1,4 +1,6 @@
 import styles from "./AuditEventDetail.module.css";
+import { getLanguageLocale } from "../../../utils/i18n.js";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 const CATEGORY_LABELS = {
@@ -55,6 +57,7 @@ function AuditEventDetail({
     event,
     isLoading,
 }) {
+    const { t } = usePageTranslation();
     function formatDateTime(value) {
         if (!value) {
             return "—";
@@ -66,7 +69,7 @@ function AuditEventDetail({
             return value;
         }
 
-        return new Intl.DateTimeFormat("es-HN", {
+        return new Intl.DateTimeFormat(getLanguageLocale(), {
             dateStyle: "long",
             timeStyle: "medium",
         }).format(date);
@@ -85,7 +88,7 @@ function AuditEventDetail({
             .filter(Boolean)
             .join(" ");
 
-        return fullName || actor.username || "Usuario";
+        return fullName || actor.username || t("Usuario");
     }
 
 
@@ -102,7 +105,7 @@ function AuditEventDetail({
         return (
             <section className={styles.detailPanel}>
                 <div className={styles.loadingState}>
-                    Cargando detalle...
+                    {t("Cargando detalle...")}
                 </div>
             </section>
         );
@@ -165,7 +168,7 @@ function AuditEventDetail({
                                 : styles.severityInfo
                     }`}
                 >
-                    {SEVERITY_LABELS[event.severity] || event.severity}
+                    {t(SEVERITY_LABELS[event.severity] || event.severity)}
                 </span>
             </div>
 
@@ -173,11 +176,11 @@ function AuditEventDetail({
                 <div className={styles.summarySection}>
                     <div className={styles.badgeRow}>
                         <span className={styles.categoryBadge}>
-                            {CATEGORY_LABELS[event.category] || event.category}
+                            {t(CATEGORY_LABELS[event.category] || event.category)}
                         </span>
 
                         <span className={styles.actionBadge}>
-                            {ACTION_LABELS[event.action] || event.action}
+                            {t(ACTION_LABELS[event.action] || event.action)}
                         </span>
                     </div>
 
@@ -188,64 +191,64 @@ function AuditEventDetail({
 
                 <div className={styles.detailGrid}>
                     <div className={styles.detailField}>
-                        <span>Fecha y hora</span>
+                        <span>{t("Fecha y hora")}</span>
                         <strong>{formatDateTime(event.occurred_at)}</strong>
                     </div>
 
                     <div className={styles.detailField}>
-                        <span>Actor</span>
+                        <span>{t("Actor")}</span>
                         <strong>{getActorLabel(event.actor)}</strong>
                     </div>
 
                     <div className={styles.detailField}>
-                        <span>Usuario</span>
+                        <span>{t("Usuario")}</span>
                         <strong>{event.actor?.username || "SYSTEM"}</strong>
                     </div>
 
                     <div className={styles.detailField}>
-                        <span>Empresa</span>
+                        <span>{t("Empresa")}</span>
                         <strong>{event.company?.name || "—"}</strong>
                     </div>
 
                     <div className={styles.detailField}>
-                        <span>Sucursal</span>
+                        <span>{t("Sucursal")}</span>
                         <strong>{event.branch?.name || "—"}</strong>
                     </div>
 
                     <div className={styles.detailField}>
-                        <span>Aplicación destino</span>
+                        <span>{t("Aplicación destino")}</span>
                         <strong>{event.target_app || "—"}</strong>
                     </div>
 
                     <div className={styles.detailField}>
-                        <span>Modelo destino</span>
+                        <span>{t("Modelo destino")}</span>
                         <strong>{event.target_model || "—"}</strong>
                     </div>
 
                     <div className={styles.detailField}>
-                        <span>ID del recurso</span>
+                        <span>{t("ID del recurso")}</span>
                         <strong>{event.target_id || "—"}</strong>
                     </div>
 
                     <div className={styles.detailField}>
-                        <span>Recurso</span>
+                        <span>{t("Recurso")}</span>
                         <strong>{event.target_label || "—"}</strong>
                     </div>
 
                     <div className={styles.detailField}>
-                        <span>Request ID</span>
+                        <span>{t("Request ID")}</span>
                         <strong>{event.request_id || "—"}</strong>
                     </div>
 
                     <div className={styles.detailField}>
-                        <span>Dirección IP</span>
+                        <span>{t("Dirección IP")}</span>
                         <strong>{event.ip_address || "—"}</strong>
                     </div>
                 </div>
 
                 <div className={styles.technicalSection}>
                     <div className={styles.sectionHeader}>
-                        <h3>Metadata</h3>
+                        <h3>{t("Metadata")}</h3>
 
                         <p>
                             Información contextual registrada junto al evento.
@@ -259,7 +262,7 @@ function AuditEventDetail({
 
                 <div className={styles.technicalSection}>
                     <div className={styles.sectionHeader}>
-                        <h3>User agent</h3>
+                        <h3>{t("User agent")}</h3>
 
                         <p>
                             Cliente utilizado para generar la solicitud.
@@ -267,7 +270,7 @@ function AuditEventDetail({
                     </div>
 
                     <div className={styles.userAgentBlock}>
-                        {event.user_agent || "No disponible."}
+                        {event.user_agent || t("No disponible.")}
                     </div>
                 </div>
             </div>

@@ -7,6 +7,7 @@ import {
 import ConversationListItem from "./ConversationListItem.jsx";
 
 import styles from "./ConversationList.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
@@ -30,6 +31,7 @@ function ConversationList({
     onConversationSelect,
     onError,
 }) {
+    const { t } = usePageTranslation();
     const [conversations, setConversations] = useState([]);
 
     const [search, setSearch] = useState("");
@@ -121,7 +123,7 @@ function ConversationList({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar las conversaciones."
+                t("No fue posible cargar las conversaciones.")
             );
         } finally {
             setIsLoading(false);
@@ -288,11 +290,11 @@ function ConversationList({
             <div className={styles.header}>
                 <div>
                     <span className={styles.eyebrow}>
-                        Monitoreo
+                        {t("Monitoreo")}
                     </span>
 
                     <h2>
-                        Conversaciones
+                        {t("Conversaciones")}
                     </h2>
                 </div>
 
@@ -337,8 +339,8 @@ function ConversationList({
                                 event.target.value
                             )
                         }
-                        placeholder="Buscar cliente o número..."
-                        aria-label="Buscar conversaciones"
+                        placeholder={t("Buscar cliente o número...")}
+                        aria-label={t("Buscar conversaciones")}
                     />
                 </div>
 
@@ -347,7 +349,7 @@ function ConversationList({
                     type="submit"
                     disabled={isLoading}
                 >
-                    Buscar
+                    {t("Buscar")}
                 </button>
             </form>
 
@@ -364,7 +366,7 @@ function ConversationList({
                     }
                     disabled={isLoading}
                 >
-                    Todas
+                    {t("Todas")}
                 </button>
 
                 <button
@@ -379,7 +381,7 @@ function ConversationList({
                     }
                     disabled={isLoading}
                 >
-                    No leídas
+                    {t("No leídas")}
                 </button>
             </div>
 
@@ -416,10 +418,10 @@ function ConversationList({
 
                         <span>
                             {unreadOnly
-                                ? "No existen conversaciones pendientes de lectura."
+                                ? t("No existen conversaciones pendientes de lectura.")
                                 : search.trim()
-                                    ? "No se encontraron conversaciones que coincidan con la búsqueda."
-                                    : "Las conversaciones aparecerán cuando exista actividad en este número."}
+                                    ? t("No se encontraron conversaciones que coincidan con la búsqueda.")
+                                    : t("Las conversaciones aparecerán cuando exista actividad en este número.")}
                         </span>
                     </div>
                 ) : (
@@ -460,7 +462,7 @@ function ConversationList({
                             handlePreviousPage
                         }
                     >
-                        Anterior
+                        {t("Anterior")}
                     </button>
 
                     <span>
@@ -477,7 +479,7 @@ function ConversationList({
                             handleNextPage
                         }
                     >
-                        Siguiente
+                        {t("Siguiente")}
                     </button>
                 </div>
             )}

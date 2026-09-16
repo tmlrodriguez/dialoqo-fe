@@ -1,3 +1,4 @@
+import LanguageSelector from "../common/LanguageSelector/LanguageSelector.jsx";
 import styles from "./AppLayout.module.css";
 
 
@@ -21,6 +22,7 @@ function TopBar({
             </span>
 
             <div className={styles.topbarActions}>
+                <LanguageSelector compact />
                 <div className={styles.topbarUser}>
                     <span className={styles.topbarUserName}>
                         {userName}

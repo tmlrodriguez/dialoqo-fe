@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import styles from "./AuditFilters.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 const CATEGORY_OPTIONS = [
@@ -159,6 +160,7 @@ function AuditFilters({
     onApply,
     onReset,
 }) {
+    const { t } = usePageTranslation();
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
 
@@ -173,7 +175,7 @@ function AuditFilters({
         <section className={styles.filtersPanel}>
             <div className={styles.filtersHeader}>
                 <div>
-                    <h2>Filtros</h2>
+                    <h2>{t("Filtros")}</h2>
 
                     <p>
                         Refine el historial de auditoría utilizando los criterios disponibles.
@@ -188,7 +190,7 @@ function AuditFilters({
                 >
                     {showAdvancedFilters
                         ? "Ocultar filtros avanzados"
-                        : "Filtros avanzados"}
+                        : t("Filtros avanzados")}
                 </button>
             </div>
 
@@ -199,7 +201,7 @@ function AuditFilters({
                 <div className={styles.primaryFilters}>
                     <div className={`${styles.formField} ${styles.searchField}`}>
                         <label htmlFor="audit-search">
-                            Buscar
+                            {t("Buscar")}
                         </label>
 
                         <input
@@ -207,14 +209,14 @@ function AuditFilters({
                             type="search"
                             value={filters.search}
                             onChange={(event) => onFilterChange("search", event.target.value)}
-                            placeholder="Descripción, usuario, recurso..."
+                            placeholder={t("Descripción, usuario, recurso...")}
                             disabled={isLoading}
                         />
                     </div>
 
                     <div className={styles.formField}>
                         <label htmlFor="audit-category">
-                            Categoría
+                            {t("Categoría")}
                         </label>
 
                         <select
@@ -228,7 +230,7 @@ function AuditFilters({
                                     key={option.value}
                                     value={option.value}
                                 >
-                                    {option.label}
+                                    {t(option.label)}
                                 </option>
                             ))}
                         </select>
@@ -236,7 +238,7 @@ function AuditFilters({
 
                     <div className={styles.formField}>
                         <label htmlFor="audit-action">
-                            Acción
+                            {t("Acción")}
                         </label>
 
                         <select
@@ -250,7 +252,7 @@ function AuditFilters({
                                     key={option.value}
                                     value={option.value}
                                 >
-                                    {option.label}
+                                    {t(option.label)}
                                 </option>
                             ))}
                         </select>
@@ -258,7 +260,7 @@ function AuditFilters({
 
                     <div className={styles.formField}>
                         <label htmlFor="audit-severity">
-                            Severidad
+                            {t("Severidad")}
                         </label>
 
                         <select
@@ -272,7 +274,7 @@ function AuditFilters({
                                     key={option.value}
                                     value={option.value}
                                 >
-                                    {option.label}
+                                    {t(option.label)}
                                 </option>
                             ))}
                         </select>
@@ -280,7 +282,7 @@ function AuditFilters({
 
                     <div className={styles.formField}>
                         <label htmlFor="audit-date-from">
-                            Desde
+                            {t("Desde")}
                         </label>
 
                         <input
@@ -294,7 +296,7 @@ function AuditFilters({
 
                     <div className={styles.formField}>
                         <label htmlFor="audit-date-to">
-                            Hasta
+                            {t("Hasta")}
                         </label>
 
                         <input
@@ -310,7 +312,7 @@ function AuditFilters({
                 {showAdvancedFilters && (
                     <div className={styles.advancedFilters}>
                         <div className={styles.advancedHeader}>
-                            <span>Filtros avanzados</span>
+                            <span>{t("Filtros avanzados")}</span>
 
                             <p>
                                 Utilice estos campos para investigaciones técnicas o trazabilidad específica.
@@ -320,7 +322,7 @@ function AuditFilters({
                         <div className={styles.advancedGrid}>
                             <div className={styles.formField}>
                                 <label htmlFor="audit-branch">
-                                    Sucursal
+                                    {t("Sucursal")}
                                 </label>
 
                                 <select
@@ -362,7 +364,7 @@ function AuditFilters({
 
                             <div className={styles.formField}>
                                 <label htmlFor="audit-target-app">
-                                    Aplicación destino
+                                    {t("Aplicación destino")}
                                 </label>
 
                                 <input
@@ -377,7 +379,7 @@ function AuditFilters({
 
                             <div className={styles.formField}>
                                 <label htmlFor="audit-target-model">
-                                    Modelo destino
+                                    {t("Modelo destino")}
                                 </label>
 
                                 <input
@@ -392,7 +394,7 @@ function AuditFilters({
 
                             <div className={styles.formField}>
                                 <label htmlFor="audit-target-id">
-                                    ID del recurso
+                                    {t("ID del recurso")}
                                 </label>
 
                                 <input
@@ -407,7 +409,7 @@ function AuditFilters({
 
                             <div className={styles.formField}>
                                 <label htmlFor="audit-request-id">
-                                    Request ID
+                                    {t("Request ID")}
                                 </label>
 
                                 <input
@@ -430,7 +432,7 @@ function AuditFilters({
                         onClick={onReset}
                         disabled={isLoading}
                     >
-                        Limpiar filtros
+                        {t("Limpiar filtros")}
                     </button>
 
                     <button

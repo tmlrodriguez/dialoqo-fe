@@ -1,21 +1,21 @@
 import { useEffect, useState } from "react";
+
 import AlertMessage from "../../components/common/AlertMessage/AlertMessage.jsx";
 import PageHeader from "../../components/common/PageHeader/PageHeader.jsx";
 import SectionTabs from "../../components/common/SectionTabs/SectionTabs.jsx";
-import MetaIntegrationForm from "./components/MetaIntegrationForm.jsx";
-import WabaForm from "./components/WabaForm.jsx";
-import WhatsAppNumberForm from "./components/WhatsAppNumberForm.jsx";
+
+import { getCompanies } from "../../services/organizations.js";
+
 import NumberAssignmentPanel from "./components/NumberAssignmentPanel.jsx";
 import TemplateManagement from "./components/TemplateManagement.jsx";
-import { getCompanies } from "../../services/organizations.js";
+import WabaForm from "./components/WabaForm.jsx";
+import WhatsAppNumberForm from "./components/WhatsAppNumberForm.jsx";
+
 import styles from "./WhatsAppAdministrationPage.module.css";
+import { usePageTranslation } from "../usePageTranslation.js";
 
 
 const WHATSAPP_SECTIONS = [
-    {
-        id: "integrations",
-        label: "Integraciones",
-    },
     {
         id: "accounts",
         label: "Cuentas WABA",
@@ -39,16 +39,19 @@ const WHATSAPP_SECTIONS = [
  * WhatsAppAdministrationPage
  *
  * Description:
- * - Proporcionar la interfaz administrativa de configuración de WhatsApp.
+ * - Proporcionar la interfaz administrativa de configuración de WhatsApp para una empresa.
  *
  * Notes:
- * - La administración se ejecuta dentro del contexto de una empresa.
- * - Integra configuración de Meta, WABA, números, asignaciones y plantillas.
- * - Las conversaciones y mensajes pertenecen a la interfaz MONITOR y no se
- *   administran desde esta página.
+ * - La administración se ejecuta siempre dentro del contexto de una empresa.
+ * - Las cuentas WABA pertenecen directamente a la empresa.
+ * - Los números, asignaciones y plantillas permanecen segregados por empresa.
+ * - La Meta App y sus credenciales pertenecen globalmente a Dialoqo.
+ * - No existe una integración Meta independiente por empresa.
+ * - Las conversaciones y mensajes pertenecen a la interfaz de monitoreo y no se administran desde esta página.
  */
 function WhatsAppAdministrationPage() {
-    const [activeSection, setActiveSection] = useState("integrations");
+    const { t } = usePageTranslation();
+    const [activeSection, setActiveSection] = useState("accounts");
 
     const [companies, setCompanies] = useState([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState("");
@@ -91,28 +94,18 @@ function WhatsAppAdministrationPage() {
             setCompanies(companyList);
 
             setSelectedCompanyId((currentCompanyId) => {
-                const companyExists = companyList.some(
-                    (company) => String(company.id) === String(currentCompanyId)
-                );
+                const companyExists = companyList.some((company) => String(company.id) === String(currentCompanyId));
 
                 if (companyExists) {
                     return currentCompanyId;
                 }
 
-                if (companyList.length > 0) {
-                    return String(companyList[0].id);
-                }
-
-                return "";
+                return companyList.length > 0 ? String(companyList[0].id) : "";
             });
         } catch (error) {
             setCompanies([]);
             setSelectedCompanyId("");
-
-            setErrorMessage(
-                error.message ||
-                "No fue posible cargar las empresas."
-            );
+            setErrorMessage(error.message || t("No fue posible cargar las empresas."));
         } finally {
             setIsLoadingCompanies(false);
         }
@@ -126,8 +119,7 @@ function WhatsAppAdministrationPage() {
      * - Cambiar la empresa utilizada como contexto administrativo de WhatsApp.
      *
      * Notes:
-     * - Los componentes internos recargarán sus recursos cuando cambie
-     *   selectedCompanyId.
+     * - Cada componente interno recarga sus recursos cuando cambia selectedCompanyId.
      */
     function handleCompanyChange(event) {
         clearMessages();
@@ -155,29 +147,26 @@ function WhatsAppAdministrationPage() {
     return (
         <section className={styles.whatsappAdministrationPage}>
             <PageHeader
-                eyebrow="Administración"
+                eyebrow={t("Administración")}
                 title="WhatsApp"
-                description="Configure las integraciones de Meta, cuentas de WhatsApp Business, números corporativos, responsables y plantillas utilizadas por Dialoqo."
+                description={t("Administre cuentas de WhatsApp Business, números corporativos, responsables y plantillas utilizadas por Dialoqo.")}
             />
 
             <div className={styles.contextBar}>
                 <div className={styles.contextField}>
                     <label htmlFor="whatsapp-company">
-                        Empresa
+                        {t("Empresa")}
                     </label>
 
                     <select
                         id="whatsapp-company"
                         value={selectedCompanyId}
                         onChange={handleCompanyChange}
-                        disabled={
-                            isLoadingCompanies ||
-                            companies.length === 0
-                        }
+                        disabled={isLoadingCompanies || companies.length === 0}
                     >
                         {companies.length === 0 && (
                             <option value="">
-                                No existen empresas disponibles
+                                {t("No existen empresas disponibles")}
                             </option>
                         )}
 
@@ -204,7 +193,7 @@ function WhatsAppAdministrationPage() {
             />
 
             <SectionTabs
-                sections={WHATSAPP_SECTIONS}
+                sections={WHATSAPP_SECTIONS.map((section) => ({ ...section, label: t(section.label) }))}
                 activeSection={activeSection}
                 onChange={handleSectionChange}
             />
@@ -228,22 +217,15 @@ function WhatsAppAdministrationPage() {
                     </div>
 
                     <strong>
-                        No existe una empresa seleccionada.
+                        {t("No existe una empresa seleccionada.")}
                     </strong>
 
                     <span>
-                        Cree o seleccione una empresa antes de configurar WhatsApp.
+                        {t("Cree o seleccione una empresa antes de configurar WhatsApp.")}
                     </span>
                 </section>
             ) : (
                 <>
-                    {activeSection === "integrations" && (
-                        <MetaIntegrationForm
-                            companyId={selectedCompanyId}
-                            onError={setErrorMessage}
-                            onSuccess={setSuccessMessage}
-                        />
-                    )}
                     {activeSection === "accounts" && (
                         <WabaForm
                             companyId={selectedCompanyId}
@@ -251,13 +233,15 @@ function WhatsAppAdministrationPage() {
                             onSuccess={setSuccessMessage}
                         />
                     )}
-                   {activeSection === "numbers" && (
+
+                    {activeSection === "numbers" && (
                         <WhatsAppNumberForm
                             companyId={selectedCompanyId}
                             onError={setErrorMessage}
                             onSuccess={setSuccessMessage}
                         />
                     )}
+
                     {activeSection === "assignments" && (
                         <NumberAssignmentPanel
                             companyId={selectedCompanyId}
@@ -265,6 +249,7 @@ function WhatsAppAdministrationPage() {
                             onSuccess={setSuccessMessage}
                         />
                     )}
+
                     {activeSection === "templates" && (
                         <TemplateManagement
                             companyId={selectedCompanyId}

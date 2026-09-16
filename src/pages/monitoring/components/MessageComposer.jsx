@@ -1,4 +1,5 @@
 import {
+    useEffect,
     useState,
 } from "react";
 
@@ -11,17 +12,19 @@ import TemplateParameterForm from "./TemplateParameterForm.jsx";
 import TemplatePicker from "./TemplatePicker.jsx";
 
 import styles from "./MessageComposer.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
  * MessageComposer
  *
  * Description:
- * - Permitir al monitor enviar mensajes de texto o plantillas aprobadas.
+ * - Permitir a un usuario MEMBER enviar mensajes de texto o plantillas aprobadas.
  *
  * Notes:
  * - El destinatario y número origen son determinados por la conversación.
  * - Las plantillas son obtenidas exclusivamente desde el WABA asociado al número.
+ * - Este componente no se renderiza para usuarios MONITOR.
  * - Los envíos permanecen autorizados y validados por el backend.
  */
 function MessageComposer({
@@ -32,6 +35,7 @@ function MessageComposer({
     onMessageSent,
     onError,
 }) {
+    const { t } = usePageTranslation();
     const [textBody, setTextBody] =
         useState("");
 
@@ -118,7 +122,7 @@ function MessageComposer({
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible enviar el mensaje."
+                t("No fue posible enviar el mensaje.")
             );
         } finally {
             setIsSending(false);
@@ -165,21 +169,17 @@ function MessageComposer({
                 response?.data?.message ||
                 null;
 
-            setSelectedTemplate(
-                null
-            );
+            // Close the modal first so the successful send always returns the
+            // operator to the conversation even if the parent immediately
+            // refreshes messages and conversation metadata.
+            setIsTemplatePanelOpen(false);
+            setSelectedTemplate(null);
 
-            setIsTemplatePanelOpen(
-                false
-            );
-
-            onMessageSent?.(
-                message
-            );
+            onMessageSent?.(message);
         } catch (error) {
             onError?.(
                 error.message ||
-                "No fue posible enviar la plantilla."
+                t("No fue posible enviar la plantilla.")
             );
         } finally {
             setIsSending(false);
@@ -212,6 +212,13 @@ function MessageComposer({
             }
         }
     }
+
+
+    useEffect(() => {
+        setTextBody("");
+        setIsTemplatePanelOpen(false);
+        setSelectedTemplate(null);
+    }, [conversationId]);
 
 
     return (
@@ -268,8 +275,8 @@ function MessageComposer({
                     disabled={
                         isSending
                     }
-                    aria-label="Enviar plantilla"
-                    title="Enviar plantilla"
+                    aria-label={t("Enviar plantilla")}
+                    title={t("Enviar plantilla")}
                 >
                     <svg
                         viewBox="0 0 24 24"
@@ -297,11 +304,11 @@ function MessageComposer({
                             )
                         }
                         onKeyDown={handleKeyDown}
-                        placeholder="Escriba un mensaje..."
+                        placeholder={t("Escriba un mensaje...")}
                         maxLength={4096}
                         rows={1}
                         disabled={isSending}
-                        aria-label="Mensaje"
+                        aria-label={t("Mensaje")}
                     />
 
                     <span className={styles.characterCount}>
@@ -316,7 +323,7 @@ function MessageComposer({
                         !textBody.trim() ||
                         isSending
                     }
-                    aria-label="Enviar mensaje"
+                    aria-label={t("Enviar mensaje")}
                 >
                     {isSending ? (
                         <span className={styles.spinner}></span>
@@ -338,7 +345,7 @@ function MessageComposer({
                     <span>
                         {isSending
                             ? "Enviando"
-                            : "Enviar"}
+                            : t("Enviar")}
                     </span>
                 </button>
             </form>

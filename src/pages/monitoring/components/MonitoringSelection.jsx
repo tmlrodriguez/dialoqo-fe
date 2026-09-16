@@ -1,4 +1,5 @@
 import styles from "./MonitoringSelection.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
@@ -9,6 +10,7 @@ import styles from "./MonitoringSelection.module.css";
  *
  * Notes:
  * - La selección sigue la jerarquía empresa, sucursal y número de WhatsApp.
+ * - Los MONITOR pueden visualizar todos los números entregados por el backend y su responsable actual.
  * - Cada recurso se representa mediante tarjetas seleccionables.
  * - El componente no realiza solicitudes HTTP.
  * - Solo utiliza recursos previamente autorizados por el backend.
@@ -23,6 +25,7 @@ function MonitoringSelection({
     onNumberSelect,
     onBack,
 }) {
+    const { t } = usePageTranslation();
     /**
      * getStepInformation
      *
@@ -33,15 +36,15 @@ function MonitoringSelection({
         if (step === "company") {
             return {
                 eyebrow: "Paso 1 de 3",
-                title: "Seleccione una empresa",
-                description: "Seleccione la empresa cuyas conversaciones desea monitorear.",
+                title: t("Seleccione una empresa"),
+                description: t("Seleccione la empresa cuyas conversaciones desea monitorear."),
             };
         }
 
         if (step === "branch") {
             return {
                 eyebrow: "Paso 2 de 3",
-                title: "Seleccione una sucursal",
+                title: t("Seleccione una sucursal"),
                 description: `Seleccione una sucursal de ${selectedCompany?.name || "la empresa seleccionada"}.`,
             };
         }
@@ -49,16 +52,12 @@ function MonitoringSelection({
         if (step === "number") {
             return {
                 eyebrow: "Paso 3 de 3",
-                title: "Seleccione un número",
+                title: t("Seleccione un número"),
                 description: `Seleccione el número de WhatsApp que desea monitorear en ${selectedBranch?.name || "la sucursal seleccionada"}.`,
             };
         }
 
-        return {
-            eyebrow: "",
-            title: "",
-            description: "",
-        };
+        return { eyebrow: "", title: "", description: "" };
     }
 
 
@@ -94,13 +93,11 @@ function MonitoringSelection({
     function handleItemClick(item) {
         if (step === "company") {
             onCompanySelect?.(item);
-
             return;
         }
 
         if (step === "branch") {
             onBranchSelect?.(item);
-
             return;
         }
 
@@ -118,11 +115,7 @@ function MonitoringSelection({
      */
     function getCardTitle(item) {
         if (step === "number") {
-            return (
-                item.display_name ||
-                item.phone_number ||
-                "Número de WhatsApp"
-            );
+            return item.display_name || item.phone_number || t("Número de WhatsApp");
         }
 
         return item.name || "Sin nombre";
@@ -137,25 +130,13 @@ function MonitoringSelection({
      */
     function getCardSubtitle(item) {
         if (step === "company") {
-            const branchCount =
-                item.branches?.length || 0;
-
-            return `${branchCount} ${
-                branchCount === 1
-                    ? "sucursal disponible"
-                    : "sucursales disponibles"
-            }`;
+            const branchCount = item.branches?.length || 0;
+            return `${branchCount} ${branchCount === 1 ? "sucursal disponible" : "sucursales disponibles"}`;
         }
 
         if (step === "branch") {
-            const numberCount =
-                item.numbers?.length || 0;
-
-            return `${numberCount} ${
-                numberCount === 1
-                    ? "número disponible"
-                    : "números disponibles"
-            }`;
+            const numberCount = item.numbers?.length || 0;
+            return `${numberCount} ${numberCount === 1 ? "número disponible" : "números disponibles"}`;
         }
 
         if (step === "number") {
@@ -173,21 +154,52 @@ function MonitoringSelection({
      * - Obtener la inicial utilizada en la representación visual.
      */
     function getCardInitial(item) {
-        const label =
-            step === "number"
-                ? (
-                    item.display_name ||
-                    item.phone_number ||
-                    "W"
-                )
-                : (
-                    item.name ||
-                    "C"
-                );
+        const label = step === "number"
+            ? item.display_name || item.phone_number || "W"
+            : item.name || "C";
 
-        return label
-            .charAt(0)
-            .toUpperCase();
+        return label.charAt(0).toUpperCase();
+    }
+
+
+    /**
+     * getNumberAssignmentMember
+     *
+     * Description:
+     * - Obtener el MEMBER responsable actual incluido en el contexto del número.
+     *
+     * Notes:
+     * - current_assignment.member es la representación canónica esperada.
+     * - Los aliases adicionales mantienen compatibilidad con snapshots anteriores del frontend/backend.
+     */
+    function getNumberAssignmentMember(number) {
+        return (
+            number?.current_assignment?.member ||
+            number?.assignment?.member ||
+            number?.active_assignment?.member ||
+            number?.assigned_member ||
+            number?.responsible_member ||
+            number?.current_member ||
+            number?.responsible ||
+            null
+        );
+    }
+
+
+    /**
+     * getMemberName
+     *
+     * Description:
+     * - Obtener el nombre visible del responsable de un número.
+     */
+    function getMemberName(member) {
+        if (!member) {
+            return "Sin responsable";
+        }
+
+        const fullName = [member.first_name, member.last_name].filter(Boolean).join(" ");
+
+        return fullName || member.display_name || member.name || member.username || member.member_code || t("Miembro asignado");
     }
 
 
@@ -200,33 +212,28 @@ function MonitoringSelection({
     function getEmptyStateMessage() {
         if (step === "company") {
             return {
-                title: "No existen empresas disponibles.",
+                title: t("No existen empresas disponibles."),
                 description: "Su usuario no tiene empresas disponibles para monitoreo.",
             };
         }
 
         if (step === "branch") {
             return {
-                title: "No existen sucursales disponibles.",
+                title: t("No existen sucursales disponibles."),
                 description: "La empresa seleccionada no contiene sucursales disponibles para monitoreo.",
             };
         }
 
         return {
-            title: "No existen números disponibles.",
-            description: "La sucursal seleccionada no contiene números de WhatsApp disponibles para monitoreo.",
+            title: t("No existen números disponibles."),
+            description: t("La sucursal seleccionada no contiene números de WhatsApp disponibles para monitoreo."),
         };
     }
 
 
-    const stepInformation =
-        getStepInformation();
-
-    const availableItems =
-        getAvailableItems();
-
-    const emptyStateMessage =
-        getEmptyStateMessage();
+    const stepInformation = getStepInformation();
+    const availableItems = getAvailableItems();
+    const emptyStateMessage = getEmptyStateMessage();
 
 
     return (
@@ -234,91 +241,37 @@ function MonitoringSelection({
             <header className={styles.header}>
                 <div className={styles.headerMain}>
                     {step !== "company" && (
-                        <button
-                            className={styles.backButton}
-                            type="button"
-                            onClick={onBack}
-                            aria-label="Regresar"
-                        >
-                            <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.8"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                            >
+                        <button className={styles.backButton} type="button" onClick={onBack} aria-label="Regresar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                 <path d="m15 18-6-6 6-6" />
                             </svg>
                         </button>
                     )}
 
                     <div>
-                        <span className={styles.eyebrow}>
-                            {stepInformation.eyebrow}
-                        </span>
-
-                        <h2>
-                            {stepInformation.title}
-                        </h2>
-
-                        <p>
-                            {stepInformation.description}
-                        </p>
+                        <span className={styles.eyebrow}>{stepInformation.eyebrow}</span>
+                        <h2>{stepInformation.title}</h2>
+                        <p>{stepInformation.description}</p>
                     </div>
                 </div>
 
-                <div
-                    className={styles.progress}
-                    aria-label="Progreso de selección"
-                >
+                <div className={styles.progress} aria-label={t("Progreso de selección")}>
                     <span className={styles.progressActive}></span>
-
-                    <span
-                        className={
-                            step === "branch" ||
-                            step === "number"
-                                ? styles.progressActive
-                                : ""
-                        }
-                    ></span>
-
-                    <span
-                        className={
-                            step === "number"
-                                ? styles.progressActive
-                                : ""
-                        }
-                    ></span>
+                    <span className={step === "branch" || step === "number" ? styles.progressActive : ""}></span>
+                    <span className={step === "number" ? styles.progressActive : ""}></span>
                 </div>
             </header>
 
             {step !== "company" && (
                 <div className={styles.breadcrumb}>
-                    {selectedCompany && (
-                        <span>
-                            {selectedCompany.name}
-                        </span>
-                    )}
+                    {selectedCompany && <span>{selectedCompany.name}</span>}
 
                     {selectedBranch && step === "number" && (
                         <>
-                            <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.8"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                            >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                 <path d="m9 18 6-6-6-6" />
                             </svg>
-
-                            <span>
-                                {selectedBranch.name}
-                            </span>
+                            <span>{selectedBranch.name}</span>
                         </>
                     )}
                 </div>
@@ -327,84 +280,52 @@ function MonitoringSelection({
             {availableItems.length === 0 ? (
                 <div className={styles.emptyState}>
                     <div className={styles.emptyIcon}>
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                        >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                             <path d="M4 21V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v16" />
                             <path d="M17 9h2a1 1 0 0 1 1 1v11" />
                             <path d="M2 21h20" />
                         </svg>
                     </div>
 
-                    <strong>
-                        {emptyStateMessage.title}
-                    </strong>
-
-                    <span>
-                        {emptyStateMessage.description}
-                    </span>
+                    <strong>{emptyStateMessage.title}</strong>
+                    <span>{emptyStateMessage.description}</span>
                 </div>
             ) : (
                 <div className={styles.cardGrid}>
-                    {availableItems.map((item) => (
-                        <button
-                            key={item.id}
-                            className={styles.card}
-                            type="button"
-                            onClick={() =>
-                                handleItemClick(item)
-                            }
-                        >
-                            <div className={styles.cardIcon}>
-                                {getCardInitial(item)}
-                            </div>
+                    {availableItems.map((item) => {
+                        const assignedMember = step === "number" ? getNumberAssignmentMember(item) : null;
 
-                            <div className={styles.cardContent}>
-                                <strong>
-                                    {getCardTitle(item)}
-                                </strong>
+                        return (
+                            <button key={item.id} className={styles.card} type="button" onClick={() => handleItemClick(item)}>
+                                <div className={styles.cardIcon}>{getCardInitial(item)}</div>
 
-                                <span>
-                                    {getCardSubtitle(item)}
-                                </span>
-                            </div>
+                                <div className={styles.cardContent}>
+                                    <strong>{getCardTitle(item)}</strong>
+                                    <span>{getCardSubtitle(item)}</span>
 
-                            {step === "number" && (
-                                <div className={styles.numberStatuses}>
-                                    {item.is_connected && (
-                                        <span className={styles.connectedBadge}>
-                                            Conectado
-                                        </span>
-                                    )}
-
-                                    {item.is_monitoring_enabled && (
-                                        <span className={styles.monitoringBadge}>
-                                            Monitoreando
-                                        </span>
+                                    {step === "number" && (
+                                        <div className={styles.assignmentInformation}>
+                                            <span className={styles.assignmentLabel}>{t("Responsable")}</span>
+                                            <strong className={assignedMember ? styles.assignmentName : styles.unassignedName}>
+                                                {getMemberName(assignedMember)}
+                                            </strong>
+                                        </div>
                                     )}
                                 </div>
-                            )}
 
-                            <svg
-                                className={styles.chevron}
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.8"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                            >
-                                <path d="m9 18 6-6-6-6" />
-                            </svg>
-                        </button>
-                    ))}
+                                {step === "number" && (
+                                    <div className={styles.numberStatuses}>
+                                        {item.is_connected && <span className={styles.connectedBadge}>{t("Conectado")}</span>}
+                                        {item.is_monitoring_enabled && <span className={styles.monitoringBadge}>{t("Monitoreando")}</span>}
+                                    </div>
+                                )}
+
+                                <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="m9 18 6-6-6-6" />
+                                </svg>
+                            </button>
+                        );
+                    })}
                 </div>
             )}
         </section>

@@ -8,6 +8,7 @@ import {
 } from "../../../services/monitoring.js";
 
 import styles from "./TemplatePicker.module.css";
+import { usePageTranslation } from "../../usePageTranslation.js";
 
 
 /**
@@ -29,6 +30,7 @@ function TemplatePicker({
     onClose,
     onError,
 }) {
+    const { t } = usePageTranslation();
     const [templates, setTemplates] =
         useState([]);
 
@@ -89,7 +91,7 @@ function TemplatePicker({
 
             onError?.(
                 error.message ||
-                "No fue posible cargar las plantillas."
+                t("No fue posible cargar las plantillas.")
             );
         } finally {
             setIsLoading(false);
@@ -123,16 +125,16 @@ function TemplatePicker({
     ) {
         switch (category) {
             case "MARKETING":
-                return "Marketing";
+                return t("Marketing");
 
             case "UTILITY":
                 return "Utilidad";
 
             case "AUTHENTICATION":
-                return "Autenticación";
+                return t("Autenticación");
 
             default:
-                return category || "Plantilla";
+                return category || t("Plantilla");
         }
     }
 
@@ -182,7 +184,7 @@ function TemplatePicker({
                     className={styles.closeButton}
                     type="button"
                     onClick={onClose}
-                    aria-label="Cerrar selector de plantillas"
+                    aria-label={t("Cerrar selector de plantillas")}
                 >
                     <svg
                         viewBox="0 0 24 24"
@@ -222,7 +224,7 @@ function TemplatePicker({
                     type="search"
                     value={search}
                     onChange={handleSearchChange}
-                    placeholder="Buscar plantilla..."
+                    placeholder={t("Buscar plantilla...")}
                 />
             </div>
 

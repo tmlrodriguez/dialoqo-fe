@@ -13,7 +13,8 @@ import styles from "./AppLayout.module.css";
  *
  * Notes:
  * - Las opciones visibles dependen del rol del usuario.
- * - Los MONITOR acceden exclusivamente al área de conversaciones.
+ * - Los MONITOR acceden a Monitoreo y navegan empresa → sucursal → número en modo lectura.
+ * - Los MEMBER acceden directamente al área de conversaciones de sus números asignados.
  * - Los ADMINISTRATOR acceden exclusivamente a las funciones administrativas y de auditoría.
  * - Soporta navegación lateral en escritorio y menú móvil.
  * - Todos los iconos utilizan SVG con dimensiones y estilo consistentes.
@@ -30,6 +31,9 @@ function SideBar({
 
     const isMonitor =
         user?.role === "MONITOR";
+
+    const isMember =
+        user?.role === "MEMBER";
 
     return (
         <aside
@@ -78,8 +82,7 @@ function SideBar({
                         </span>
 
                         <NavLink
-                            to="/app"
-                            end
+                            to="/app/monitoring"
                             onClick={closeMobileMenu}
                             className={({ isActive }) =>
                                 `${styles.navigationItem} ${
@@ -99,44 +102,23 @@ function SideBar({
                                     strokeLinejoin="round"
                                     aria-hidden="true"
                                 >
-                                    <rect
-                                        x="3"
-                                        y="3"
-                                        width="7"
-                                        height="7"
-                                        rx="1"
-                                    />
-
-                                    <rect
-                                        x="14"
-                                        y="3"
-                                        width="7"
-                                        height="7"
-                                        rx="1"
-                                    />
-
-                                    <rect
-                                        x="3"
-                                        y="14"
-                                        width="7"
-                                        height="7"
-                                        rx="1"
-                                    />
-
-                                    <rect
-                                        x="14"
-                                        y="14"
-                                        width="7"
-                                        height="7"
-                                        rx="1"
-                                    />
+                                    <circle cx="12" cy="12" r="3" />
+                                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
                                 </svg>
                             </span>
 
                             <span>
-                                Dashboard
+                                Monitoreo
                             </span>
                         </NavLink>
+                    </>
+                )}
+
+                {isMember && (
+                    <>
+                        <span className={styles.navigationTitle}>
+                            Principal
+                        </span>
 
                         <NavLink
                             to="/app/monitoring"
@@ -159,18 +141,14 @@ function SideBar({
                                     strokeLinejoin="round"
                                     aria-hidden="true"
                                 >
-                                    <circle
-                                        cx="12"
-                                        cy="12"
-                                        r="3"
-                                    />
-
-                                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                                    <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z" />
+                                    <path d="M8 10h8" />
+                                    <path d="M8 14h5" />
                                 </svg>
                             </span>
 
                             <span>
-                                Conversaciones
+                                Mis conversaciones
                             </span>
                         </NavLink>
                     </>
@@ -215,50 +193,6 @@ function SideBar({
 
                             <span>
                                 Organización
-                            </span>
-                        </NavLink>
-
-                        <NavLink
-                            to="/app/administration/members"
-                            onClick={closeMobileMenu}
-                            className={({ isActive }) =>
-                                `${styles.navigationItem} ${
-                                    isActive
-                                        ? styles.navigationItemActive
-                                        : ""
-                                }`
-                            }
-                        >
-                            <span className={styles.navigationIcon}>
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    aria-hidden="true"
-                                >
-                                    <circle
-                                        cx="9"
-                                        cy="8"
-                                        r="3"
-                                    />
-
-                                    <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
-
-                                    <circle
-                                        cx="17"
-                                        cy="9"
-                                        r="2.5"
-                                    />
-
-                                    <path d="M15.5 14.5A4.5 4.5 0 0 1 21 19" />
-                                </svg>
-                            </span>
-
-                            <span>
-                                Personal
                             </span>
                         </NavLink>
 
