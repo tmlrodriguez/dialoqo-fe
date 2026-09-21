@@ -93,6 +93,7 @@
 .eyebrow i {
     width: 7px;
     height: 7px;
+    flex: 0 0 7px;
     border-radius: 50%;
     background: #22d3ee;
     box-shadow: 0 0 16px rgba(34, 211, 238, 0.8);
@@ -183,11 +184,13 @@
 .trustLine {
     width: 30px;
     height: 1px;
+    flex: 0 0 30px;
     background: #466277;
 }
 
 .heroVisual {
     position: relative;
+    min-width: 0;
 }
 
 .visualGlow {
@@ -207,6 +210,7 @@
 
 .structureVisual {
     position: relative;
+    min-width: 0;
     overflow: hidden;
     padding: 22px;
     border: 1px solid #d9e4ec;
@@ -231,6 +235,7 @@
 .structureHeader > div,
 .conversationHeader > div,
 .assignmentCard > div {
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 11px;
@@ -265,14 +270,18 @@
 .assignmentCard strong {
     display: block;
     margin-top: 2px;
+    overflow: hidden;
     color: #172432;
     font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .onlineBadge {
     display: inline-flex;
     align-items: center;
     gap: 7px;
+    flex: 0 0 auto;
     padding: 8px 10px;
     border-radius: 999px;
     background: #e7fbf1;
@@ -285,6 +294,7 @@
 .onlineBadge i {
     width: 7px;
     height: 7px;
+    flex: 0 0 7px;
     border-radius: 50%;
     background: #27c777;
     box-shadow: 0 0 0 4px rgba(39, 199, 119, 0.12);
@@ -297,7 +307,7 @@
 .treeRow {
     min-height: 67px;
     display: grid;
-    grid-template-columns: 38px 1fr auto;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
     gap: 11px;
     align-items: center;
     padding: 12px 14px;
@@ -306,17 +316,27 @@
     background: #fff;
 }
 
+.treeRow > div {
+    min-width: 0;
+}
+
 .treeRow strong {
     display: block;
     margin-top: 3px;
+    overflow: hidden;
     color: #182737;
     font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .treeRow p {
     margin: 3px 0 0;
+    overflow: hidden;
     color: #8a99a8;
     font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .treeIcon,
@@ -345,6 +365,7 @@
     color: #178754;
     font-size: 9px;
     font-weight: 800;
+    white-space: nowrap;
 }
 
 .treeConnector {
@@ -384,6 +405,7 @@
     color: #0869f5;
     font-size: 8px;
     font-weight: 800;
+    white-space: nowrap;
 }
 
 .numberStatus span:first-child {
@@ -403,16 +425,22 @@
     background: #f8fafc;
 }
 
+.assignmentCard > div > div {
+    min-width: 0;
+}
+
 .assignmentCard > span {
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    flex: 0 0 auto;
     padding: 6px 8px;
     border-radius: 999px;
     background: #edf2f6;
     color: #55697b;
     font-size: 8px;
     font-weight: 800;
+    white-space: nowrap;
 }
 
 .memberAvatar {
@@ -428,6 +456,7 @@
 }
 
 .conversationVisual {
+    min-width: 0;
     overflow: hidden;
     border: 1px solid #d9e4ec;
     border-radius: 21px;
@@ -437,10 +466,10 @@
 
 .heroVisual .conversationVisual {
     position: absolute;
-    width: 69%;
+    z-index: 4;
     right: 0;
     bottom: 0;
-    z-index: 4;
+    width: 69%;
 }
 
 .conversationHeader {
@@ -451,6 +480,10 @@
     padding: 16px;
     border-bottom: 1px solid #e0e8ee;
     background: #fff;
+}
+
+.conversationHeader > div > div {
+    min-width: 0;
 }
 
 .conversationBody {
@@ -489,6 +522,7 @@
 .messageIncomingSmall p,
 .messageOutgoing p {
     margin: 0;
+    overflow-wrap: anywhere;
     color: #26394a;
     font-size: 11px;
     line-height: 1.5;
@@ -507,7 +541,7 @@
 .composerPreview {
     height: 52px;
     display: grid;
-    grid-template-columns: 30px 1fr 32px;
+    grid-template-columns: 30px minmax(0, 1fr) 32px;
     gap: 8px;
     align-items: center;
     padding: 9px 11px;
@@ -597,9 +631,13 @@
 
 .split {
     display: grid;
-    grid-template-columns: 0.9fr 1.1fr;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     gap: 78px;
     align-items: center;
+}
+
+.sectionCopy {
+    min-width: 0;
 }
 
 .sectionCopy .sectionEyebrow {
@@ -633,6 +671,7 @@
 }
 
 .structureFlow span svg {
+    flex: 0 0 auto;
     color: #0869f5;
 }
 
@@ -649,6 +688,7 @@
 
 .card {
     position: relative;
+    min-width: 0;
     min-height: 240px;
     overflow: hidden;
     padding: 30px;
@@ -724,13 +764,14 @@
 
 .steps {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0;
     margin-top: 60px;
 }
 
 .steps article {
     position: relative;
+    min-width: 0;
     padding: 0 22px;
 }
 
@@ -799,14 +840,15 @@
 
 .securityGrid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
 }
 
 .securityGrid article {
     position: relative;
-    overflow: hidden;
+    min-width: 0;
     min-height: 250px;
+    overflow: hidden;
     padding: 33px;
     border: 1px solid rgba(255, 255, 255, 0.09);
     border-radius: 22px;
@@ -915,43 +957,131 @@
     justify-content: center;
 }
 
-@media (max-width: 1000px) {
+/* =========================
+   SMALL DESKTOP / LAPTOP
+   ========================= */
+
+@media (max-width: 1180px) {
     .container,
-    .split {
-        grid-template-columns: 1fr;
+    .sectionInner,
+    .split,
+    .securityGrid,
+    .ctaInner {
+        width: min(100% - 48px, 1120px);
     }
 
     .container {
-        gap: 65px;
+        grid-template-columns: minmax(0, 0.95fr) minmax(440px, 1.05fr);
+        gap: 52px;
     }
 
+    .hero h1 {
+        font-size: clamp(46px, 5vw, 68px);
+    }
+
+    .visualStack {
+        min-height: 550px;
+    }
+
+    .heroVisual .structureVisual {
+        width: 86%;
+    }
+
+    .heroVisual .conversationVisual {
+        width: 72%;
+    }
+
+    .split {
+        gap: 56px;
+    }
+
+    .steps article {
+        padding: 0 16px;
+    }
+
+    .stepLine {
+        left: 66px;
+    }
+}
+
+/* =========================
+   TABLET LANDSCAPE
+   ========================= */
+
+@media (max-width: 1024px) {
     .hero {
-        padding-top: 90px;
+        min-height: auto;
+        padding: 96px 0 90px;
+    }
+
+    .container {
+        grid-template-columns: 1fr;
+        gap: 64px;
+    }
+
+    .heroCopy {
+        max-width: 780px;
+    }
+
+    .hero h1 {
+        max-width: 760px;
+        font-size: clamp(48px, 7vw, 70px);
+    }
+
+    .heroIntro {
+        max-width: 720px;
     }
 
     .heroVisual {
         width: 100%;
-        max-width: 760px;
+        max-width: 780px;
         margin: 0 auto;
     }
 
     .visualStack {
-        min-height: 600px;
+        min-height: 590px;
+    }
+
+    .heroVisual .structureVisual {
+        width: 78%;
+    }
+
+    .heroVisual .conversationVisual {
+        width: 65%;
+    }
+
+    .split {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .sectionCopy {
+        max-width: 760px;
+    }
+
+    .structureSection .structureVisual,
+    .monitoringSection .conversationVisual {
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
     }
 
     .cards {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .steps {
         grid-template-columns: 1fr;
-        gap: 14px;
+        gap: 0;
+        max-width: 760px;
+        margin: 52px auto 0;
     }
 
     .steps article {
         display: grid;
-        grid-template-columns: 50px 1fr;
-        column-gap: 18px;
+        grid-template-columns: 52px minmax(0, 1fr);
+        column-gap: 20px;
+        min-height: 110px;
         padding: 0;
     }
 
@@ -961,7 +1091,7 @@
 
     .stepLine {
         top: 50px;
-        bottom: -15px;
+        bottom: 0;
         left: 25px;
         right: auto;
         width: 1px;
@@ -969,20 +1099,174 @@
         background: linear-gradient(#c9dbe8, #e5edf3);
     }
 
+    .steps article:last-child {
+        min-height: auto;
+    }
+
     .steps h3 {
-        margin: 4px 0 5px;
+        margin: 4px 0 6px;
     }
 
     .steps p {
-        padding-bottom: 12px;
-    }
-
-    .monitoringSection .conversationVisual {
-        max-width: none;
+        max-width: 620px;
+        padding-bottom: 28px;
     }
 }
 
-@media (max-width: 680px) {
+/* =========================
+   TABLET PORTRAIT
+   ========================= */
+
+@media (max-width: 768px) {
+    .container,
+    .sectionInner,
+    .split,
+    .securityGrid,
+    .ctaInner {
+        width: min(100% - 32px, 1180px);
+    }
+
+    .hero {
+        padding: 76px 0 68px;
+    }
+
+    .heroGlowOne {
+        width: 480px;
+        height: 480px;
+        top: -220px;
+        right: -230px;
+    }
+
+    .heroGlowTwo {
+        width: 460px;
+        height: 460px;
+        left: -250px;
+        bottom: -250px;
+    }
+
+    .gridBackground {
+        background-size: 40px 40px;
+    }
+
+    .hero h1 {
+        max-width: 650px;
+        font-size: clamp(42px, 8.5vw, 58px);
+        line-height: 1.02;
+        letter-spacing: -0.045em;
+    }
+
+    .heroIntro {
+        margin-top: 22px;
+        font-size: 16px;
+        line-height: 1.65;
+    }
+
+    .heroActions {
+        margin-top: 30px;
+    }
+
+    .heroTrust {
+        margin-top: 28px;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .visualStack {
+        min-height: 530px;
+    }
+
+    .heroVisual .structureVisual {
+        width: 84%;
+    }
+
+    .heroVisual .conversationVisual {
+        width: 70%;
+    }
+
+    .structureVisual {
+        padding: 18px;
+        border-radius: 20px;
+    }
+
+    .treeIndented {
+        margin-left: 18px;
+    }
+
+    .treeIndentedLarge {
+        margin-left: 34px;
+    }
+
+    .assignmentCard {
+        margin-left: 52px;
+    }
+
+    .section,
+    .structureSection,
+    .monitoringSection,
+    .stepsSection,
+    .rolesSection {
+        padding: 82px 0;
+    }
+
+    .sectionHeader {
+        margin-bottom: 40px;
+    }
+
+    .sectionHeader h2,
+    .sectionCopy h2,
+    .cta h2 {
+        font-size: clamp(32px, 6.5vw, 46px);
+        line-height: 1.1;
+    }
+
+    .sectionHeader p,
+    .sectionCopy > p {
+        font-size: 16px;
+        line-height: 1.65;
+    }
+
+    .cards {
+        gap: 14px;
+    }
+
+    .card {
+        min-height: 225px;
+        padding: 25px;
+    }
+
+    .cardIcon {
+        margin-bottom: 25px;
+    }
+
+    .securityGrid {
+        gap: 14px;
+    }
+
+    .securityGrid article {
+        min-height: 230px;
+        padding: 28px;
+    }
+
+    .securityGrid h3 {
+        margin-top: 32px;
+        font-size: 22px;
+    }
+
+    .cta {
+        padding: 90px 0;
+    }
+
+    .ctaGlow {
+        width: 520px;
+        height: 520px;
+    }
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 600px) {
     .container,
     .sectionInner,
     .split,
@@ -992,37 +1276,59 @@
     }
 
     .hero {
-        min-height: auto;
-        padding: 80px 0 70px;
+        padding: 68px 0 60px;
+    }
+
+    .eyebrow {
+        max-width: 100%;
+        margin-bottom: 20px;
+        font-size: 10px;
+        letter-spacing: 0.1em;
     }
 
     .hero h1 {
-        font-size: 44px;
+        font-size: clamp(38px, 11vw, 48px);
+        line-height: 1.03;
     }
 
     .heroIntro {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .heroActions {
         flex-direction: column;
+        width: 100%;
     }
 
     .primary,
     .secondary {
         width: 100%;
+        min-height: 50px;
     }
 
     .heroTrust {
         align-items: flex-start;
-        font-size: 10px;
-        line-height: 1.5;
+    }
+
+    .trustLine {
+        flex: 0 0 24px;
+        width: 24px;
+        margin-top: 8px;
+    }
+
+    .heroVisual {
+        max-width: 520px;
     }
 
     .visualStack {
         min-height: auto;
         display: grid;
-        gap: 16px;
+        gap: 14px;
+    }
+
+    .visualGlow {
+        width: 440px;
+        height: 440px;
     }
 
     .heroVisual .structureVisual,
@@ -1033,25 +1339,75 @@
         bottom: auto;
     }
 
+    .structureVisual {
+        padding: 16px;
+    }
+
+    .structureHeader {
+        gap: 10px;
+    }
+
+        .structureHeader {
+        gap: 10px;
+    }
+
+    .structureLogo {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+    .onlineBadge {
+        padding: 7px 8px;
+        font-size: 8px;
+    }
+
+    .treeRow {
+        grid-template-columns: 36px minmax(0, 1fr) auto;
+        gap: 9px;
+        padding: 11px;
+    }
+
+    .treeIcon,
+    .phoneIcon {
+        width: 36px;
+        height: 36px;
+    }
+
     .treeIndented {
-        margin-left: 10px;
+        margin-left: 8px;
     }
 
     .treeIndentedLarge {
-        margin-left: 20px;
+        margin-left: 16px;
+    }
+
+    .treeConnector {
+        padding-left: 27px;
     }
 
     .assignmentCard {
-        margin-left: 20px;
+        margin-left: 16px;
+        padding: 12px;
     }
 
     .numberStatus {
         display: none;
     }
 
-    .cards,
-    .securityGrid {
-        grid-template-columns: 1fr;
+    .conversationBody {
+        min-height: 240px;
+        padding: 22px 16px;
+    }
+
+    .messageIncoming,
+    .messageIncomingSmall,
+    .messageOutgoing {
+        max-width: 82%;
+    }
+
+    .messageIncomingSmall {
+        max-width: 68%;
     }
 
     .section,
@@ -1059,31 +1415,322 @@
     .monitoringSection,
     .stepsSection,
     .rolesSection {
-        padding: 78px 0;
+        padding: 68px 0;
+    }
+
+    .sectionHeader {
+        margin-bottom: 34px;
+        text-align: left;
+    }
+
+    .sectionHeader h2,
+    .sectionCopy h2,
+    .cta h2 {
+        font-size: clamp(30px, 9vw, 40px);
+    }
+
+    .sectionHeader p {
+        margin-left: 0;
+    }
+
+    .structureFlow {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: stretch;
+        gap: 5px;
+        margin-top: 26px;
+    }
+
+    .structureFlow span {
+        width: 100%;
+        min-height: 42px;
+        border-radius: 11px;
+    }
+
+    .flowArrow {
+        margin-left: 17px;
+        transform: rotate(90deg);
+    }
+
+    .cards,
+    .securityGrid {
+        grid-template-columns: 1fr;
     }
 
     .card {
         min-height: auto;
+        padding: 25px;
     }
 
-    .structureFlow {
-        align-items: flex-start;
-        flex-direction: column;
+    .cardIcon {
+        margin-bottom: 22px;
     }
 
-    .flowArrow {
-        margin-left: 19px;
-        transform: rotate(90deg);
+    .steps {
+        margin-top: 42px;
+    }
+
+    .steps article {
+        grid-template-columns: 48px minmax(0, 1fr);
+        column-gap: 16px;
+    }
+
+    .stepNumber {
+        width: 48px;
+        height: 48px;
+    }
+
+    .stepLine {
+        top: 48px;
+        left: 23px;
+    }
+
+    .steps h3 {
+        font-size: 18px;
+    }
+
+    .steps p {
+        padding-bottom: 24px;
+        font-size: 13px;
     }
 
     .securityGrid article {
         min-height: auto;
+        padding: 26px;
+    }
+
+    .securityGrid h3 {
+        margin-top: 28px;
     }
 
     .cta {
-        padding: 85px 0;
+        padding: 74px 0;
+    }
+
+    .cta p {
+        font-size: 15px;
+    }
+
+    .cta .heroActions {
+        margin-top: 28px;
     }
 }
+
+/* =========================
+   SMALL MOBILE
+   ========================= */
+
+@media (max-width: 420px) {
+    .container,
+    .sectionInner,
+    .split,
+    .securityGrid,
+    .ctaInner {
+        width: calc(100% - 24px);
+    }
+
+    .hero {
+        padding: 58px 0 52px;
+    }
+
+    .hero h1 {
+        font-size: clamp(34px, 10.8vw, 43px);
+        letter-spacing: -0.04em;
+    }
+
+    .eyebrow {
+        white-space: normal;
+    }
+
+    .heroTrust {
+        font-size: 9px;
+    }
+
+    .structureVisual {
+        padding: 13px;
+        border-radius: 17px;
+    }
+
+    .structureHeader {
+        padding-bottom: 14px;
+    }
+
+    .structureHeader small,
+    .conversationHeader small,
+    .assignmentCard small,
+    .treeRow small {
+        font-size: 8px;
+    }
+
+    .structureHeader strong,
+    .conversationHeader strong,
+    .assignmentCard strong,
+    .treeRow strong {
+        font-size: 12px;
+    }
+
+    .onlineBadge {
+        gap: 5px;
+        padding: 6px 7px;
+    }
+
+    .treeRow {
+        grid-template-columns: 32px minmax(0, 1fr) auto;
+        padding: 9px;
+    }
+
+    .treeIcon,
+    .phoneIcon {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+    }
+
+    .treeIcon svg,
+    .phoneIcon svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .treeStatus {
+        padding: 5px 6px;
+        font-size: 7px;
+    }
+
+    .treeIndented,
+    .treeIndentedLarge {
+        margin-left: 0;
+    }
+
+    .treeConnector {
+        height: 14px;
+        padding-left: 25px;
+    }
+
+    .assignmentCard {
+        margin: 12px 0 0;
+    }
+
+    .assignmentCard > span {
+        font-size: 7px;
+    }
+
+    .conversationHeader {
+        padding: 13px;
+    }
+
+    .conversationBody {
+        min-height: 220px;
+        gap: 11px;
+        padding: 18px 13px;
+    }
+
+    .messageIncoming,
+    .messageIncomingSmall,
+    .messageOutgoing {
+        max-width: 88%;
+        padding: 10px 11px 7px;
+    }
+
+    .messageIncoming p,
+    .messageIncomingSmall p,
+    .messageOutgoing p {
+        font-size: 10px;
+    }
+
+    .composerPreview {
+        grid-template-columns: 28px minmax(0, 1fr) 30px;
+        padding: 8px 9px;
+    }
+
+    .composerPreview > span {
+        width: 28px;
+        height: 28px;
+    }
+
+    .composerPreview button {
+        width: 30px;
+        height: 30px;
+    }
+
+    .section,
+    .structureSection,
+    .monitoringSection,
+    .stepsSection,
+    .rolesSection {
+        padding: 58px 0;
+    }
+
+    .sectionHeader h2,
+    .sectionCopy h2,
+    .cta h2 {
+        font-size: 31px;
+    }
+
+    .sectionHeader p,
+    .sectionCopy > p {
+        font-size: 15px;
+    }
+
+    .card {
+        padding: 22px;
+        border-radius: 17px;
+    }
+
+    .cardIcon {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 20px;
+    }
+
+    .card h3 {
+        font-size: 19px;
+    }
+
+    .card p {
+        font-size: 14px;
+    }
+
+    .securityGrid article {
+        padding: 23px;
+        border-radius: 18px;
+    }
+
+    .securityGrid h3 {
+        margin-top: 25px;
+        font-size: 21px;
+    }
+
+    .securityGrid p {
+        font-size: 14px;
+    }
+
+    .cta {
+        padding: 65px 0;
+    }
+}
+
+/* =========================
+   TOUCH DEVICES
+   ========================= */
+
+@media (hover: none) {
+    .card:hover,
+    .securityGrid article:hover,
+    .primary:hover,
+    .secondary:hover {
+        transform: none;
+    }
+
+    .card:hover .cardIcon,
+    .securityGrid article:hover .featureIcon {
+        transform: none;
+    }
+}
+
+/* =========================
+   REDUCED MOTION
+   ========================= */
 
 @media (prefers-reduced-motion: reduce) {
     .primary,

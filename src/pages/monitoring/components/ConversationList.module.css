@@ -250,3 +250,8 @@
         border-bottom: 1px solid var(--color-border);
     }
 }
+@media (max-width: 800px) {
+    .conversationList {
+        border-right: 0;
+    }
+}

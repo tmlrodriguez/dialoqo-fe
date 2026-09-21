@@ -171,18 +171,45 @@
 }
 
 @media (max-width: 600px) {
+    .composerContainer {
+        position: relative;
+        z-index: 5;
+        flex: 0 0 auto;
+        padding-bottom: env(safe-area-inset-bottom, 0);
+        background: var(--color-surface);
+    }
+
     .composer {
-        padding: 8px;
+        gap: 7px;
+        padding: 8px 9px;
     }
 
     .templateButton {
         width: 40px;
         height: 40px;
+        border-radius: 50%;
+    }
+
+    .inputContainer {
+        min-height: 40px;
+        border-radius: 20px;
+    }
+
+    .inputContainer textarea {
+        min-height: 38px;
+        max-height: 110px;
+        padding: 10px 13px;
+        font-size: 12px;
+    }
+
+    .characterCount {
+        display: none;
     }
 
     .sendButton {
-        width: 42px;
-        min-width: 42px;
+        width: 40px;
+        min-width: 40px;
+        height: 40px;
         padding: 0;
         border-radius: 50%;
     }
@@ -191,15 +218,23 @@
         display: none;
     }
 
-    .inputContainer textarea {
-        padding-right: 14px;
-    }
-
-    .characterCount {
-        display: none;
-    }
-
     .templateOverlay {
-        padding: 8px;
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        align-items: flex-end;
+        padding: 0;
+        background: rgba(15, 23, 42, 0.32);
+    }
+
+    .templatePanel {
+        width: 100%;
+        max-height: min(78dvh, 680px);
+        padding: 16px;
+        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 18px 18px 0 0;
     }
 }
