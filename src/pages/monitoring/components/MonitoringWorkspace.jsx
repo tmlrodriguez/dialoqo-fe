@@ -190,6 +190,56 @@ function MonitoringWorkspace({
 
 
     /**
+     * Mobile conversation scroll lock
+     *
+     * Description:
+     * - Bloquear el scroll del documento mientras una conversación ocupa toda la pantalla en móvil.
+     * - Mantener el scroll interno de mensajes independiente del documento principal.
+     *
+     * Notes:
+     * - La posición original de la página se restaura al cerrar la conversación.
+     * - El bloqueo se aplica únicamente al layout móvil.
+     */
+    useEffect(() => {
+        if (!selectedConversation || typeof window === "undefined") return undefined;
+
+        const mobileQuery = window.matchMedia("(max-width: 800px)");
+        if (!mobileQuery.matches) return undefined;
+
+        const scrollY = window.scrollY;
+        const html = document.documentElement;
+        const body = document.body;
+
+        const previousHtmlOverflow = html.style.overflow;
+        const previousHtmlOverscrollBehavior = html.style.overscrollBehavior;
+        const previousBodyOverflow = body.style.overflow;
+        const previousBodyPosition = body.style.position;
+        const previousBodyTop = body.style.top;
+        const previousBodyWidth = body.style.width;
+        const previousBodyOverscrollBehavior = body.style.overscrollBehavior;
+
+        html.style.overflow = "hidden";
+        html.style.overscrollBehavior = "none";
+        body.style.overflow = "hidden";
+        body.style.position = "fixed";
+        body.style.top = `-${scrollY}px`;
+        body.style.width = "100%";
+        body.style.overscrollBehavior = "none";
+
+        return () => {
+            html.style.overflow = previousHtmlOverflow;
+            html.style.overscrollBehavior = previousHtmlOverscrollBehavior;
+            body.style.overflow = previousBodyOverflow;
+            body.style.position = previousBodyPosition;
+            body.style.top = previousBodyTop;
+            body.style.width = previousBodyWidth;
+            body.style.overscrollBehavior = previousBodyOverscrollBehavior;
+            window.scrollTo(0, scrollY);
+        };
+    }, [selectedConversation]);
+
+
+    /**
      * acknowledgeOpenConversation
      *
      * Description:

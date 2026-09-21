@@ -1,8 +1,16 @@
 .loginPage {
+    position: relative;
     min-height: 100vh;
     display: grid;
     grid-template-columns: minmax(380px, 0.9fr) minmax(480px, 1.1fr);
     background: var(--color-background);
+}
+
+.languageSelector {
+    position: fixed;
+    top: 18px;
+    right: 22px;
+    z-index: 20;
 }
 
 .loginPanel {
@@ -39,6 +47,10 @@
     display: block;
     object-fit: contain;
     border-radius: 10px;
+}
+
+.loginBrandText {
+    min-width: 0;
 }
 
 .loginBrand h1 {
@@ -344,8 +356,18 @@
 }
 
 @media (max-width: 520px) {
+    .languageSelector {
+        top: 20px;
+        right: 20px;
+    }
+
     .loginPanel {
-        padding: 24px 20px;
+        min-height: 100dvh;
+        padding: 20px;
+    }
+
+    .loginBrand {
+        min-height: 46px;
     }
 
     .loginBrandLogoWrap {
@@ -358,8 +380,29 @@
         height: 42px;
     }
 
+    .loginBrandText {
+        display: none;
+    }
+
+    .loginContent {
+        margin: auto 0;
+    }
+
+    .loginHeading {
+        margin-bottom: 28px;
+    }
+
     .loginHeading h2 {
         font-size: 26px;
+    }
+
+    .loginHeading p {
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    .loginForm {
+        gap: 18px;
     }
 
     .loginField input,
@@ -370,5 +413,42 @@
     .loginFooter {
         flex-direction: column;
         gap: 4px;
+        margin-top: 32px;
+    }
+}
+
+@media (max-width: 380px) {
+    .languageSelector {
+        top: 18px;
+        right: 16px;
+    }
+
+    .loginPanel {
+        padding: 18px 16px;
+    }
+
+    .loginBrandLogoWrap {
+        width: 42px;
+        height: 42px;
+    }
+
+    .loginBrandLogo {
+        width: 40px;
+        height: 40px;
+    }
+
+    .loginHeading h2 {
+        font-size: 24px;
+    }
+
+    .loginFooter {
+        font-size: 11px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .loginField input,
+    .loginSubmit {
+        transition: none;
     }
 }
