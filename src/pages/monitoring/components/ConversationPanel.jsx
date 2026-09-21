@@ -34,6 +34,7 @@ function ConversationPanel({
     conversation,
     canSendMessages = false,
     realtimeRefreshKey = 0,
+    onBack,
     onConversationRead,
     onMessageSent,
     onError,
@@ -228,6 +229,13 @@ function ConversationPanel({
         <section className={styles.conversationPanel}>
             <header className={styles.header}>
                 <div className={styles.customerIdentity}>
+                    {onBack && (
+                        <button className={styles.mobileBackButton} type="button" onClick={onBack} aria-label={t("Regresar a conversaciones")}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <path d="m15 18-6-6 6-6" />
+                            </svg>
+                        </button>
+                    )}
                     <div className={styles.avatar}>
                         {getCustomerName()
                             .charAt(0)

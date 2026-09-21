@@ -160,6 +160,23 @@
     overflow: hidden;
 }
 
+.conversationListPane,
+.conversationPane {
+    min-width: 0;
+    min-height: 0;
+}
+
+.conversationListPane {
+    overflow: hidden;
+    border-right: 1px solid var(--color-border);
+}
+
+.conversationPane {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
 .realtimeConnectedBadge,
 .realtimeDisconnectedBadge {
     min-height: 21px;
@@ -241,16 +258,66 @@
     .statuses {
         display: none;
     }
+
+    .conversationListPane {
+        min-width: 0;
+        overflow: hidden;
+        border: 0;
+        border-radius: 0;
+        background: var(--color-surface);
+    }
+
+    .conversationPane {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        width: 100vw;
+        height: 100dvh;
+        min-width: 0;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translate3d(100%, 0, 0);
+        opacity: 0.98;
+        background: var(--color-surface);
+        box-shadow: -18px 0 45px rgba(15, 23, 42, 0.14);
+        overscroll-behavior: none;
+        will-change: transform;
+        transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease, visibility 0s linear 0.28s;
+    }
+
+    .workspaceBodyConversationOpen .conversationPane {
+        visibility: visible;
+        pointer-events: auto;
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+        transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease, visibility 0s linear 0s;
+    }
+
+    .workspaceBodyConversationOpen .conversationPane > * {
+        min-height: 0;
+        flex: 1;
+    }
 }
 
 @media (max-width: 520px) {
-    .workspace {
-        border-left: 0;
-        border-right: 0;
-        border-radius: 0;
-    }
-
     .workspaceHeader {
         padding: 9px 11px;
+    }
+
+    .conversationListPane {
+        border: 0;
+        border-radius: 0;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .conversationListPane,
+    .conversationPane {
+        transition: none;
     }
 }

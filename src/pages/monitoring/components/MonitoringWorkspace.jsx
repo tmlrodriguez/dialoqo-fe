@@ -175,6 +175,21 @@ function MonitoringWorkspace({
 
 
     /**
+     * handleConversationBack
+     *
+     * Description:
+     * - Cerrar la conversación activa en la vista móvil y regresar al listado.
+     * - Invalidar cualquier solicitud de detalle pendiente para evitar que vuelva a abrir la conversación.
+     */
+    function handleConversationBack() {
+        conversationSelectionRequestRef.current += 1;
+        selectedConversationRef.current = null;
+        setSelectedConversation(null);
+        clearRealtimeError();
+    }
+
+
+    /**
      * acknowledgeOpenConversation
      *
      * Description:
@@ -683,61 +698,34 @@ function MonitoringWorkspace({
                 </div>
             </header>
 
-            <div className={styles.workspaceBody}>
-                <ConversationList
-                    companyId={
-                        company?.id
-                    }
-                    branchId={
-                        branch?.id
-                    }
-                    numberId={
-                        number?.id
-                    }
-                    selectedConversationId={
-                        selectedConversation?.id
-                    }
-                    refreshKey={
-                        conversationRefreshKey
-                    }
-                    onConversationSelect={
-                        handleConversationSelect
-                    }
-                    onError={
-                        onError
-                    }
-                />
+            <div className={`${styles.workspaceBody} ${selectedConversation ? styles.workspaceBodyConversationOpen : styles.workspaceBodyConversationList}`}>
+                <div className={styles.conversationListPane}>
+                    <ConversationList
+                        companyId={company?.id}
+                        branchId={branch?.id}
+                        numberId={number?.id}
+                        selectedConversationId={selectedConversation?.id}
+                        refreshKey={conversationRefreshKey}
+                        onConversationSelect={handleConversationSelect}
+                        onError={onError}
+                    />
+                </div>
 
-                <ConversationPanel
-                    key={selectedConversation?.id || "empty"}
-                    companyId={
-                        company?.id
-                    }
-                    branchId={
-                        branch?.id
-                    }
-                    numberId={
-                        number?.id
-                    }
-                    conversation={
-                        selectedConversation
-                    }
-                    canSendMessages={
-                        canSendMessages
-                    }
-                    realtimeRefreshKey={
-                        messageRefreshKey
-                    }
-                    onConversationRead={
-                        handleConversationRead
-                    }
-                    onMessageSent={
-                        handleMessageSent
-                    }
-                    onError={
-                        onError
-                    }
-                />
+                <div className={styles.conversationPane}>
+                    <ConversationPanel
+                        key={selectedConversation?.id || "empty"}
+                        companyId={company?.id}
+                        branchId={branch?.id}
+                        numberId={number?.id}
+                        conversation={selectedConversation}
+                        canSendMessages={canSendMessages}
+                        realtimeRefreshKey={messageRefreshKey}
+                        onBack={handleConversationBack}
+                        onConversationRead={handleConversationRead}
+                        onMessageSent={handleMessageSent}
+                        onError={onError}
+                    />
+                </div>
             </div>
 
             {canStartConversations && isNewConversationOpen && (
