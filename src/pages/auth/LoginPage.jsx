@@ -82,7 +82,10 @@ function LoginPage() {
 
     return (
         <main className={styles.loginPage}>
-            <div style={{ position: "fixed", top: "18px", right: "22px", zIndex: 20 }}><LanguageSelector /></div>
+            <div className={styles.languageSelector}>
+                <LanguageSelector compact />
+            </div>
+
             <section className={styles.loginPanel}>
                 <div className={styles.loginBrand}>
                     <div className={styles.loginBrandLogoWrap}>
@@ -93,7 +96,7 @@ function LoginPage() {
                         />
                     </div>
 
-                    <div>
+                    <div className={styles.loginBrandText}>
                         <h1>Dialoqo</h1>
 
                         <p>
@@ -220,21 +223,21 @@ function LoginPage() {
 
                         <div className={styles.loginFeature}>
                             <strong>
-                                Lee y entiende
+                                {t("Lee y entiende")}
                             </strong>
 
                             <span>
-                                Transforma mensajes y contexto en información útil para la operación.
+                                {t("Transforma mensajes y contexto en información útil para la operación.")}
                             </span>
                         </div>
 
                         <div className={styles.loginFeature}>
                             <strong>
-                                Detecta y alerta
+                                {t("Detecta y alerta")}
                             </strong>
 
                             <span>
-                                Identifica situaciones importantes para que puedan atenderse oportunamente.
+                                {t("Identifica situaciones importantes para que puedan atenderse oportunamente.")}
                             </span>
                         </div>
                     </div>
@@ -243,5 +246,6 @@ function LoginPage() {
         </main>
     );
 }
+
 
 export default LoginPage;
