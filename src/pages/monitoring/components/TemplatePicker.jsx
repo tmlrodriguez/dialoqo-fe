@@ -172,11 +172,11 @@ function TemplatePicker({
                     </span>
 
                     <h3>
-                        Seleccionar plantilla
+                        {t("Seleccionar plantilla")}
                     </h3>
 
                     <p>
-                        Seleccione una plantilla aprobada para enviarla en esta conversación.
+                        {t("Seleccione una plantilla aprobada para enviarla en esta conversación.")}
                     </p>
                 </div>
 
@@ -234,17 +234,17 @@ function TemplatePicker({
                         <span className={styles.spinner}></span>
 
                         <span>
-                            Cargando plantillas...
+                            {t("Cargando plantillas...")}
                         </span>
                     </div>
                 ) : templates.length === 0 ? (
                     <div className={styles.emptyState}>
                         <strong>
-                            No existen plantillas disponibles.
+                            {t("No existen plantillas disponibles.")}
                         </strong>
 
                         <span>
-                            No se encontraron plantillas aprobadas para este número.
+                            {t("No se encontraron plantillas aprobadas para este número.")}
                         </span>
                     </div>
                 ) : (

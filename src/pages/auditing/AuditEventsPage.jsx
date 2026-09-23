@@ -51,7 +51,7 @@ const INITIAL_FILTERS = {
  * - Los eventos de auditoría son exclusivamente de lectura.
  */
 function AuditEventsPage() {
-    const { t } = usePageTranslation();
+    const { language, t } = usePageTranslation();
     const [companies, setCompanies] = useState([]);
     const [branches, setBranches] = useState([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState("");
@@ -452,9 +452,9 @@ function AuditEventsPage() {
     return (
         <section className={styles.auditEventsPage}>
             <PageHeader
-                eyebrow="Control"
+                eyebrow={language === "en" ? "Control" : "Control"}
                 title={t("Auditoría")}
-                description="Consulte y analice el historial inmutable de acciones administrativas, operativas y de seguridad registradas en Dialoqo."
+                description={language === "en" ? "Review and analyze the immutable history of administrative, operational, and security actions recorded in Dialoqo." : "Consulte y analice el historial inmutable de acciones administrativas, operativas y de seguridad registradas en Dialoqo."}
             />
 
             <div className={styles.contextBar}>

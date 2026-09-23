@@ -66,7 +66,7 @@ function ConversationPanel({
             customer.display_name ||
             customer.profile_name ||
             customer.phone_number ||
-            "Cliente"
+            t("Cliente")
         );
     }
 
@@ -201,7 +201,7 @@ function ConversationPanel({
                 </span>
 
                 <h2>
-                    Seleccione una conversación
+                    {t("Seleccione una conversación")}
                 </h2>
 
                 <p>

@@ -100,7 +100,7 @@ function TemplateParameterForm({
                             label:
                                 type === "HEADER"
                                     ? `Encabezado · ${placeholder}`
-                                    : `Mensaje · ${placeholder}`,
+                                    : `${t("Mensaje")} · ${placeholder}`,
                         });
                     }
                 );
@@ -354,7 +354,7 @@ function TemplateParameterForm({
 
                 <div>
                     <span className={styles.eyebrow}>
-                        Plantilla seleccionada
+                        {t("Plantilla seleccionada")}
                     </span>
 
                     <h3>
@@ -370,7 +370,7 @@ function TemplateParameterForm({
             {preview && (
                 <div className={styles.preview}>
                     <span>
-                        Vista previa
+                        {t("Vista previa")}
                     </span>
 
                     <p>
@@ -383,11 +383,11 @@ function TemplateParameterForm({
                 <div className={styles.fields}>
                     <div className={styles.sectionHeader}>
                         <strong>
-                            Variables
+                            {t("Variables")}
                         </strong>
 
                         <span>
-                            Complete los valores requeridos por la plantilla.
+                            {t("Complete los valores requeridos por la plantilla.")}
                         </span>
                     </div>
 
@@ -416,7 +416,7 @@ function TemplateParameterForm({
                                             event.target.value
                                         )
                                     }
-                                    placeholder={`Valor para {{${field.placeholder}}}`}
+                                    placeholder={`${t("Valor para")} {{${field.placeholder}}}`}
                                     disabled={
                                         isSending
                                     }
@@ -428,11 +428,11 @@ function TemplateParameterForm({
             ) : (
                 <div className={styles.noParameters}>
                     <strong>
-                        Esta plantilla no requiere variables.
+                        {t("Esta plantilla no requiere variables.")}
                     </strong>
 
                     <span>
-                        Puede enviarla directamente.
+                        {t("Puede enviarla directamente.")}
                     </span>
                 </div>
             )}
@@ -458,7 +458,7 @@ function TemplateParameterForm({
                     {isSending ? (
                         <>
                             <span className={styles.spinner}></span>
-                            Enviando...
+                            {t("Enviando...")}
                         </>
                     ) : (
                         <>

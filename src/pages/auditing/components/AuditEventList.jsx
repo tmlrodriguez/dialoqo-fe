@@ -65,7 +65,7 @@ function AuditEventList({
     onSelectEvent,
     onPageChange,
 }) {
-    const { t } = usePageTranslation();
+    const { language, t } = usePageTranslation();
     const totalPages = Math.max(
         1,
         Math.ceil(count / pageSize)
@@ -132,19 +132,19 @@ function AuditEventList({
 
                     <p>
                         {count === 1
-                            ? "1 evento encontrado."
-                            : `${count} eventos encontrados.`}
+                            ? (language === "en" ? "1 event found." : "1 evento encontrado.")
+                            : (language === "en" ? `${count} events found.` : `${count} eventos encontrados.`)}
                     </p>
                 </div>
 
                 <div className={styles.pageIndicator}>
-                    Página {page} de {totalPages}
+                    {language === "en" ? `Page ${page} of ${totalPages}` : `Página ${page} de ${totalPages}`}
                 </div>
             </div>
 
             {isLoading ? (
                 <div className={styles.loadingState}>
-                    Cargando eventos...
+                    {language === "en" ? "Loading events..." : "Cargando eventos..."}
                 </div>
             ) : events.length === 0 ? (
                 <div className={styles.emptyState}>
