@@ -44,21 +44,21 @@ function MonitoringContextBar({
             <div className={styles.contextHeader}>
                 <div>
                     <span className={styles.eyebrow}>
-                        Contexto de monitoreo
+                        {t("Contexto de monitoreo")}
                     </span>
 
                     <h2>
-                        Seleccione el canal
+                        {t("Seleccione el canal")}
                     </h2>
 
                     <p>
-                        Elija la empresa, sucursal y número de WhatsApp que desea monitorear.
+                        {t("Elija la empresa, sucursal y número de WhatsApp que desea monitorear.")}
                     </p>
                 </div>
 
                 {selectedNumberId && (
                     <span className={styles.readyBadge}>
-                        Monitoreo disponible
+                        {t("Monitoreo disponible")}
                     </span>
                 )}
             </div>
@@ -112,7 +112,7 @@ function MonitoringContextBar({
                     >
                         {branches.length === 0 && (
                             <option value="">
-                                No existen sucursales disponibles
+                                {t("No existen sucursales disponibles")}
                             </option>
                         )}
 
@@ -144,7 +144,7 @@ function MonitoringContextBar({
                     >
                         {numbers.length === 0 && (
                             <option value="">
-                                No existen números disponibles
+                                {t("No existen números disponibles")}
                             </option>
                         )}
 

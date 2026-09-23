@@ -300,7 +300,7 @@ function ConversationList({
 
                 <span
                     className={styles.count}
-                    title={`${pagination.count} conversaciones`}
+                    title={`${pagination.count} ${t("Conversaciones").toLowerCase()}`}
                 >
                     {pagination.count > 999
                         ? "999+"
@@ -391,7 +391,7 @@ function ConversationList({
                         <div className={styles.spinner}></div>
 
                         <span>
-                            Cargando conversaciones...
+                            {t("Cargando conversaciones...")}
                         </span>
                     </div>
                 ) : conversations.length === 0 ? (
@@ -413,7 +413,7 @@ function ConversationList({
                         </div>
 
                         <strong>
-                            No existen conversaciones.
+                            {t("No existen conversaciones.")}
                         </strong>
 
                         <span>

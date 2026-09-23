@@ -35,7 +35,7 @@ function MonitoringSelection({
     function getStepInformation() {
         if (step === "company") {
             return {
-                eyebrow: "Paso 1 de 3",
+                eyebrow: t("Paso 1 de 3"),
                 title: t("Seleccione una empresa"),
                 description: t("Seleccione la empresa cuyas conversaciones desea monitorear."),
             };
@@ -43,17 +43,17 @@ function MonitoringSelection({
 
         if (step === "branch") {
             return {
-                eyebrow: "Paso 2 de 3",
+                eyebrow: t("Paso 2 de 3"),
                 title: t("Seleccione una sucursal"),
-                description: `Seleccione una sucursal de ${selectedCompany?.name || "la empresa seleccionada"}.`,
+                description: `${t("Seleccione una sucursal de")} ${selectedCompany?.name || t("la empresa seleccionada")}.`,
             };
         }
 
         if (step === "number") {
             return {
-                eyebrow: "Paso 3 de 3",
+                eyebrow: t("Paso 3 de 3"),
                 title: t("Seleccione un número"),
-                description: `Seleccione el número de WhatsApp que desea monitorear en ${selectedBranch?.name || "la sucursal seleccionada"}.`,
+                description: `${t("Seleccione el número de WhatsApp que desea monitorear en")} ${selectedBranch?.name || t("la sucursal seleccionada")}.`,
             };
         }
 
@@ -118,7 +118,7 @@ function MonitoringSelection({
             return item.display_name || item.phone_number || t("Número de WhatsApp");
         }
 
-        return item.name || "Sin nombre";
+        return item.name || t("Sin nombre");
     }
 
 
@@ -136,7 +136,7 @@ function MonitoringSelection({
 
         if (step === "branch") {
             const numberCount = item.numbers?.length || 0;
-            return `${numberCount} ${numberCount === 1 ? "número disponible" : "números disponibles"}`;
+            return `${numberCount} ${numberCount === 1 ? t("número disponible") : t("números disponibles")}`;
         }
 
         if (step === "number") {
@@ -194,7 +194,7 @@ function MonitoringSelection({
      */
     function getMemberName(member) {
         if (!member) {
-            return "Sin responsable";
+            return t("Sin responsable");
         }
 
         const fullName = [member.first_name, member.last_name].filter(Boolean).join(" ");
@@ -241,7 +241,7 @@ function MonitoringSelection({
             <header className={styles.header}>
                 <div className={styles.headerMain}>
                     {step !== "company" && (
-                        <button className={styles.backButton} type="button" onClick={onBack} aria-label="Regresar">
+                        <button className={styles.backButton} type="button" onClick={onBack} aria-label={t("Regresar")}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                 <path d="m15 18-6-6 6-6" />
                             </svg>

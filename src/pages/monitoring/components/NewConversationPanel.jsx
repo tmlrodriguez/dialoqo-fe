@@ -222,11 +222,11 @@ function NewConversationPanel({
                     </span>
 
                     <h2>
-                        Seleccione el destinatario
+                        {t("Seleccione el destinatario")}
                     </h2>
 
                     <p>
-                        Ingrese el número de WhatsApp del cliente incluyendo su código de país.
+                        {t("Ingrese el número de WhatsApp del cliente incluyendo su código de país.")}
                     </p>
                 </div>
 
@@ -274,7 +274,7 @@ function NewConversationPanel({
                     </div>
 
                     <small>
-                        Ejemplo para Honduras: 50499999999
+                        {t("Ejemplo para Honduras: 50499999999")}
                     </small>
                 </label>
 
@@ -294,7 +294,7 @@ function NewConversationPanel({
                             !recipientPhoneNumber.trim()
                         }
                     >
-                        Continuar
+                        {t("Continuar")}
 
                         <svg
                             viewBox="0 0 24 24"
@@ -335,7 +335,7 @@ function NewConversationPanel({
                             </span>
 
                             <small>
-                                Destinatario
+                                {t("Destinatario")}
                             </small>
                         </div>
 

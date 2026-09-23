@@ -57,7 +57,7 @@ function AuditEventDetail({
     event,
     isLoading,
 }) {
-    const { t } = usePageTranslation();
+    const { language, t } = usePageTranslation();
     function formatDateTime(value) {
         if (!value) {
             return "—";
@@ -134,11 +134,11 @@ function AuditEventDetail({
                     </div>
 
                     <strong>
-                        Seleccione un evento.
+                        {language === "en" ? "Select an event." : "Seleccione un evento."}
                     </strong>
 
                     <span>
-                        El detalle completo del evento aparecerá en esta sección.
+                        {language === "en" ? "The full event details will appear in this section." : "El detalle completo del evento aparecerá en esta sección."}
                     </span>
                 </div>
             </section>

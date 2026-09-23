@@ -715,8 +715,8 @@ function MonitoringWorkspace({
                             }
                         >
                             {isRealtimeConnected
-                                ? "Tiempo real activo"
-                                : "Tiempo real desconectado"}
+                                ? t("Tiempo real activo")
+                                : t("Tiempo real desconectado")}
                         </span>
 
                         {canStartConversations && (

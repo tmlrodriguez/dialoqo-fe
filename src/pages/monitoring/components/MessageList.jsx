@@ -455,7 +455,7 @@ function MessageList({
                 <div className={styles.spinner}></div>
 
                 <span>
-                    Cargando mensajes...
+                    {t("Cargando mensajes...")}
                 </span>
             </div>
         );
@@ -480,7 +480,7 @@ function MessageList({
                 </div>
 
                 <strong>
-                    No existen mensajes.
+                    {t("No existen mensajes.")}
                 </strong>
 
                 <span>

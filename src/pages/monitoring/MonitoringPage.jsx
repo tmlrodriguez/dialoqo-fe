@@ -285,7 +285,7 @@ function MonitoringPage() {
             {monitoringStep !== "workspace" && (
                 <PageHeader
                     eyebrow={isMember ? t("Operación") : t("Monitoreo")}
-                    title={isMember ? "Mis conversaciones" : t("Monitoreo")}
+                    title={isMember ? t("Mis conversaciones") : t("Monitoreo")}
                     description={
                         isMember
                             ? t("Seleccione uno de sus números asignados para atender conversaciones.")

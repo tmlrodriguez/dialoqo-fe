@@ -26,7 +26,7 @@ function ConversationListItem({
         customer.display_name ||
         customer.profile_name ||
         customer.phone_number ||
-        "Cliente";
+        t("Cliente");
 
     const preview = getMessagePreview(lastMessage);
 

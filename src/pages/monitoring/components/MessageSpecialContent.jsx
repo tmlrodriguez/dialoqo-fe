@@ -367,7 +367,7 @@ function MessageSpecialContent({
 
                     <span>
                         {message?.context_message_id
-                            ? `Mensaje relacionado #${message.context_message_id}`
+                            ? `${t("Mensaje relacionado")} #${message.context_message_id}`
                             : t("Mensaje relacionado")}
                     </span>
                 </div>

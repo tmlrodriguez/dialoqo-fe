@@ -160,7 +160,7 @@ function AuditFilters({
     onApply,
     onReset,
 }) {
-    const { t } = usePageTranslation();
+    const { language, t } = usePageTranslation();
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
 
@@ -177,9 +177,7 @@ function AuditFilters({
                 <div>
                     <h2>{t("Filtros")}</h2>
 
-                    <p>
-                        Refine el historial de auditoría utilizando los criterios disponibles.
-                    </p>
+                    <p>{language === "en" ? "Refine the audit history using the available criteria." : "Refine el historial de auditoría utilizando los criterios disponibles."}</p>
                 </div>
 
                 <button
@@ -189,7 +187,7 @@ function AuditFilters({
                     disabled={isLoading}
                 >
                     {showAdvancedFilters
-                        ? "Ocultar filtros avanzados"
+                        ? (language === "en" ? "Hide advanced filters" : "Ocultar filtros avanzados")
                         : t("Filtros avanzados")}
                 </button>
             </div>
@@ -314,9 +312,7 @@ function AuditFilters({
                         <div className={styles.advancedHeader}>
                             <span>{t("Filtros avanzados")}</span>
 
-                            <p>
-                                Utilice estos campos para investigaciones técnicas o trazabilidad específica.
-                            </p>
+                            <p>{language === "en" ? "Use these fields for technical investigations or specific traceability." : "Utilice estos campos para investigaciones técnicas o trazabilidad específica."}</p>
                         </div>
 
                         <div className={styles.advancedGrid}>
@@ -332,7 +328,7 @@ function AuditFilters({
                                     disabled={isLoading || isLoadingBranches}
                                 >
                                     <option value="">
-                                        Todas las sucursales
+                                        {language === "en" ? "All branches" : "Todas las sucursales"}
                                     </option>
 
                                     {branches.map((branch) => (
@@ -348,7 +344,7 @@ function AuditFilters({
 
                             <div className={styles.formField}>
                                 <label htmlFor="audit-actor-id">
-                                    ID del actor
+                                    {language === "en" ? "Actor ID" : "ID del actor"}
                                 </label>
 
                                 <input
@@ -357,7 +353,7 @@ function AuditFilters({
                                     min="1"
                                     value={filters.actorId}
                                     onChange={(event) => onFilterChange("actorId", event.target.value)}
-                                    placeholder="Ej. 15"
+                                    placeholder={language === "en" ? "E.g. 15" : "Ej. 15"}
                                     disabled={isLoading}
                                 />
                             </div>
@@ -372,7 +368,7 @@ function AuditFilters({
                                     type="text"
                                     value={filters.targetApp}
                                     onChange={(event) => onFilterChange("targetApp", event.target.value)}
-                                    placeholder="Ej. organizations"
+                                    placeholder={language === "en" ? "E.g. organizations" : "Ej. organizations"}
                                     disabled={isLoading}
                                 />
                             </div>
@@ -387,7 +383,7 @@ function AuditFilters({
                                     type="text"
                                     value={filters.targetModel}
                                     onChange={(event) => onFilterChange("targetModel", event.target.value)}
-                                    placeholder="Ej. company"
+                                    placeholder={language === "en" ? "E.g. company" : "Ej. company"}
                                     disabled={isLoading}
                                 />
                             </div>
@@ -402,7 +398,7 @@ function AuditFilters({
                                     type="text"
                                     value={filters.targetId}
                                     onChange={(event) => onFilterChange("targetId", event.target.value)}
-                                    placeholder="Identificador del recurso"
+                                    placeholder={language === "en" ? "Resource ID" : "Identificador del recurso"}
                                     disabled={isLoading}
                                 />
                             </div>
@@ -417,7 +413,7 @@ function AuditFilters({
                                     type="text"
                                     value={filters.requestId}
                                     onChange={(event) => onFilterChange("requestId", event.target.value)}
-                                    placeholder="Identificador de solicitud"
+                                    placeholder={language === "en" ? "Request ID" : "Identificador de solicitud"}
                                     disabled={isLoading}
                                 />
                             </div>
@@ -441,8 +437,8 @@ function AuditFilters({
                         disabled={isLoading}
                     >
                         {isLoading
-                            ? "Consultando..."
-                            : "Aplicar filtros"}
+                            ? (language === "en" ? "Loading..." : "Consultando...")
+                            : (language === "en" ? "Apply filters" : "Aplicar filtros")}
                     </button>
                 </div>
             </form>
