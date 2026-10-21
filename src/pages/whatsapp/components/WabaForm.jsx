@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
+    completeWhatsAppEmbeddedSignup,
     connectWhatsAppBusinessAccount,
     createWhatsAppBusinessAccount,
     deactivateWhatsAppBusinessAccount,
@@ -11,23 +12,56 @@ import {
     updateWhatsAppBusinessAccount,
 } from "../../../services/whatsapp.js";
 
-import styles from "./WabaForm.module.css";
+import {
+    launchWhatsAppEmbeddedSignup,
+} from "../../../services/metaEmbeddedSignup.js";
+
 import { getLanguageLocale } from "../../../utils/i18n.js";
 import { usePageTranslation } from "../../usePageTranslation.js";
 
+import styles from "./WabaForm.module.css";
+
+
+/* =========================================================
+   CONSTANTS
+   ========================================================= */
+
+const EMPTY_FORM = {
+    display_name: "",
+    meta_waba_id: "",
+    meta_business_id: "",
+    notes: "",
+};
+
+const EMBEDDED_SIGNUP_COMPLETION_EVENTS = new Set([
+    "FINISH",
+    "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING",
+]);
+
+
+/* =========================================================
+   WABA FORM
+   ========================================================= */
 
 /**
  * WabaForm
  *
  * Description:
- * - Administrar las cuentas de WhatsApp Business pertenecientes a una empresa.
+ * - Manage WhatsApp Business Accounts belonging to a company.
+ * - Connect accounts through Meta Embedded Signup.
+ * - Support WhatsApp Business App coexistence onboarding.
+ * - Complete authorization through the Django backend.
+ * - Preserve advanced manual administration.
  *
  * Notes:
- * - Cada cuenta WABA pertenece directamente a una empresa de Dialoqo.
- * - La Meta App y sus credenciales pertenecen globalmente a Dialoqo.
- * - El administrador no selecciona ni administra credenciales de Meta.
- * - Permite crear, consultar, actualizar, conectar, refrescar, desconectar y desactivar cuentas WABA.
- * - Los campos de estado de conexión son controlados exclusivamente por el backend.
+ * - Each WABA belongs directly to a Dialoqo company.
+ * - Meta credentials are managed exclusively by Django.
+ * - Authorization codes are never stored in React state.
+ * - Meta identifiers are validated by the backend.
+ * - Phone numbers are registered by backend operations.
+ * - Phone numbers are not automatically assigned to branches.
+ * - Monitoring activation remains a separate operation.
+ * - Connection status is controlled exclusively by Django.
  */
 function WabaForm({
     companyId,
@@ -35,313 +69,717 @@ function WabaForm({
     onSuccess,
 }) {
     const { t } = usePageTranslation();
+
+    /* -----------------------------------------------------
+       COMPANY CONTEXT
+       ----------------------------------------------------- */
+
+    const companyRef = useRef(companyId);
+
+    companyRef.current = companyId;
+
+
+    /* -----------------------------------------------------
+       ACCOUNT STATE
+       ----------------------------------------------------- */
+
     const [accounts, setAccounts] = useState([]);
-    const [selectedAccount, setSelectedAccount] = useState(null);
 
-    const [metaWabaId, setMetaWabaId] = useState("");
-    const [metaBusinessId, setMetaBusinessId] = useState("");
-    const [displayName, setDisplayName] = useState("");
-    const [notes, setNotes] = useState("");
+    const [selected, setSelected] = useState(null);
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingDetail, setIsLoadingDetail] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [isConnecting, setIsConnecting] = useState(false);
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    const [isDisconnecting, setIsDisconnecting] = useState(false);
+    const [form, setForm] = useState(EMPTY_FORM);
+
+
+    /* -----------------------------------------------------
+       INTERFACE STATE
+       ----------------------------------------------------- */
+
+    const [manual, setManual] = useState(false);
+
+    const [advanced, setAdvanced] = useState(false);
+
+
+    /* -----------------------------------------------------
+       LOADING STATE
+       ----------------------------------------------------- */
+
+    const [loading, setLoading] = useState(false);
+
+    const [loadingDetail, setLoadingDetail] = useState(false);
+
+    const [operation, setOperation] = useState("");
+
+
+    /* -----------------------------------------------------
+       DERIVED STATE
+       ----------------------------------------------------- */
+
+    const busy = Boolean(operation);
 
 
     /**
-     * clearParentMessages
+     * sameCompany
      *
      * Description:
-     * - Limpiar los mensajes administrados por la página padre.
+     * - Verify that an asynchronous operation still belongs
+     *   to the currently selected company.
      */
-    function clearParentMessages() {
+    function sameCompany(id) {
+        return String(companyRef.current) === String(id);
+    }
+
+
+    /* =====================================================
+       MESSAGE MANAGEMENT
+       ===================================================== */
+
+    /**
+     * clearMessages
+     *
+     * Description:
+     * - Clear messages managed by the parent page.
+     */
+    function clearMessages() {
         onError?.("");
         onSuccess?.("");
     }
 
 
+    /* =====================================================
+       FORM STATE
+       ===================================================== */
+
     /**
-     * resetForm
+     * resetSelection
      *
      * Description:
-     * - Restablecer el formulario WABA.
+     * - Clear the selected WABA.
+     * - Restore the default administration interface.
      */
-    function resetForm() {
-        setSelectedAccount(null);
-        setMetaWabaId("");
-        setMetaBusinessId("");
-        setDisplayName("");
-        setNotes("");
+    function resetSelection() {
+        setSelected(null);
+
+        setForm(EMPTY_FORM);
+
+        setManual(false);
+
+        setAdvanced(false);
     }
 
 
     /**
-     * applyAccountDetail
+     * applyAccount
      *
      * Description:
-     * - Aplicar al formulario la representación detallada de una cuenta WABA.
+     * - Apply the authoritative account representation
+     *   returned by Django.
      */
-    function applyAccountDetail(accountDetail) {
-        setSelectedAccount(accountDetail);
-        setMetaWabaId(accountDetail.meta_waba_id || "");
-        setMetaBusinessId(accountDetail.meta_business_id || "");
-        setDisplayName(accountDetail.display_name || "");
-        setNotes(accountDetail.notes || "");
+    function applyAccount(account) {
+        setSelected(account);
+
+        setForm({
+            display_name: account.display_name || "",
+            meta_waba_id: account.meta_waba_id || "",
+            meta_business_id: account.meta_business_id || "",
+            notes: account.notes || "",
+        });
+
+        setManual(false);
+
+        setAdvanced(false);
     }
 
+
+    /**
+     * changeField
+     *
+     * Description:
+     * - Update one editable form field.
+     */
+    function changeField(key, value) {
+        setForm((current) => ({
+            ...current,
+            [key]: value,
+        }));
+    }
+
+
+    /* =====================================================
+       ACCOUNT RETRIEVAL
+       ===================================================== */
 
     /**
      * loadAccounts
      *
      * Description:
-     * - Obtener las cuentas WABA activas pertenecientes a la empresa.
+     * - Retrieve the active WABAs belonging to a company.
+     *
+     * Notes:
+     * - Responses from previously selected companies
+     *   are ignored.
      */
-    async function loadAccounts() {
-        if (!companyId) {
+    async function loadAccounts(id = companyId) {
+        if (!id) {
             setAccounts([]);
-            resetForm();
+            setLoading(false);
+
             return;
         }
 
-        setIsLoading(true);
-        clearParentMessages();
+        setLoading(true);
 
         try {
-            const response = await getWhatsAppBusinessAccounts(companyId);
+            const response =
+                await getWhatsAppBusinessAccounts(id);
 
-            setAccounts(response?.data || []);
+            if (!sameCompany(id)) {
+                return;
+            }
+
+            setAccounts(
+                Array.isArray(response?.data)
+                    ? response.data
+                    : []
+            );
+
         } catch (error) {
+            if (!sameCompany(id)) {
+                return;
+            }
+
             setAccounts([]);
 
             onError?.(
                 error.message ||
-                t("No fue posible cargar las cuentas de WhatsApp Business.")
+                t("No fue posible cargar las cuentas.")
             );
+
         } finally {
-            setIsLoading(false);
+            if (sameCompany(id)) {
+                setLoading(false);
+            }
         }
     }
 
 
     /**
-     * handleNewAccount
+     * loadDetail
      *
      * Description:
-     * - Preparar el formulario para registrar una nueva cuenta WABA.
+     * - Retrieve the authoritative WABA detail.
+     * - Update the selected account when the company
+     *   context remains valid.
      */
-    function handleNewAccount() {
-        clearParentMessages();
-        resetForm();
-    }
-
-
-    /**
-     * handleSelectAccount
-     *
-     * Description:
-     * - Obtener el detalle completo de una cuenta WABA seleccionada.
-     */
-    async function handleSelectAccount(account) {
-        if (!companyId || !account?.id || isLoadingDetail) {
+    async function loadDetail(
+        accountId,
+        id = companyId
+    ) {
+        if (!id || !accountId) {
             return;
         }
 
-        setIsLoadingDetail(true);
-        clearParentMessages();
-
-        try {
-            const response = await getWhatsAppBusinessAccount(
-                companyId,
-                account.id
+        const response =
+            await getWhatsAppBusinessAccount(
+                id,
+                accountId
             );
 
-            const accountDetail = response?.data;
+        if (
+            sameCompany(id) &&
+            response?.data
+        ) {
+            applyAccount(response.data);
+        }
+    }
 
-            if (!accountDetail) {
-                throw new Error(
-                    t("No fue posible obtener el detalle de la cuenta.")
+
+    /**
+     * selectAccount
+     *
+     * Description:
+     * - Select an existing WABA.
+     * - Retrieve its current backend state.
+     */
+    async function selectAccount(account) {
+        if (
+            !companyId ||
+            !account?.id ||
+            busy ||
+            loadingDetail
+        ) {
+            return;
+        }
+
+        const id = companyId;
+
+        clearMessages();
+
+        setLoadingDetail(true);
+
+        try {
+            await loadDetail(
+                account.id,
+                id
+            );
+
+        } catch (error) {
+            if (sameCompany(id)) {
+                onError?.(
+                    error.message ||
+                    t("No fue posible cargar la cuenta.")
                 );
             }
 
-            applyAccountDetail(accountDetail);
-        } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible cargar la cuenta de WhatsApp Business.")
-            );
         } finally {
-            setIsLoadingDetail(false);
+            setLoadingDetail(false);
         }
     }
 
 
+    /* =====================================================
+       META EMBEDDED SIGNUP
+       ===================================================== */
+
     /**
-     * reloadSelectedAccount
+     * handleSignup
      *
      * Description:
-     * - Sincronizar nuevamente el detalle de la cuenta WABA seleccionada.
+     * - Launch Meta Embedded Signup.
+     * - Support standard WhatsApp Cloud API onboarding.
+     * - Support WhatsApp Business App coexistence.
+     * - Capture Meta authorization and identifiers.
+     * - Submit authorization to Django.
+     * - Refresh the administrative interface.
+     *
+     * Notes:
+     * - Authorization codes are never logged.
+     * - The frontend never exchanges authorization codes.
+     * - The Meta App Secret remains exclusively in Django.
+     * - The Business Portfolio ID is optional in the
+     *   frontend payload and verified by Django.
+     * - Meta identifiers are not authoritative until
+     *   validated by Django.
+     * - Backend onboarding success is not invalidated
+     *   by subsequent interface refresh failures.
      */
-    async function reloadSelectedAccount(accountId) {
-        if (!companyId || !accountId) {
+    async function handleSignup() {
+        if (!companyId || busy) {
             return;
         }
 
-        const response = await getWhatsAppBusinessAccount(
-            companyId,
-            accountId
-        );
+        const id = companyId;
 
-        const accountDetail = response?.data;
+        clearMessages();
 
-        if (accountDetail) {
-            applyAccountDetail(accountDetail);
+        setOperation("signup");
+
+        try {
+            /* ---------------------------------------------
+               STEP 1: LAUNCH META EMBEDDED SIGNUP
+               --------------------------------------------- */
+
+            const result =
+                await launchWhatsAppEmbeddedSignup();
+
+
+            /* ---------------------------------------------
+               STEP 2: HANDLE CANCELLATION
+               --------------------------------------------- */
+
+            if (result?.cancelled) {
+                if (sameCompany(id)) {
+                    onError?.(
+                        t("La conexión con Meta fue cancelada.")
+                    );
+                }
+
+                return;
+            }
+
+
+            /* ---------------------------------------------
+               STEP 3: EXTRACT AUTHORIZATION
+               --------------------------------------------- */
+
+            const session = result?.session;
+
+            const sessionData =
+                session?.data || {};
+
+            const authorizationCode =
+                result?.authorization?.code;
+
+            const wabaId =
+                sessionData.waba_id ||
+                sessionData.wabaId ||
+                result?.identifiers?.waba_id;
+
+            const phoneNumberId =
+                sessionData.phone_number_id ||
+                sessionData.phoneNumberId ||
+                result?.identifiers?.phone_number_id;
+
+            const businessId =
+                sessionData.business_id ||
+                sessionData.business_portfolio_id ||
+                sessionData.businessId ||
+                result?.identifiers?.business_id;
+
+
+            /* ---------------------------------------------
+               STEP 4: VALIDATE COMPLETION EVENT
+               --------------------------------------------- */
+
+            if (
+                !EMBEDDED_SIGNUP_COMPLETION_EVENTS.has(
+                    session?.event
+                )
+            ) {
+                throw new Error(
+                    t(
+                        "Meta no confirmó la finalización de Embedded Signup."
+                    )
+                );
+            }
+
+
+            /* ---------------------------------------------
+               STEP 5: VALIDATE REQUIRED IDENTIFIERS
+               --------------------------------------------- */
+
+            if (!authorizationCode) {
+                throw new Error(
+                    t(
+                        "Meta no proporcionó el código de autorización."
+                    )
+                );
+            }
+
+            if (!wabaId) {
+                throw new Error(
+                    t(
+                        "Meta no proporcionó el WABA ID."
+                    )
+                );
+            }
+
+            if (!phoneNumberId) {
+                throw new Error(
+                    t(
+                        "Meta no proporcionó el Phone Number ID."
+                    )
+                );
+            }
+
+
+            /* ---------------------------------------------
+               STEP 6: BUILD BACKEND PAYLOAD
+               --------------------------------------------- */
+
+            const payload = {
+                code: authorizationCode,
+                waba_id: String(wabaId),
+                phone_number_id: String(phoneNumberId),
+            };
+
+            if (businessId) {
+                payload.business_id =
+                    String(businessId);
+            }
+
+
+            /* ---------------------------------------------
+               STEP 7: SUBMIT AUTHORIZATION TO DJANGO
+               --------------------------------------------- */
+
+            const response =
+                await completeWhatsAppEmbeddedSignup(
+                    id,
+                    payload
+                );
+
+            const onboarding =
+                response?.data;
+
+
+            /* ---------------------------------------------
+               STEP 8: VALIDATE BACKEND COMPLETION
+               --------------------------------------------- */
+
+            if (
+                !onboarding?.account_id ||
+                !onboarding?.is_connected ||
+                !onboarding?.is_webhook_configured
+            ) {
+                throw new Error(
+                    t(
+                        "Django no confirmó la conexión de WhatsApp Business."
+                    )
+                );
+            }
+
+
+            /* ---------------------------------------------
+               STEP 9: VERIFY COMPANY CONTEXT
+               --------------------------------------------- */
+
+            if (!sameCompany(id)) {
+                return;
+            }
+
+
+            /* ---------------------------------------------
+               STEP 10: BUILD SUCCESS MESSAGE
+               --------------------------------------------- */
+
+            const registeredCount =
+                Array.isArray(onboarding.registered_numbers)
+                    ? onboarding.registered_numbers.length
+                    : null;
+
+            const countText =
+                registeredCount === null
+                    ? ""
+                    : ` ${registeredCount} ${t("número(s) registrado(s).")}`;
+
+            const successMessage =
+                response?.success_message ||
+                t(
+                    "WhatsApp Business conectado correctamente."
+                );
+
+
+            /* ---------------------------------------------
+               STEP 11: NOTIFY SUCCESS
+               --------------------------------------------- */
+
+            onSuccess?.(
+                `${successMessage}${countText} ${t(
+                    "Active el monitoreo desde Números."
+                )}`
+            );
+
+
+            /* ---------------------------------------------
+               STEP 12: REFRESH ACCOUNTS
+               --------------------------------------------- */
+
+            /*
+             * Onboarding has already succeeded in Django.
+             *
+             * Refresh failures must not incorrectly report
+             * that Meta onboarding failed.
+             */
+
+            try {
+                await loadAccounts(id);
+
+                await loadDetail(
+                    onboarding.account_id,
+                    id
+                );
+
+            } catch (refreshError) {
+                if (import.meta.env.DEV) {
+                    console.warn(
+                        "[EMBEDDED SIGNUP] UI REFRESH FAILED",
+                        {
+                            error_type:
+                                refreshError?.name || "Error",
+                        }
+                    );
+                }
+            }
+
+        } catch (error) {
+            if (sameCompany(id)) {
+                onError?.(
+                    error.message ||
+                    t(
+                        "No fue posible completar Embedded Signup."
+                    )
+                );
+            }
+
+        } finally {
+            setOperation("");
         }
     }
 
 
+    /* =====================================================
+       CREATE / UPDATE WABA
+       ===================================================== */
+
     /**
-     * handleSubmit
+     * handleSave
      *
      * Description:
-     * - Crear o actualizar una cuenta WABA.
+     * - Update an existing WABA.
+     * - Create a WABA manually when advanced mode is enabled.
      *
      * Notes:
-     * - La cuenta queda asociada directamente a la empresa determinada por la URL.
-     * - No se envía ninguna referencia a MetaIntegration.
+     * - Existing Meta identifiers are not editable.
+     * - Connection status remains backend-controlled.
      */
-    async function handleSubmit(event) {
+    async function handleSave(event) {
         event.preventDefault();
 
-        if (!companyId || isSaving) {
+        if (
+            !companyId ||
+            busy ||
+            (!selected && !manual)
+        ) {
             return;
         }
 
-        setIsSaving(true);
-        clearParentMessages();
+        const id = companyId;
 
-        const accountData = {
-            meta_waba_id: metaWabaId.trim(),
-            meta_business_id: metaBusinessId.trim(),
-            display_name: displayName.trim(),
-            notes: notes.trim(),
-        };
+        const accountId =
+            selected?.id;
+
+        clearMessages();
+
+        setOperation("save");
 
         try {
-            if (selectedAccount) {
+            if (accountId) {
                 await updateWhatsAppBusinessAccount(
-                    companyId,
-                    selectedAccount.id,
-                    accountData
+                    id,
+                    accountId,
+                    {
+                        display_name:
+                            form.display_name.trim(),
+
+                        notes:
+                            form.notes.trim(),
+                    }
                 );
 
-                onSuccess?.(
-                    t("Cuenta de WhatsApp Business actualizada correctamente.")
-                );
             } else {
                 await createWhatsAppBusinessAccount(
-                    companyId,
-                    accountData
-                );
+                    id,
+                    {
+                        display_name:
+                            form.display_name.trim(),
 
-                onSuccess?.(
-                    t("Cuenta de WhatsApp Business creada correctamente.")
+                        meta_waba_id:
+                            form.meta_waba_id.trim(),
+
+                        meta_business_id:
+                            form.meta_business_id.trim(),
+
+                        notes:
+                            form.notes.trim(),
+                    }
                 );
             }
 
-            resetForm();
+            if (!sameCompany(id)) {
+                return;
+            }
 
-            await loadAccounts();
-        } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible guardar la cuenta de WhatsApp Business.")
+            onSuccess?.(
+                t("Cuenta guardada correctamente.")
             );
+
+            if (accountId) {
+                await loadDetail(
+                    accountId,
+                    id
+                );
+            } else {
+                resetSelection();
+            }
+
+            await loadAccounts(id);
+
+        } catch (error) {
+            if (sameCompany(id)) {
+                onError?.(
+                    error.message ||
+                    t("No fue posible guardar la cuenta.")
+                );
+            }
+
         } finally {
-            setIsSaving(false);
+            setOperation("");
         }
     }
 
 
+    /* =====================================================
+       META LIFECYCLE OPERATIONS
+       ===================================================== */
+
     /**
-     * handleConnect
+     * lifecycle
      *
      * Description:
-     * - Conectar la cuenta WABA seleccionada con Meta utilizando la configuración global de Dialoqo.
+     * - Execute an authorized WABA lifecycle operation.
+     * - Refresh account state after completion.
      *
      * Notes:
-     * - El backend valida que Dialoqo tenga acceso a la WABA.
-     * - El backend administra la suscripción de la aplicación de Dialoqo a la WABA.
+     * - The backend remains authoritative.
+     * - Operations are scoped to the selected company.
      */
-    async function handleConnect() {
-        if (!companyId || !selectedAccount || isConnecting) {
+    async function lifecycle(
+        action,
+        name,
+        successText
+    ) {
+        if (
+            !companyId ||
+            !selected ||
+            busy
+        ) {
             return;
         }
 
-        setIsConnecting(true);
-        clearParentMessages();
+        const id = companyId;
+
+        const accountId =
+            selected.id;
+
+        clearMessages();
+
+        setOperation(name);
 
         try {
-            const response = await connectWhatsAppBusinessAccount(
-                companyId,
-                selectedAccount.id
-            );
+            const response =
+                await action(
+                    id,
+                    accountId
+                );
+
+            if (!sameCompany(id)) {
+                return;
+            }
 
             onSuccess?.(
                 response?.success_message ||
-                t("Cuenta de WhatsApp Business conectada correctamente.")
+                t(successText)
             );
 
-            await reloadSelectedAccount(selectedAccount.id);
-            await loadAccounts();
+            await loadDetail(
+                accountId,
+                id
+            );
+
+            await loadAccounts(id);
+
         } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible conectar la cuenta con Meta.")
-            );
+            if (sameCompany(id)) {
+                onError?.(
+                    error.message ||
+                    t(
+                        "No fue posible completar la operación."
+                    )
+                );
+            }
+
         } finally {
-            setIsConnecting(false);
-        }
-    }
-
-
-    /**
-     * handleRefresh
-     *
-     * Description:
-     * - Refrescar desde Meta el estado real de la cuenta WABA seleccionada.
-     */
-    async function handleRefresh() {
-        if (!companyId || !selectedAccount || isRefreshing) {
-            return;
-        }
-
-        setIsRefreshing(true);
-        clearParentMessages();
-
-        try {
-            const response = await refreshWhatsAppBusinessAccount(
-                companyId,
-                selectedAccount.id
-            );
-
-            onSuccess?.(
-                response?.success_message ||
-                t("Estado de la cuenta actualizado correctamente.")
-            );
-
-            await reloadSelectedAccount(selectedAccount.id);
-            await loadAccounts();
-        } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible refrescar el estado de la cuenta.")
-            );
-        } finally {
-            setIsRefreshing(false);
+            setOperation("");
         }
     }
 
@@ -350,45 +788,28 @@ function WabaForm({
      * handleDisconnect
      *
      * Description:
-     * - Desconectar la cuenta WABA seleccionada de la aplicación de Meta utilizada por Dialoqo.
+     * - Disconnect the selected WABA from Meta.
      */
     async function handleDisconnect() {
-        if (!companyId || !selectedAccount || isDisconnecting) {
+        if (!selected || busy) {
             return;
         }
 
         const confirmed = window.confirm(
-            `${t("¿Desea desconectar la cuenta")} "${selectedAccount.display_name}" ${t("de Meta?")}`
+            `${t("¿Desea desconectar la cuenta")} ` +
+            `"${selected.display_name}" ` +
+            `${t("de Meta?")}`
         );
 
         if (!confirmed) {
             return;
         }
 
-        setIsDisconnecting(true);
-        clearParentMessages();
-
-        try {
-            const response = await disconnectWhatsAppBusinessAccount(
-                companyId,
-                selectedAccount.id
-            );
-
-            onSuccess?.(
-                response?.success_message ||
-                t("Cuenta desconectada correctamente.")
-            );
-
-            await reloadSelectedAccount(selectedAccount.id);
-            await loadAccounts();
-        } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible desconectar la cuenta de Meta.")
-            );
-        } finally {
-            setIsDisconnecting(false);
-        }
+        await lifecycle(
+            disconnectWhatsAppBusinessAccount,
+            "disconnect",
+            "Cuenta desconectada correctamente."
+        );
     }
 
 
@@ -396,53 +817,82 @@ function WabaForm({
      * handleDeactivate
      *
      * Description:
-     * - Desactivar la cuenta WABA seleccionada.
+     * - Logically deactivate the selected WABA.
+     *
+     * Notes:
+     * - Backend business rules determine whether
+     *   deactivation is permitted.
      */
     async function handleDeactivate() {
-        if (!companyId || !selectedAccount || isDeleting) {
+        if (
+            !companyId ||
+            !selected ||
+            busy
+        ) {
             return;
         }
 
         const confirmed = window.confirm(
-            `${t("¿Desea desactivar la cuenta")} "${selectedAccount.display_name}"?`
+            `${t("¿Desea desactivar la cuenta")} ` +
+            `"${selected.display_name}"?`
         );
 
         if (!confirmed) {
             return;
         }
 
-        setIsDeleting(true);
-        clearParentMessages();
+        const id = companyId;
+
+        const accountId =
+            selected.id;
+
+        clearMessages();
+
+        setOperation("deactivate");
 
         try {
             await deactivateWhatsAppBusinessAccount(
-                companyId,
-                selectedAccount.id
+                id,
+                accountId
             );
+
+            if (!sameCompany(id)) {
+                return;
+            }
+
+            resetSelection();
 
             onSuccess?.(
-                t("Cuenta de WhatsApp Business desactivada correctamente.")
+                t("Cuenta desactivada correctamente.")
             );
 
-            resetForm();
+            await loadAccounts(id);
 
-            await loadAccounts();
         } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible desactivar la cuenta de WhatsApp Business.")
-            );
+            if (sameCompany(id)) {
+                onError?.(
+                    error.message ||
+                    t(
+                        "No fue posible desactivar la cuenta."
+                    )
+                );
+            }
+
         } finally {
-            setIsDeleting(false);
+            setOperation("");
         }
     }
 
+
+    /* =====================================================
+       DATE FORMATTING
+       ===================================================== */
 
     /**
      * formatDateTime
      *
      * Description:
-     * - Convertir una fecha ISO a una representación legible.
+     * - Format an ISO datetime using the current locale.
      */
     function formatDateTime(value) {
         if (!value) {
@@ -455,33 +905,47 @@ function WabaForm({
             return value;
         }
 
-        return new Intl.DateTimeFormat(getLanguageLocale(), {
-            dateStyle: "medium",
-            timeStyle: "short",
-        }).format(date);
+        return new Intl.DateTimeFormat(
+            getLanguageLocale(),
+            {
+                dateStyle: "medium",
+                timeStyle: "short",
+            }
+        ).format(date);
     }
 
 
-    const lifecycleBusy =
-        isSaving ||
-        isDeleting ||
-        isConnecting ||
-        isRefreshing ||
-        isDisconnecting;
-
+    /* =====================================================
+       COMPANY CONTEXT INITIALIZATION
+       ===================================================== */
 
     useEffect(() => {
-        setAccounts([]);
-        resetForm();
+        companyRef.current = companyId;
 
-        loadAccounts();
+        setAccounts([]);
+
+                resetSelection();
+
+        loadAccounts(companyId);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [companyId]);
 
 
+    /* =====================================================
+       COMPONENT RENDER
+       ===================================================== */
+
     return (
         <div className={styles.wabaWorkspace}>
+
+            {/* =================================================
+                WABA ACCOUNT LIST
+               ================================================= */}
+
             <section className={styles.listPanel}>
-                <div className={styles.panelHeader}>
+
+                <header className={styles.panelHeader}>
                     <div>
                         <span className={styles.eyebrow}>
                             WhatsApp Business
@@ -492,90 +956,96 @@ function WabaForm({
                         </h2>
 
                         <p>
-                            {t("Cuentas de WhatsApp Business registradas para la empresa.")}
+                            {t(
+                                "Conecte y administre las cuentas de esta empresa."
+                            )}
                         </p>
                     </div>
 
                     <button
-                        className={styles.secondaryButton}
                         type="button"
-                        onClick={handleNewAccount}
-                        disabled={lifecycleBusy}
+                        className={styles.primaryButton}
+                        onClick={handleSignup}
+                        disabled={!companyId || busy}
                     >
-                        {t("Nueva cuenta")}
+                        {operation === "signup"
+                            ? t("Conectando...")
+                            : t("Conectar con Meta")}
                     </button>
-                </div>
+                </header>
 
-                {isLoading ? (
+
+                {/* ---------------------------------------------
+                    ACCOUNT LOADING STATE
+                   --------------------------------------------- */}
+
+                {loading ? (
                     <div className={styles.loadingState}>
                         {t("Cargando cuentas...")}
                     </div>
-                ) : accounts.length === 0 ? (
-                    <div className={styles.emptyState}>
-                        <div className={styles.emptyIcon}>
-                            <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.8"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                            >
-                                <rect x="4" y="4" width="16" height="16" rx="3" />
-                                <path d="M8 9h8" />
-                                <path d="M8 13h5" />
-                            </svg>
-                        </div>
 
+                ) : accounts.length === 0 ? (
+
+                    /* -----------------------------------------
+                       EMPTY STATE
+                       ----------------------------------------- */
+
+                    <div className={styles.emptyState}>
                         <strong>
-                            {t("No existen cuentas WABA configuradas.")}
+                            {t(
+                                "No existen cuentas WABA configuradas."
+                            )}
                         </strong>
 
                         <span>
-                            {t("Registre una cuenta de WhatsApp Business para comenzar.")}
+                            {t(
+                                "Conecte con Meta para registrar automáticamente la cuenta y sus números."
+                            )}
                         </span>
                     </div>
+
                 ) : (
+
+                    /* -----------------------------------------
+                       ACCOUNT LIST
+                       ----------------------------------------- */
+
                     <div className={styles.accountList}>
                         {accounts.map((account) => (
                             <button
                                 key={account.id}
-                                className={`${styles.accountCard} ${
-                                    selectedAccount?.id === account.id
-                                        ? styles.accountCardActive
-                                        : ""
-                                }`}
                                 type="button"
-                                onClick={() => handleSelectAccount(account)}
-                                disabled={isLoadingDetail}
+                                className={`
+                                    ${styles.accountCard}
+                                    ${
+                                        selected?.id === account.id
+                                            ? styles.accountCardActive
+                                            : ""
+                                    }
+                                `}
+                                onClick={() =>
+                                    selectAccount(account)
+                                }
+                                disabled={
+                                    busy ||
+                                    loadingDetail
+                                }
+                                aria-pressed={
+                                    selected?.id === account.id
+                                }
                             >
-                                <div className={styles.accountCardMain}>
-                                    <div className={styles.accountIcon}>
-                                        <svg
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="1.8"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            aria-hidden="true"
-                                        >
-                                            <rect x="4" y="4" width="16" height="16" rx="3" />
-                                            <path d="M8 9h8" />
-                                            <path d="M8 13h5" />
-                                        </svg>
-                                    </div>
+                                <div
+                                    className={
+                                        styles.accountInformation
+                                    }
+                                >
+                                    <strong>
+                                        {account.display_name}
+                                    </strong>
 
-                                    <div className={styles.accountInformation}>
-                                        <strong>
-                                            {account.display_name}
-                                        </strong>
-
-                                        <span>
-                                            WABA {account.meta_waba_id}
-                                        </span>
-                                    </div>
+                                    <span>
+                                        WABA {account.meta_waba_id}
+                                    </span>
                                 </div>
 
                                 <div className={styles.statusGroup}>
@@ -609,166 +1079,77 @@ function WabaForm({
                 )}
             </section>
 
+
+            {/* =================================================
+                WABA CONFIGURATION
+               ================================================= */}
+
             <section className={styles.formPanel}>
-                <div className={styles.panelHeader}>
+
+                <header className={styles.panelHeader}>
                     <div>
                         <span className={styles.eyebrow}>
                             {t("Configuración")}
                         </span>
 
                         <h2>
-                            {selectedAccount
-                                ? t("Editar cuenta WABA")
-                                : t("Nueva cuenta WABA")}
+                            {selected
+                                ? selected.display_name
+                                : t("Administración de cuenta")}
                         </h2>
 
                         <p>
-                            {selectedAccount
-                                ? t("Modifique la configuración o gestione su conexión con Meta.")
-                                : t("Registre una cuenta de WhatsApp Business para la empresa.")}
+                            {selected
+                                ? t(
+                                    "Revise el estado y administre la cuenta seleccionada."
+                                )
+                                : t(
+                                    "Seleccione una cuenta o utilice Conectar con Meta."
+                                )}
                         </p>
                     </div>
+                </header>
 
-                    {selectedAccount && (
-                        <span
-                            className={
-                                selectedAccount.is_connected
-                                    ? styles.connectedBadge
-                                    : styles.disconnectedBadge
-                            }
-                        >
-                            {selectedAccount.is_connected
-                                ? t("Conectada")
-                                : t("Desconectada")}
-                        </span>
-                    )}
-                </div>
 
-                <form
-                    className={styles.wabaForm}
-                    onSubmit={handleSubmit}
-                >
-                    <div className={styles.lifecycleSection}>
-                        <div className={styles.lifecycleHeader}>
-                            <div>
+                {/* =============================================
+                    SELECTED WABA DETAILS
+                   ============================================= */}
+
+                {selected && (
+                    <div className={styles.detailBody}>
+
+                        {/* -------------------------------------
+                            META CONNECTION STATUS
+                           ------------------------------------- */}
+
+                        <div className={styles.lifecycleSection}>
+
+                            <div className={styles.lifecycleHeader}>
                                 <h3>
-                                    {t("Plataforma Meta")}
+                                    {t("Estado en Meta")}
                                 </h3>
 
                                 <p>
-                                    {t("Esta cuenta utilizará la Meta App y las credenciales globales administradas por Dialoqo.")}
+                                    {t(
+                                        "Estado sincronizado por el backend."
+                                    )}
                                 </p>
                             </div>
-                        </div>
 
-                        <div className={styles.lifecycleGrid}>
-                            <div className={styles.lifecycleField}>
-                                <span>
-                                    Meta App
-                                </span>
 
-                                <strong>
-                                    Dialoqo
-                                </strong>
-                            </div>
-
-                            <div className={styles.lifecycleField}>
-                                <span>
-                                    {t("Configuración")}
-                                </span>
-
-                                <strong>
-                                    {t("Administrada por Dialoqo")}
-                                </strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={styles.formField}>
-                        <label htmlFor="waba-display-name">
-                            {t("Nombre")}
-                        </label>
-
-                        <input
-                            id="waba-display-name"
-                            type="text"
-                            value={displayName}
-                            onChange={(event) => setDisplayName(event.target.value)}
-                            placeholder={t("Nombre de la cuenta")}
-                            disabled={lifecycleBusy}
-                            required
-                        />
-                    </div>
-
-                    <div className={styles.formField}>
-                        <label htmlFor="waba-meta-id">
-                            {t("Meta WABA ID")}
-                        </label>
-
-                        <input
-                            id="waba-meta-id"
-                            type="text"
-                            value={metaWabaId}
-                            onChange={(event) => setMetaWabaId(event.target.value)}
-                            placeholder={t("Identificador de WhatsApp Business Account")}
-                            disabled={lifecycleBusy}
-                            required
-                        />
-                    </div>
-
-                    <div className={styles.formField}>
-                        <label htmlFor="waba-business-id">
-                            {t("Meta Business ID")}
-                        </label>
-
-                        <input
-                            id="waba-business-id"
-                            type="text"
-                            value={metaBusinessId}
-                            onChange={(event) => setMetaBusinessId(event.target.value)}
-                            placeholder={t("Identificador de Meta Business")}
-                            disabled={lifecycleBusy}
-                            required
-                        />
-                    </div>
-
-                    <div className={styles.formField}>
-                        <label htmlFor="waba-notes">
-                            {t("Notas")}
-                        </label>
-
-                        <textarea
-                            id="waba-notes"
-                            value={notes}
-                            onChange={(event) => setNotes(event.target.value)}
-                            placeholder={t("Información administrativa opcional")}
-                            disabled={lifecycleBusy}
-                            rows="4"
-                        />
-                    </div>
-
-                    {selectedAccount && (
-                        <div className={styles.lifecycleSection}>
-                            <div className={styles.lifecycleHeader}>
-                                <div>
-                                    <h3>
-                                        {t("Estado en Meta")}
-                                    </h3>
-
-                                    <p>
-                                        {t("Estado real sincronizado mediante la plataforma Meta.")}
-                                    </p>
-                                </div>
-                            </div>
+                            {/* ---------------------------------
+                                STATUS INFORMATION
+                               --------------------------------- */}
 
                             <div className={styles.lifecycleGrid}>
+
                                 <div className={styles.lifecycleField}>
                                     <span>
                                         {t("Conexión")}
                                     </span>
 
                                     <strong>
-                                        {selectedAccount.is_connected
+                                        {selected.is_connected
                                             ? t("Conectada")
                                             : t("Desconectada")}
                                     </strong>
@@ -780,7 +1161,7 @@ function WabaForm({
                                     </span>
 
                                     <strong>
-                                        {selectedAccount.is_webhook_configured
+                                        {selected.is_webhook_configured
                                             ? t("Configurado")
                                             : t("No configurado")}
                                     </strong>
@@ -793,105 +1174,444 @@ function WabaForm({
 
                                     <strong>
                                         {formatDateTime(
-                                            selectedAccount.connected_at
+                                            selected.connected_at
                                         )}
                                     </strong>
                                 </div>
 
                                 <div className={styles.lifecycleField}>
                                     <span>
-                                        {t("Desconectada")}
+                                        {t("Última desconexión")}
                                     </span>
 
                                     <strong>
                                         {formatDateTime(
-                                            selectedAccount.disconnected_at
+                                            selected.disconnected_at
                                         )}
                                     </strong>
                                 </div>
                             </div>
 
-                            <div className={styles.lifecycleActions}>
-                                {!selectedAccount.is_connected ? (
-                                    <button
-                                        className={styles.lifecyclePrimaryButton}
-                                        type="button"
-                                        onClick={handleConnect}
-                                        disabled={lifecycleBusy}
-                                    >
-                                        {isConnecting
-                                            ? t("Conectando...")
-                                            : t("Conectar con Meta")}
-                                    </button>
-                                ) : (
-                                    <>
-                                        <button
-                                            className={styles.lifecycleSecondaryButton}
-                                            type="button"
-                                            onClick={handleRefresh}
-                                            disabled={lifecycleBusy}
-                                        >
-                                            {isRefreshing
-                                                ? t("Actualizando...")
-                                                : t("Actualizar estado")}
-                                        </button>
 
-                                        <button
-                                            className={styles.lifecycleDangerButton}
-                                            type="button"
-                                            onClick={handleDisconnect}
-                                            disabled={lifecycleBusy}
-                                        >
-                                            {isDisconnecting
-                                                ? t("Desconectando...")
-                                                : t("Desconectar")}
-                                        </button>
-                                    </>
-                                )}
+                            {/* ---------------------------------
+                                REFRESH CONNECTION STATUS
+                               --------------------------------- */}
+
+                            <div className={styles.lifecycleActions}>
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.secondaryButton
+                                    }
+                                    onClick={() =>
+                                        lifecycle(
+                                            refreshWhatsAppBusinessAccount,
+                                            "refresh",
+                                            "Estado actualizado correctamente."
+                                        )
+                                    }
+                                    disabled={busy}
+                                >
+                                    {operation === "refresh"
+                                        ? t("Actualizando...")
+                                        : t("Actualizar estado")}
+                                </button>
                             </div>
                         </div>
-                    )}
 
-                    <div className={styles.formActions}>
-                        {selectedAccount && (
-                            <button
-                                className={styles.dangerButton}
-                                type="button"
-                                onClick={handleDeactivate}
-                                disabled={lifecycleBusy}
-                            >
-                                {isDeleting
-                                    ? t("Desactivando...")
-                                    : t("Desactivar")}
-                            </button>
-                        )}
 
-                        <div className={styles.primaryActions}>
-                            {selectedAccount && (
+                        {/* =====================================
+                            EDIT ACCOUNT
+                           ===================================== */}
+
+                        <form
+                            className={styles.wabaForm}
+                            onSubmit={handleSave}
+                        >
+
+                            {/* ---------------------------------
+                                DISPLAY NAME
+                               --------------------------------- */}
+
+                            <div className={styles.formField}>
+                                <label htmlFor="waba-name">
+                                    {t("Nombre")}
+                                </label>
+
+                                <input
+                                    id="waba-name"
+                                    type="text"
+                                    value={form.display_name}
+                                    onChange={(event) =>
+                                        changeField(
+                                            "display_name",
+                                            event.target.value
+                                        )
+                                    }
+                                    disabled={busy}
+                                    required
+                                />
+                            </div>
+
+
+                            {/* ---------------------------------
+                                NOTES
+                               --------------------------------- */}
+
+                            <div className={styles.formField}>
+                                <label htmlFor="waba-notes">
+                                    {t("Notas")}
+                                </label>
+
+                                <textarea
+                                    id="waba-notes"
+                                    value={form.notes}
+                                    onChange={(event) =>
+                                        changeField(
+                                            "notes",
+                                            event.target.value
+                                        )
+                                    }
+                                    disabled={busy}
+                                    rows={3}
+                                />
+                            </div>
+
+
+                            {/* ---------------------------------
+                                FORM ACTIONS
+                               --------------------------------- */}
+
+                            <div className={styles.formActions}>
                                 <button
-                                    className={styles.secondaryButton}
                                     type="button"
-                                    onClick={resetForm}
-                                    disabled={lifecycleBusy}
+                                    className={
+                                        styles.secondaryButton
+                                    }
+                                    onClick={resetSelection}
+                                    disabled={busy}
                                 >
-                                    {t("Cancelar")}
+                                    {t("Cerrar")}
                                 </button>
-                            )}
 
-                            <button
-                                className={styles.primaryButton}
-                                type="submit"
-                                disabled={!companyId || lifecycleBusy}
-                            >
-                                {isSaving
-                                    ? t("Guardando...")
-                                    : selectedAccount
-                                        ? t("Guardar cambios")
-                                        : t("Crear cuenta")}
-                            </button>
-                        </div>
+                                <button
+                                    type="submit"
+                                    className={
+                                        styles.primaryButton
+                                    }
+                                    disabled={busy}
+                                >
+                                    {operation === "save"
+                                        ? t("Guardando...")
+                                        : t("Guardar cambios")}
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                )}
+
+
+                {/* =============================================
+                    ADVANCED ADMINISTRATION
+                   ============================================= */}
+
+                <div className={styles.advancedArea}>
+
+                    {/* -----------------------------------------
+                        ADVANCED OPTIONS TOGGLE
+                       ----------------------------------------- */}
+
+                    <button
+                        type="button"
+                        className={styles.advancedToggle}
+                        onClick={() =>
+                            setAdvanced((value) => !value)
+                        }
+                        disabled={busy}
+                        aria-expanded={advanced}
+                    >
+                        {t("Opciones avanzadas")}
+
+                        {" "}
+
+                        {advanced ? "−" : "+"}
+                    </button>
+
+
+                    {/* -----------------------------------------
+                        ADVANCED OPTIONS CONTENT
+                       ----------------------------------------- */}
+
+                    {advanced && (
+                        <div className={styles.advancedContent}>
+
+                            {selected ? (
+
+                                /* =================================
+                                   EXISTING ACCOUNT OPERATIONS
+                                   ================================= */
+
+                                <>
+
+                                    {/* -----------------------------
+                                        META IDENTIFIERS
+                                       ----------------------------- */}
+
+                                    <div className={styles.lifecycleGrid}>
+
+                                        <div className={styles.lifecycleField}>
+                                            <span>
+                                                Meta WABA ID
+                                            </span>
+
+                                            <strong>
+                                                {selected.meta_waba_id}
+                                            </strong>
+                                        </div>
+
+                                        <div className={styles.lifecycleField}>
+                                            <span>
+                                                Meta Business ID
+                                            </span>
+
+                                            <strong>
+                                                {selected.meta_business_id}
+                                            </strong>
+                                        </div>
+                                    </div>
+
+
+                                    {/* -----------------------------
+                                        LIFECYCLE ACTIONS
+                                       ----------------------------- */}
+
+                                    <div className={styles.lifecycleActions}>
+
+                                        {!selected.is_connected && (
+                                            <button
+                                                type="button"
+                                                className={
+                                                    styles.secondaryButton
+                                                }
+                                                onClick={() =>
+                                                    lifecycle(
+                                                        connectWhatsAppBusinessAccount,
+                                                        "connect",
+                                                        "Cuenta conectada correctamente."
+                                                    )
+                                                }
+                                                disabled={busy}
+                                            >
+                                                {operation === "connect"
+                                                    ? t("Conectando...")
+                                                    : t(
+                                                        "Conectar cuenta existente"
+                                                    )}
+                                            </button>
+                                        )}
+
+
+                                        {selected.is_connected && (
+                                            <button
+                                                type="button"
+                                                className={
+                                                    styles.dangerButton
+                                                }
+                                                onClick={
+                                                    handleDisconnect
+                                                }
+                                                disabled={busy}
+                                            >
+                                                {operation === "disconnect"
+                                                    ? t("Desconectando...")
+                                                    : t("Desconectar")}
+                                            </button>
+                                        )}
+
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                styles.dangerButton
+                                            }
+                                            onClick={
+                                                handleDeactivate
+                                            }
+                                            disabled={busy}
+                                        >
+                                            {operation === "deactivate"
+                                                ? t("Desactivando...")
+                                                : t("Desactivar")}
+                                        </button>
+                                    </div>
+                                </>
+
+                            ) : (
+
+                                /* =================================
+                                   MANUAL ACCOUNT REGISTRATION
+                                   ================================= */
+
+                                <>
+
+                                    <p className={styles.advancedHelp}>
+                                        {t(
+                                            "El registro manual es una alternativa administrativa. Se recomienda conectar con Meta."
+                                        )}
+                                    </p>
+
+
+                                    {!manual ? (
+
+                                        /* -------------------------
+                                           ENABLE MANUAL FORM
+                                           ------------------------- */
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                styles.secondaryButton
+                                            }
+                                            onClick={() =>
+                                                setManual(true)
+                                            }
+                                            disabled={busy}
+                                        >
+                                            {t(
+                                                "Crear cuenta manualmente"
+                                            )}
+                                        </button>
+
+                                    ) : (
+
+                                        /* -------------------------
+                                           MANUAL FORM
+                                           ------------------------- */
+
+                                        <form
+                                            className={
+                                                styles.wabaForm
+                                            }
+                                            onSubmit={
+                                                handleSave
+                                            }
+                                        >
+
+                                            {/* ---------------------
+                                                REQUIRED FIELDS
+                                               --------------------- */}
+
+                                            {[
+                                                [
+                                                    "display_name",
+                                                    t("Nombre"),
+                                                ],
+                                                [
+                                                    "meta_waba_id",
+                                                    "Meta WABA ID",
+                                                ],
+                                                [
+                                                    "meta_business_id",
+                                                    "Meta Business ID",
+                                                ],
+                                            ].map(([key, label]) => (
+                                                <div
+                                                    className={
+                                                        styles.formField
+                                                    }
+                                                    key={key}
+                                                >
+                                                    <label
+                                                        htmlFor={
+                                                            `manual-${key}`
+                                                        }
+                                                    >
+                                                        {label}
+                                                    </label>
+
+                                                    <input
+                                                        id={
+                                                            `manual-${key}`
+                                                        }
+                                                        type="text"
+                                                        value={
+                                                            form[key]
+                                                        }
+                                                        onChange={(event) =>
+                                                            changeField(
+                                                                key,
+                                                                event.target.value
+                                                            )
+                                                        }
+                                                        disabled={busy}
+                                                        required
+                                                    />
+                                                </div>
+                                            ))}
+
+
+                                            {/* ---------------------
+                                                NOTES
+                                               --------------------- */}
+
+                                            <div className={styles.formField}>
+                                                <label htmlFor="manual-notes">
+                                                    {t("Notas")}
+                                                </label>
+
+                                                <textarea
+                                                    id="manual-notes"
+                                                    value={form.notes}
+                                                    onChange={(event) =>
+                                                        changeField(
+                                                            "notes",
+                                                            event.target.value
+                                                        )
+                                                    }
+                                                    disabled={busy}
+                                                    rows={3}
+                                                />
+                                            </div>
+
+
+                                            {/* ---------------------
+                                                FORM ACTIONS
+                                               --------------------- */}
+
+                                            <div className={styles.formActions}>
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        styles.secondaryButton
+                                                    }
+                                                    onClick={() =>
+                                                        setManual(false)
+                                                    }
+                                                    disabled={busy}
+                                                >
+                                                    {t("Cancelar")}
+                                                </button>
+
+                                                <button
+                                                    type="submit"
+                                                    className={
+                                                        styles.primaryButton
+                                                    }
+                                                    disabled={busy}
+                                                >
+                                                    {operation === "save"
+                                                        ? t("Guardando...")
+                                                        : t("Crear cuenta")}
+                                                </button>
+                                            </div>
+                                        </form>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
             </section>
         </div>
     );

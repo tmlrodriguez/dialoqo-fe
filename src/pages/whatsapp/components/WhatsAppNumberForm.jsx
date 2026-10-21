@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-
-import {
-    getBranches,
-} from "../../../services/organizations.js";
-
+import { getBranches } from "../../../services/organizations.js";
 import {
     activateWhatsAppMonitoring,
     createWhatsAppNumber,
@@ -15,876 +11,312 @@ import {
     updateWhatsAppNumber,
     validateWhatsAppNumber,
 } from "../../../services/whatsapp.js";
-
-import styles from "./WhatsAppNumberForm.module.css";
 import { getLanguageLocale } from "../../../utils/i18n.js";
 import { usePageTranslation } from "../../usePageTranslation.js";
+import styles from "./WhatsAppNumberForm.module.css";
 
+const EMPTY = {
+    whatsapp_business_account: "",
+    phone_number: "",
+    meta_phone_number_id: "",
+    display_name: "",
+    notes: "",
+};
 
 /**
  * WhatsAppNumberForm
- *
- * Description:
- * - Administrar los números corporativos de WhatsApp pertenecientes a una empresa.
- *
- * Notes:
- * - Los números se administran dentro del contexto de una sucursal.
- * - Cada número pertenece a una cuenta de WhatsApp Business de la misma empresa.
- * - Permite crear, consultar, actualizar y desactivar números.
- * - Permite validar el Phone Number ID contra Meta.
- * - Permite activar y desactivar explícitamente el monitoreo.
- * - Los campos de conexión y monitoreo son controlados exclusivamente por el backend.
+ * - Embedded Signup registers discovered numbers under the default branch.
+ * - Monitoring activation remains a separate, explicit operation.
+ * - Manual registration is an advanced fallback.
+ * - Existing Meta identities are read-only in the frontend.
  */
-function WhatsAppNumberForm({
-    companyId,
-    onError,
-    onSuccess,
-}) {
+function WhatsAppNumberForm({ companyId, onError, onSuccess }) {
     const { t } = usePageTranslation();
     const [branches, setBranches] = useState([]);
     const [accounts, setAccounts] = useState([]);
     const [numbers, setNumbers] = useState([]);
+    const [branchId, setBranchId] = useState("");
+    const [selected, setSelected] = useState(null);
+    const [manual, setManual] = useState(false);
+    const [form, setForm] = useState(EMPTY);
+    const [loading, setLoading] = useState(false);
+    const [loadingNumbers, setLoadingNumbers] = useState(false);
+    const [operation, setOperation] = useState("");
+    const busy = Boolean(operation);
 
-    const [selectedBranchId, setSelectedBranchId] = useState("");
-    const [selectedNumber, setSelectedNumber] = useState(null);
-
-    const [wabaId, setWabaId] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
-    const [displayName, setDisplayName] = useState("");
-    const [metaPhoneNumberId, setMetaPhoneNumberId] = useState("");
-    const [notes, setNotes] = useState("");
-
-    const [isLoadingBranches, setIsLoadingBranches] = useState(false);
-    const [isLoadingAccounts, setIsLoadingAccounts] = useState(false);
-    const [isLoadingNumbers, setIsLoadingNumbers] = useState(false);
-    const [isLoadingDetail, setIsLoadingDetail] = useState(false);
-
-    const [isSaving, setIsSaving] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [isValidating, setIsValidating] = useState(false);
-    const [isChangingMonitoring, setIsChangingMonitoring] = useState(false);
-
-
-    /**
-     * clearParentMessages
-     *
-     * Description:
-     * - Limpiar los mensajes administrados por la página padre.
-     */
-    function clearParentMessages() {
+    function clearMessages() {
         onError?.("");
         onSuccess?.("");
     }
 
-
-    /**
-     * resetForm
-     *
-     * Description:
-     * - Restablecer el formulario del número.
-     *
-     * Notes:
-     * - Conserva la sucursal actualmente seleccionada.
-     */
-    function resetForm() {
-        setSelectedNumber(null);
-        setPhoneNumber("");
-        setDisplayName("");
-        setMetaPhoneNumberId("");
-        setNotes("");
-
-        setWabaId(
-            accounts.length > 0
-                ? String(accounts[0].id)
-                : ""
-        );
+    function change(field, value) {
+        setForm((current) => ({ ...current, [field]: value }));
     }
 
-
-    /**
-     * loadBranches
-     *
-     * Description:
-     * - Obtener las sucursales activas de la empresa.
-     *
-     * Notes:
-     * - Selecciona automáticamente la primera sucursal disponible.
-     */
-    async function loadBranches() {
-        if (!companyId) {
-            setBranches([]);
-            setSelectedBranchId("");
-            return;
-        }
-
-        setIsLoadingBranches(true);
-
-        try {
-            const response = await getBranches(companyId);
-            const branchList = response?.data || [];
-
-            setBranches(branchList);
-
-            setSelectedBranchId((currentBranchId) => {
-                const branchExists = branchList.some(
-                    (branch) =>
-                        String(branch.id) === String(currentBranchId)
-                );
-
-                if (branchExists) {
-                    return currentBranchId;
-                }
-
-                if (branchList.length > 0) {
-                    return String(branchList[0].id);
-                }
-
-                return "";
-            });
-        } catch (error) {
-            setBranches([]);
-            setSelectedBranchId("");
-
-            onError?.(
-                error.message ||
-                t("No fue posible cargar las sucursales.")
-            );
-        } finally {
-            setIsLoadingBranches(false);
-        }
+    function reset() {
+        setSelected(null);
+        setManual(false);
+        setForm({
+            ...EMPTY,
+            whatsapp_business_account: accounts[0] ? String(accounts[0].id) : "",
+        });
     }
 
-
-    /**
-     * loadAccounts
-     *
-     * Description:
-     * - Obtener las cuentas WABA activas de la empresa.
-     *
-     * Notes:
-     * - Las cuentas disponibles son utilizadas para registrar números.
-     */
-    async function loadAccounts() {
-        if (!companyId) {
-            setAccounts([]);
-            setWabaId("");
-            return;
-        }
-
-        setIsLoadingAccounts(true);
-
-        try {
-            const response = await getWhatsAppBusinessAccounts(companyId);
-            const accountList = response?.data || [];
-
-            setAccounts(accountList);
-
-            setWabaId((currentWabaId) => {
-                const accountExists = accountList.some(
-                    (account) =>
-                        String(account.id) === String(currentWabaId)
-                );
-
-                if (accountExists) {
-                    return currentWabaId;
-                }
-
-                if (accountList.length > 0) {
-                    return String(accountList[0].id);
-                }
-
-                return "";
-            });
-        } catch (error) {
-            setAccounts([]);
-            setWabaId("");
-
-            onError?.(
-                error.message ||
-                t("No fue posible cargar las cuentas de WhatsApp Business.")
-            );
-        } finally {
-            setIsLoadingAccounts(false);
-        }
+    function apply(number) {
+        setSelected(number);
+        setManual(false);
+        setForm({
+            whatsapp_business_account: String(number.whatsapp_business_account || ""),
+            phone_number: number.phone_number || "",
+            meta_phone_number_id: number.meta_phone_number_id || "",
+            display_name: number.display_name || "",
+            notes: number.notes || "",
+        });
     }
 
-
-    /**
-     * loadNumbers
-     *
-     * Description:
-     * - Obtener los números activos de una sucursal.
-     */
-    async function loadNumbers(branchId) {
-        if (
-            !companyId ||
-            !branchId
-        ) {
-            setNumbers([]);
-            return;
-        }
-
-        setIsLoadingNumbers(true);
-
-        try {
-            const response = await getWhatsAppNumbers(
-                companyId,
-                branchId
-            );
-
-            setNumbers(response?.data || []);
-        } catch (error) {
-            setNumbers([]);
-
-            onError?.(
-                error.message ||
-                t("No fue posible cargar los números de WhatsApp.")
-            );
-        } finally {
-            setIsLoadingNumbers(false);
-        }
-    }
-
-
-    /**
-     * handleBranchChange
-     *
-     * Description:
-     * - Cambiar la sucursal utilizada para administrar números.
-     *
-     * Notes:
-     * - Restablece el número actualmente seleccionado.
-     */
-    function handleBranchChange(event) {
-        const branchId = event.target.value;
-
-        clearParentMessages();
-        setSelectedBranchId(branchId);
-        resetForm();
-    }
-
-
-    /**
-     * handleNewNumber
-     *
-     * Description:
-     * - Preparar el formulario para crear un nuevo número.
-     */
-    function handleNewNumber() {
-        clearParentMessages();
-        resetForm();
-    }
-
-
-    /**
-     * handleSelectNumber
-     *
-     * Description:
-     * - Obtener el detalle completo de un número seleccionado.
-     */
-    async function handleSelectNumber(number) {
-        if (
-            !companyId ||
-            !selectedBranchId ||
-            !number?.id ||
-            isLoadingDetail
-        ) {
-            return;
-        }
-
-        setIsLoadingDetail(true);
-        clearParentMessages();
-
-        try {
-            const response = await getWhatsAppNumber(
-                companyId,
-                selectedBranchId,
-                number.id
-            );
-
-            const numberDetail = response?.data;
-
-            if (!numberDetail) {
-                throw new Error(
-                    t("No fue posible obtener el detalle del número.")
-                );
-            }
-
-            setSelectedNumber(numberDetail);
-
-            setWabaId(
-                numberDetail.whatsapp_business_account
-                    ? String(numberDetail.whatsapp_business_account)
-                    : ""
-            );
-
-            setPhoneNumber(numberDetail.phone_number || "");
-            setDisplayName(numberDetail.display_name || "");
-            setMetaPhoneNumberId(
-                numberDetail.meta_phone_number_id || ""
-            );
-            setNotes(numberDetail.notes || "");
-        } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible cargar el número de WhatsApp.")
-            );
-        } finally {
-            setIsLoadingDetail(false);
-        }
-    }
-
-
-    /**
-     * reloadSelectedNumber
-     *
-     * Description:
-     * - Volver a consultar el número seleccionado después de una operación.
-     *
-     * Notes:
-     * - Permite sincronizar el estado local con los campos controlados por el backend.
-     */
-    async function reloadSelectedNumber(numberId) {
-        if (
-            !companyId ||
-            !selectedBranchId ||
-            !numberId
-        ) {
-            return;
-        }
-
-        const response = await getWhatsAppNumber(
-            companyId,
-            selectedBranchId,
-            numberId
-        );
-
-        const numberDetail = response?.data;
-
-        if (!numberDetail) {
-            return;
-        }
-
-        setSelectedNumber(numberDetail);
-
-        setWabaId(
-            numberDetail.whatsapp_business_account
-                ? String(numberDetail.whatsapp_business_account)
-                : ""
-        );
-
-        setPhoneNumber(numberDetail.phone_number || "");
-        setDisplayName(numberDetail.display_name || "");
-        setMetaPhoneNumberId(
-            numberDetail.meta_phone_number_id || ""
-        );
-        setNotes(numberDetail.notes || "");
-    }
-
-
-    /**
-     * handleSubmit
-     *
-     * Description:
-     * - Crear un número nuevo o actualizar el número seleccionado.
-     */
-    async function handleSubmit(event) {
-        event.preventDefault();
-
-        if (
-            !companyId ||
-            !selectedBranchId ||
-            !wabaId ||
-            isSaving
-        ) {
-            return;
-        }
-
-        setIsSaving(true);
-        clearParentMessages();
-
-        const numberData = {
-            whatsapp_business_account: Number(wabaId),
-            phone_number: phoneNumber.trim(),
-            display_name: displayName.trim(),
-            meta_phone_number_id: metaPhoneNumberId.trim(),
-            notes: notes.trim(),
-        };
-
-        try {
-            if (selectedNumber) {
-                await updateWhatsAppNumber(
-                    companyId,
-                    selectedBranchId,
-                    selectedNumber.id,
-                    numberData
-                );
-
-                onSuccess?.(
-                    t("Número de WhatsApp actualizado correctamente.")
-                );
-            } else {
-                await createWhatsAppNumber(
-                    companyId,
-                    selectedBranchId,
-                    numberData
-                );
-
-                onSuccess?.(
-                    t("Número de WhatsApp creado correctamente.")
-                );
-            }
-
-            resetForm();
-
-            await loadNumbers(selectedBranchId);
-        } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible guardar el número de WhatsApp.")
-            );
-        } finally {
-            setIsSaving(false);
-        }
-    }
-
-
-    /**
-     * handleValidate
-     *
-     * Description:
-     * - Validar el Phone Number ID del número seleccionado contra Meta.
-     *
-     * Notes:
-     * - El backend controla la actualización de is_connected.
-     */
-    async function handleValidate() {
-        if (
-            !companyId ||
-            !selectedBranchId ||
-            !selectedNumber ||
-            isValidating
-        ) {
-            return;
-        }
-
-        setIsValidating(true);
-        clearParentMessages();
-
-        try {
-            const response = await validateWhatsAppNumber(
-                companyId,
-                selectedBranchId,
-                selectedNumber.id
-            );
-
-            onSuccess?.(
-                response?.success_message ||
-                t("Número de WhatsApp validado correctamente.")
-            );
-
-            await reloadSelectedNumber(selectedNumber.id);
-            await loadNumbers(selectedBranchId);
-        } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible validar el número contra Meta.")
-            );
-        } finally {
-            setIsValidating(false);
-        }
-    }
-
-
-    /**
-     * handleActivateMonitoring
-     *
-     * Description:
-     * - Activar la captura de mensajes para el número seleccionado.
-     */
-    async function handleActivateMonitoring() {
-        if (
-            !companyId ||
-            !selectedBranchId ||
-            !selectedNumber ||
-            isChangingMonitoring
-        ) {
-            return;
-        }
-
-        setIsChangingMonitoring(true);
-        clearParentMessages();
-
-        try {
-            const response = await activateWhatsAppMonitoring(
-                companyId,
-                selectedBranchId,
-                selectedNumber.id
-            );
-
-            onSuccess?.(
-                response?.success_message ||
-                t("Monitoreo de WhatsApp activado correctamente.")
-            );
-
-            await reloadSelectedNumber(selectedNumber.id);
-            await loadNumbers(selectedBranchId);
-        } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible activar el monitoreo.")
-            );
-        } finally {
-            setIsChangingMonitoring(false);
-        }
-    }
-
-
-    /**
-     * handleDeactivateMonitoring
-     *
-     * Description:
-     * - Detener la captura monitoreada del número seleccionado.
-     */
-    async function handleDeactivateMonitoring() {
-        if (
-            !companyId ||
-            !selectedBranchId ||
-            !selectedNumber ||
-            isChangingMonitoring
-        ) {
-            return;
-        }
-
-        const confirmed = window.confirm(
-            `${t("¿Desea detener el monitoreo del número")} "${selectedNumber.display_name}"?`
-        );
-
-        if (!confirmed) {
-            return;
-        }
-
-        setIsChangingMonitoring(true);
-        clearParentMessages();
-
-        try {
-            const response = await deactivateWhatsAppMonitoring(
-                companyId,
-                selectedBranchId,
-                selectedNumber.id
-            );
-
-            onSuccess?.(
-                response?.success_message ||
-                t("Monitoreo de WhatsApp desactivado correctamente.")
-            );
-
-            await reloadSelectedNumber(selectedNumber.id);
-            await loadNumbers(selectedBranchId);
-        } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible desactivar el monitoreo.")
-            );
-        } finally {
-            setIsChangingMonitoring(false);
-        }
-    }
-
-
-    /**
-     * handleDeactivateNumber
-     *
-     * Description:
-     * - Desactivar el número de WhatsApp seleccionado.
-     *
-     * Notes:
-     * - El backend rechazará la operación cuando el monitoreo continúe activo.
-     */
-    async function handleDeactivateNumber() {
-        if (
-            !companyId ||
-            !selectedBranchId ||
-            !selectedNumber ||
-            isDeleting
-        ) {
-            return;
-        }
-
-        const confirmed = window.confirm(
-            `${t("¿Desea desactivar el número")} "${selectedNumber.display_name}"?`
-        );
-
-        if (!confirmed) {
-            return;
-        }
-
-        setIsDeleting(true);
-        clearParentMessages();
-
-        try {
-            await deactivateWhatsAppNumber(
-                companyId,
-                selectedBranchId,
-                selectedNumber.id
-            );
-
-            onSuccess?.(
-                t("Número de WhatsApp desactivado correctamente.")
-            );
-
-            resetForm();
-
-            await loadNumbers(selectedBranchId);
-        } catch (error) {
-            onError?.(
-                error.message ||
-                t("No fue posible desactivar el número de WhatsApp.")
-            );
-        } finally {
-            setIsDeleting(false);
-        }
-    }
-
-
-    /**
-     * formatDateTime
-     *
-     * Description:
-     * - Convertir una fecha ISO a una representación legible.
-     */
-    function formatDateTime(value) {
-        if (!value) {
-            return "—";
-        }
-
+    function dateText(value) {
+        if (!value) return "—";
         const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return value;
-        }
-
+        if (Number.isNaN(date.getTime())) return value;
         return new Intl.DateTimeFormat(getLanguageLocale(), {
             dateStyle: "medium",
             timeStyle: "short",
         }).format(date);
     }
 
-
-    const operationInProgress =
-        isSaving ||
-        isDeleting ||
-        isValidating ||
-        isChangingMonitoring;
-
-
+    // Load company context. Discard responses from an obsolete company.
     useEffect(() => {
+        let cancelled = false;
         setBranches([]);
         setAccounts([]);
+        setBranchId("");
+        setSelected(null);
         setNumbers([]);
-        setSelectedBranchId("");
-        setSelectedNumber(null);
+        setManual(false);
+        setForm(EMPTY);
+        if (!companyId) return;
 
-        loadBranches();
-        loadAccounts();
+        async function loadContext() {
+            setLoading(true);
+            try {
+                const [branchResponse, accountResponse] = await Promise.all([
+                    getBranches(companyId),
+                    getWhatsAppBusinessAccounts(companyId),
+                ]);
+                if (cancelled) return;
+                const branchList = branchResponse?.data || [];
+                const accountList = accountResponse?.data || [];
+                setBranches(branchList);
+                setAccounts(accountList);
+                setBranchId(branchList[0] ? String(branchList[0].id) : "");
+                setForm({
+                    ...EMPTY,
+                    whatsapp_business_account: accountList[0] ? String(accountList[0].id) : "",
+                });
+            } catch (error) {
+                if (!cancelled) onError?.(error.message || t("No fue posible cargar la configuración."));
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        }
+        loadContext();
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [companyId]);
 
-
+    // Load only the numbers belonging to the active branch.
     useEffect(() => {
-        resetForm();
+        let cancelled = false;
+        setNumbers([]);
+        setSelected(null);
+        setManual(false);
+        if (!companyId || !branchId) return;
 
-        if (selectedBranchId) {
-            loadNumbers(selectedBranchId);
-        } else {
-            setNumbers([]);
+        async function load() {
+            setLoadingNumbers(true);
+            try {
+                const response = await getWhatsAppNumbers(companyId, branchId);
+                if (!cancelled) setNumbers(response?.data || []);
+            } catch (error) {
+                if (!cancelled) onError?.(error.message || t("No fue posible cargar los números."));
+            } finally {
+                if (!cancelled) setLoadingNumbers(false);
+            }
         }
-    }, [selectedBranchId]);
+        load();
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [companyId, branchId]);
 
+    async function refreshList() {
+        const response = await getWhatsAppNumbers(companyId, branchId);
+        setNumbers(response?.data || []);
+    }
+
+    async function refreshDetail(id) {
+        const response = await getWhatsAppNumber(companyId, branchId, id);
+        if (!response?.data) throw new Error(t("No fue posible cargar el número."));
+        apply(response.data);
+    }
+
+    async function selectNumber(number) {
+        if (!number?.id || busy) return;
+        clearMessages();
+        setOperation("load");
+        try {
+            await refreshDetail(number.id);
+        } catch (error) {
+            onError?.(error.message || t("No fue posible cargar el número."));
+        } finally {
+            setOperation("");
+        }
+    }
+
+    async function mutate(name, request, successText) {
+        if (!selected || busy) return;
+        const id = selected.id;
+        clearMessages();
+        setOperation(name);
+        try {
+            const response = await request(id);
+            onSuccess?.(response?.success_message || t(successText));
+            try {
+                await refreshList();
+                await refreshDetail(id);
+            } catch {
+                // A failed refresh does not invalidate a successful mutation.
+            }
+        } catch (error) {
+            onError?.(error.message || t("No fue posible completar la operación."));
+        } finally {
+            setOperation("");
+        }
+    }
+
+    async function save(event) {
+        event.preventDefault();
+        if (!companyId || !branchId || busy) return;
+        clearMessages();
+        setOperation("save");
+        try {
+            if (selected) {
+                await updateWhatsAppNumber(companyId, branchId, selected.id, {
+                    display_name: form.display_name.trim(),
+                    notes: form.notes.trim(),
+                });
+                onSuccess?.(t("Número actualizado correctamente."));
+                await refreshDetail(selected.id);
+            } else {
+                await createWhatsAppNumber(companyId, branchId, {
+                    whatsapp_business_account: Number(form.whatsapp_business_account),
+                    phone_number: form.phone_number.trim(),
+                    meta_phone_number_id: form.meta_phone_number_id.trim(),
+                    display_name: form.display_name.trim(),
+                    notes: form.notes.trim(),
+                });
+                onSuccess?.(t("Número creado. Valídelo con Meta antes de activar el monitoreo."));
+                reset();
+            }
+            await refreshList();
+        } catch (error) {
+            onError?.(error.message || t("No fue posible guardar el número."));
+        } finally {
+            setOperation("");
+        }
+    }
+
+    async function deactivate() {
+        if (!selected || busy) return;
+        if (!window.confirm(t("¿Desea desactivar este número?"))) return;
+        clearMessages();
+        setOperation("delete");
+        try {
+            await deactivateWhatsAppNumber(companyId, branchId, selected.id);
+            reset();
+            onSuccess?.(t("Número desactivado correctamente."));
+            await refreshList();
+        } catch (error) {
+            onError?.(error.message || t("No fue posible desactivar el número."));
+        } finally {
+            setOperation("");
+        }
+    }
 
     return (
         <div className={styles.numberSection}>
             <div className={styles.contextBar}>
-                <div className={styles.contextField}>
-                    <label htmlFor="number-branch">
-                        {t("Sucursal")}
-                    </label>
-
-                    <select
-                        id="number-branch"
-                        value={selectedBranchId}
-                        onChange={handleBranchChange}
-                        disabled={
-                            isLoadingBranches ||
-                            branches.length === 0 ||
-                            operationInProgress
-                        }
-                    >
-                        {branches.length === 0 && (
-                            <option value="">
-                                {t("No existen sucursales disponibles")}
-                            </option>
-                        )}
-
-                        {branches.map((branch) => (
-                            <option
-                                key={branch.id}
-                                value={branch.id}
-                            >
-                                {branch.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                <label htmlFor="number-branch">{t("Sucursal")}</label>
+                <select
+                    id="number-branch"
+                    value={branchId}
+                    disabled={loading || busy || branches.length === 0}
+                    onChange={(event) => {
+                        clearMessages();
+                        setBranchId(event.target.value);
+                        reset();
+                    }}
+                >
+                    {branches.length === 0 && (
+                        <option value="">{t("No existen sucursales disponibles")}</option>
+                    )}
+                    {branches.map((branch) => (
+                        <option key={branch.id} value={branch.id}>{branch.name}</option>
+                    ))}
+                </select>
+                <p>{t("Los números de Meta se registran inicialmente en la sucursal predeterminada.")}</p>
             </div>
 
             <div className={styles.numberWorkspace}>
                 <section className={styles.listPanel}>
-                    <div className={styles.panelHeader}>
+                    <header className={styles.panelHeader}>
                         <div>
-                            <span className={styles.eyebrow}>
-                                {t("Canales")}
-                            </span>
-
-                            <h2>
-                                {t("Números de WhatsApp")}
-                            </h2>
-
-                            <p>
-                                {t("Números activos pertenecientes a la sucursal seleccionada.")}
-                            </p>
+                            <span className={styles.eyebrow}>{t("Canales")}</span>
+                            <h2>{t("Números de WhatsApp")}</h2>
+                            <p>{t("Seleccione un número para administrar su monitoreo.")}</p>
                         </div>
-
                         <button
                             className={styles.secondaryButton}
                             type="button"
-                            onClick={handleNewNumber}
-                            disabled={
-                                !selectedBranchId ||
-                                operationInProgress
-                            }
+                            disabled={!branchId || busy}
+                            onClick={() => {
+                                clearMessages();
+                                reset();
+                                setManual(true);
+                            }}
                         >
-                            {t("Nuevo número")}
+                            {t("Registro manual")}
                         </button>
-                    </div>
+                    </header>
 
-                    {!selectedBranchId ? (
-                        <div className={styles.emptyState}>
-                            <div className={styles.emptyIcon}>
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    aria-hidden="true"
-                                >
-                                    <rect x="6" y="2.5" width="12" height="19" rx="2" />
-                                    <path d="M10 18h4" />
-                                </svg>
-                            </div>
-
-                            <strong>
-                                {t("Seleccione una sucursal.")}
-                            </strong>
-
-                            <span>
-                                {t("Los números de WhatsApp se administran dentro de una sucursal.")}
-                            </span>
-                        </div>
-                    ) : isLoadingNumbers ? (
-                        <div className={styles.loadingState}>
-                            {t("Cargando números...")}
-                        </div>
+                    {!branchId ? (
+                        <div className={styles.emptyState}>{t("Seleccione una sucursal.")}</div>
+                    ) : loadingNumbers ? (
+                        <div className={styles.loadingState}>{t("Cargando números...")}</div>
                     ) : numbers.length === 0 ? (
                         <div className={styles.emptyState}>
-                            <div className={styles.emptyIcon}>
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    aria-hidden="true"
-                                >
-                                    <rect x="6" y="2.5" width="12" height="19" rx="2" />
-                                    <path d="M10 18h4" />
-                                </svg>
-                            </div>
-
-                            <strong>
-                                {t("No existen números registrados.")}
-                            </strong>
-
-                            <span>
-                                {t("Registre el primer número de WhatsApp para esta sucursal.")}
-                            </span>
+                            <strong>{t("No existen números registrados.")}</strong>
+                            <p>{t("Conecte una cuenta desde Cuentas WABA para registrar números automáticamente.")}</p>
                         </div>
                     ) : (
                         <div className={styles.numberList}>
                             {numbers.map((number) => (
                                 <button
                                     key={number.id}
-                                    className={`${styles.numberCard} ${
-                                        selectedNumber?.id === number.id
-                                            ? styles.numberCardActive
-                                            : ""
-                                    }`}
                                     type="button"
-                                    onClick={() => handleSelectNumber(number)}
-                                    disabled={isLoadingDetail}
+                                    disabled={busy}
+                                    onClick={() => selectNumber(number)}
+                                    className={`${styles.numberCard} ${selected?.id === number.id ? styles.numberCardActive : ""}`}
                                 >
-                                    <div className={styles.numberCardMain}>
-                                        <div className={styles.numberIcon}>
-                                            <svg
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.8"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                aria-hidden="true"
-                                            >
-                                                <rect x="6" y="2.5" width="12" height="19" rx="2" />
-                                                <path d="M10 18h4" />
-                                            </svg>
-                                        </div>
-
-                                        <div className={styles.numberInformation}>
-                                            <strong>
-                                                {number.display_name}
-                                            </strong>
-
-                                            <span>
-                                                {number.phone_number}
-                                            </span>
-                                        </div>
+                                    <div className={styles.numberInformation}>
+                                        <strong>{number.display_name}</strong>
+                                        <span>{number.phone_number}</span>
                                     </div>
-
                                     <div className={styles.statusGroup}>
-                                        <span
-                                            className={
-                                                number.is_connected
-                                                    ? styles.connectedBadge
-                                                    : styles.disconnectedBadge
-                                            }
-                                        >
-                                            {number.is_connected
-                                                ? t("Conectado")
-                                                : t("Sin validar")}
+                                        <span className={number.is_connected ? styles.connectedBadge : styles.disconnectedBadge}>
+                                            {number.is_connected ? t("Conectado") : t("Sin validar")}
                                         </span>
-
-                                        <span
-                                            className={
-                                                number.is_monitoring_enabled
-                                                    ? styles.monitoringBadge
-                                                    : styles.monitoringInactiveBadge
-                                            }
-                                        >
-                                            {number.is_monitoring_enabled
-                                                ? t("Monitoreando")
-                                                : t("Sin monitoreo")}
+                                        <span className={number.is_monitoring_enabled ? styles.monitoringBadge : styles.monitoringInactiveBadge}>
+                                            {number.is_monitoring_enabled ? t("Monitoreando") : t("Sin monitoreo")}
                                         </span>
                                     </div>
                                 </button>
@@ -894,308 +326,165 @@ function WhatsAppNumberForm({
                 </section>
 
                 <section className={styles.formPanel}>
-                    <div className={styles.panelHeader}>
+                    <header className={styles.panelHeader}>
                         <div>
-                            <span className={styles.eyebrow}>
-                                {t("Configuración")}
-                            </span>
-
-                            <h2>
-                                {selectedNumber
-                                    ? t("Editar número")
-                                    : t("Nuevo número")}
-                            </h2>
-
-                            <p>
-                                {selectedNumber
-                                    ? t("Modifique el número o administre su estado operativo.")
-                                    : t("Registre un número corporativo de WhatsApp.")}
-                            </p>
+                            <span className={styles.eyebrow}>{t("Administración")}</span>
+                            <h2>{selected?.display_name || (manual ? t("Registro manual") : t("Detalle del número"))}</h2>
+                            <p>{t("Estado operativo y configuración administrativa.")}</p>
                         </div>
+                    </header>
 
-                        {selectedNumber && (
-                            <span
-                                className={
-                                    selectedNumber.is_connected
-                                        ? styles.connectedBadge
-                                        : styles.disconnectedBadge
-                                }
-                            >
-                                {selectedNumber.is_connected
-                                    ? t("Conectado")
-                                    : t("Sin validar")}
-                            </span>
-                        )}
-                    </div>
-
-                    <form
-                        className={styles.numberForm}
-                        onSubmit={handleSubmit}
-                    >
-                        <div className={styles.formField}>
-                            <label htmlFor="number-waba">
-                                {t("Cuenta WABA")}
-                            </label>
-
-                            <select
-                                id="number-waba"
-                                value={wabaId}
-                                onChange={(event) => setWabaId(event.target.value)}
-                                disabled={
-                                    isLoadingAccounts ||
-                                    accounts.length === 0 ||
-                                    operationInProgress
-                                }
-                                required
-                            >
-                                {accounts.length === 0 && (
-                                    <option value="">
-                                        {t("No existen cuentas WABA disponibles")}
-                                    </option>
-                                )}
-
-                                {accounts.map((account) => (
-                                    <option
-                                        key={account.id}
-                                        value={account.id}
-                                    >
-                                        {account.display_name}
-                                        {account.is_connected
-                                            ? ` — ${t("Conectada")}`
-                                            : ` — ${t("Desconectada")}`}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <span className={styles.fieldHelp}>
-                                {t("El número utilizará esta cuenta de WhatsApp Business.")}
-                            </span>
+                    {!selected && !manual ? (
+                        <div className={styles.emptyState}>
+                            <strong>{t("Seleccione un número")}</strong>
+                            <p>{t("El monitoreo se activa por número.")}</p>
                         </div>
-
-                        <div className={styles.formField}>
-                            <label htmlFor="number-display-name">
-                                {t("Nombre")}
-                            </label>
-
-                            <input
-                                id="number-display-name"
-                                type="text"
-                                value={displayName}
-                                onChange={(event) => setDisplayName(event.target.value)}
-                                placeholder={t("Nombre del número")}
-                                disabled={operationInProgress}
-                                required
-                            />
-                        </div>
-
-                        <div className={styles.formField}>
-                            <label htmlFor="number-phone">
-                                {t("Número telefónico")}
-                            </label>
-
-                            <input
-                                id="number-phone"
-                                type="text"
-                                value={phoneNumber}
-                                onChange={(event) => setPhoneNumber(event.target.value)}
-                                placeholder="+50499999999"
-                                disabled={operationInProgress}
-                                required
-                            />
-
-                            <span className={styles.fieldHelp}>
-                                {t("Utilice el número completo con código internacional.")}
-                            </span>
-                        </div>
-
-                        <div className={styles.formField}>
-                            <label htmlFor="number-meta-id">
-                                Meta Phone Number ID
-                            </label>
-
-                            <input
-                                id="number-meta-id"
-                                type="text"
-                                value={metaPhoneNumberId}
-                                onChange={(event) => setMetaPhoneNumberId(event.target.value)}
-                                placeholder={t("Identificador del número en Meta")}
-                                disabled={operationInProgress}
-                                required
-                            />
-                        </div>
-
-                        <div className={styles.formField}>
-                            <label htmlFor="number-notes">
-                                {t("Notas")}
-                            </label>
-
-                            <textarea
-                                id="number-notes"
-                                value={notes}
-                                onChange={(event) => setNotes(event.target.value)}
-                                placeholder={t("Información administrativa opcional")}
-                                disabled={operationInProgress}
-                                rows="4"
-                            />
-                        </div>
-
-                        {selectedNumber && (
-                            <div className={styles.lifecycleSection}>
-                                <div className={styles.lifecycleHeader}>
-                                    <div>
-                                        <h3>
-                                            {t("Estado operativo")}
-                                        </h3>
-
-                                        <p>
-                                            {t("Conexión con Meta y estado actual de monitoreo.")}
-                                        </p>
+                    ) : (
+                        <div className={styles.detailsBody}>
+                            {selected && (
+                                <div className={styles.lifecycleSection}>
+                                    <h3>{t("Estado operativo")}</h3>
+                                    <div className={styles.lifecycleGrid}>
+                                        <div><span>{t("Conexión")}</span><strong>{selected.is_connected ? t("Conectado") : t("Sin validar")}</strong></div>
+                                        <div><span>{t("Monitoreo")}</span><strong>{selected.is_monitoring_enabled ? t("Activo") : t("Inactivo")}</strong></div>
+                                        <div><span>{t("Inicio de monitoreo")}</span><strong>{dateText(selected.monitoring_started_at)}</strong></div>
+                                        <div><span>{t("Fin de monitoreo")}</span><strong>{dateText(selected.monitoring_stopped_at)}</strong></div>
                                     </div>
-                                </div>
-
-                                <div className={styles.lifecycleGrid}>
-                                    <div className={styles.lifecycleField}>
-                                        <span>
-                                            {t("Conexión")}
-                                        </span>
-
-                                        <strong>
-                                            {selectedNumber.is_connected
-                                                ? t("Conectado")
-                                                : t("No validado")}
-                                        </strong>
-                                    </div>
-
-                                    <div className={styles.lifecycleField}>
-                                        <span>
-                                            {t("Monitoreo")}
-                                        </span>
-
-                                        <strong>
-                                            {selectedNumber.is_monitoring_enabled
-                                                ? t("Activo")
-                                                : t("Inactivo")}
-                                        </strong>
-                                    </div>
-
-                                    <div className={styles.lifecycleField}>
-                                        <span>
-                                            {t("Inicio de monitoreo")}
-                                        </span>
-
-                                        <strong>
-                                            {formatDateTime(
-                                                selectedNumber.monitoring_started_at
-                                            )}
-                                        </strong>
-                                    </div>
-
-                                    <div className={styles.lifecycleField}>
-                                        <span>
-                                            {t("Fin de monitoreo")}
-                                        </span>
-
-                                        <strong>
-                                            {formatDateTime(
-                                                selectedNumber.monitoring_stopped_at
-                                            )}
-                                        </strong>
-                                    </div>
-                                </div>
-
-                                <div className={styles.lifecycleActions}>
-                                    <button
-                                        className={styles.validateButton}
-                                        type="button"
-                                        onClick={handleValidate}
-                                        disabled={operationInProgress}
-                                    >
-                                        {isValidating
-                                            ? t("Validando...")
-                                            : t("Validar con Meta")}
-                                    </button>
-
-                                    {!selectedNumber.is_monitoring_enabled ? (
+                                    <div className={styles.lifecycleActions}>
                                         <button
-                                            className={styles.monitoringPrimaryButton}
                                             type="button"
-                                            onClick={handleActivateMonitoring}
-                                            disabled={
-                                                operationInProgress ||
-                                                !selectedNumber.is_connected
-                                            }
+                                            className={styles.secondaryButton}
+                                            disabled={busy}
+                                            onClick={() => mutate(
+                                                "validate",
+                                                (id) => validateWhatsAppNumber(companyId, branchId, id),
+                                                "Número validado correctamente."
+                                            )}
                                         >
-                                            {isChangingMonitoring
-                                                ? t("Activando...")
-                                                : t("Activar monitoreo")}
+                                            {operation === "validate" ? t("Validando...") : t("Validar con Meta")}
                                         </button>
-                                    ) : (
-                                        <button
-                                            className={styles.monitoringDangerButton}
-                                            type="button"
-                                            onClick={handleDeactivateMonitoring}
-                                            disabled={operationInProgress}
-                                        >
-                                            {isChangingMonitoring
-                                                ? t("Desactivando...")
-                                                : t("Detener monitoreo")}
-                                        </button>
+                                        {selected.is_monitoring_enabled ? (
+                                            <button
+                                                type="button"
+                                                className={styles.dangerButton}
+                                                disabled={busy}
+                                                onClick={() => {
+                                                    if (!window.confirm(t("¿Desea detener el monitoreo?"))) return;
+                                                    mutate("monitor", (id) => deactivateWhatsAppMonitoring(companyId, branchId, id), "Monitoreo detenido correctamente.");
+                                                }}
+                                            >
+                                                {t("Detener monitoreo")}
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                className={styles.primaryButton}
+                                                disabled={busy || !selected.is_connected}
+                                                onClick={() => mutate("monitor", (id) => activateWhatsAppMonitoring(companyId, branchId, id), "Monitoreo activado correctamente.")}
+                                            >
+                                                {t("Activar monitoreo")}
+                                            </button>
+                                        )}
+                                    </div>
+                                    {!selected.is_connected && (
+                                        <p className={styles.lifecycleNotice}>{t("Valide primero el número con Meta.")}</p>
                                     )}
                                 </div>
-
-                                {!selectedNumber.is_connected && (
-                                    <div className={styles.lifecycleNotice}>
-                                        {t("Valide primero el número contra Meta antes de activar el monitoreo.")}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        <div className={styles.formActions}>
-                            {selectedNumber && (
-                                <button
-                                    className={styles.dangerButton}
-                                    type="button"
-                                    onClick={handleDeactivateNumber}
-                                    disabled={operationInProgress}
-                                >
-                                    {isDeleting
-                                        ? t("Desactivando...")
-                                        : t("Desactivar")}
-                                </button>
                             )}
 
-                            <div className={styles.primaryActions}>
-                                {selectedNumber && (
-                                    <button
-                                        className={styles.secondaryButton}
-                                        type="button"
-                                        onClick={resetForm}
-                                        disabled={operationInProgress}
-                                    >
-                                        {t("Cancelar")}
-                                    </button>
-                                )}
-
-                                <button
-                                    className={styles.primaryButton}
-                                    type="submit"
-                                    disabled={
-                                        !companyId ||
-                                        !selectedBranchId ||
-                                        !wabaId ||
-                                        operationInProgress
-                                    }
-                                >
-                                    {isSaving
-                                        ? t("Guardando...")
-                                        : selectedNumber
-                                            ? t("Guardar cambios")
-                                            : t("Crear número")}
-                                </button>
-                            </div>
+                            <form className={styles.numberForm} onSubmit={save}>
+                                <div className={styles.formField}>
+                                    <label htmlFor="number-name">{t("Nombre")}</label>
+                                    <input
+                                        id="number-name"
+                                        value={form.display_name}
+                                        required
+                                        disabled={busy}
+                                        onChange={(event) => change("display_name", event.target.value)}
+                                    />
+                                </div>
+                                <div className={styles.formField}>
+                                    <label htmlFor="number-notes">{t("Notas")}</label>
+                                    <textarea
+                                        id="number-notes"
+                                        value={form.notes}
+                                        rows={3}
+                                        disabled={busy}
+                                        onChange={(event) => change("notes", event.target.value)}
+                                    />
+                                </div>
+                                <details key={selected?.id || "manual"} className={styles.advancedSection} defaultOpen={manual}>
+                                    <summary>{t("Opciones avanzadas")}</summary>
+                                    <div className={styles.advancedFields}>
+                                        <div className={styles.formField}>
+                                            <label htmlFor="number-waba">{t("Cuenta WABA")}</label>
+                                            <select
+                                                id="number-waba"
+                                                value={form.whatsapp_business_account}
+                                                disabled={busy || Boolean(selected)}
+                                                required
+                                                onChange={(event) => change("whatsapp_business_account", event.target.value)}
+                                            >
+                                                <option value="">{t("Seleccione una cuenta WABA")}</option>
+                                                {accounts.map((account) => (
+                                                    <option key={account.id} value={account.id}>
+                                                        {account.display_name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className={styles.formField}>
+                                            <label htmlFor="number-phone">{t("Número telefónico")}</label>
+                                            <input
+                                                id="number-phone"
+                                                value={form.phone_number}
+                                                readOnly={Boolean(selected)}
+                                                disabled={busy}
+                                                required
+                                                placeholder="+50499999999"
+                                                onChange={(event) => change("phone_number", event.target.value)}
+                                            />
+                                        </div>
+                                        <div className={styles.formField}>
+                                            <label htmlFor="number-meta-id">Meta Phone Number ID</label>
+                                            <input
+                                                id="number-meta-id"
+                                                value={form.meta_phone_number_id}
+                                                readOnly={Boolean(selected)}
+                                                disabled={busy}
+                                                required
+                                                onChange={(event) => change("meta_phone_number_id", event.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </details>
+                                <div className={styles.formActions}>
+                                    {selected && (
+                                        <button
+                                            type="button"
+                                            className={styles.dangerButton}
+                                            disabled={busy || selected.is_monitoring_enabled}
+                                            onClick={deactivate}
+                                        >
+                                            {t("Desactivar número")}
+                                        </button>
+                                    )}
+                                    <div className={styles.primaryActions}>
+                                        <button type="button" className={styles.secondaryButton} disabled={busy} onClick={reset}>
+                                            {t("Cancelar")}
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className={styles.primaryButton}
+                                            disabled={busy || (!selected && !form.whatsapp_business_account)}
+                                        >
+                                            {operation === "save" ? t("Guardando...") : selected ? t("Guardar cambios") : t("Crear número")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    )}
                 </section>
             </div>
         </div>

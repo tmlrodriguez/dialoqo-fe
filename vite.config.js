@@ -1,7 +1,18 @@
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-})
+    plugins: [react()],
+
+    server: {
+        allowedHosts: [".trycloudflare.com"],
+
+        proxy: {
+            "/access": "http://127.0.0.1:8000",
+            "/organizations": "http://127.0.0.1:8000",
+            "/members": "http://127.0.0.1:8000",
+            "/whatsapp": "http://127.0.0.1:8000",
+            "/auditing": "http://127.0.0.1:8000",
+        },
+    },
+});
