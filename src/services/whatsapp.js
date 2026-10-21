@@ -11,6 +11,41 @@ export function getWhatsAppBusinessAccounts(companyId) {
     return apiRequest(`/whatsapp/companies/${companyId}/accounts/`);
 }
 
+/**
+ * completeWhatsAppEmbeddedSignup
+ *
+ * Description:
+ * - Complete Meta WhatsApp Embedded Signup through Django.
+ * - Exchange the authorization code securely on the backend.
+ * - Register the authorized WABA and selected WhatsApp number.
+ * - Return the onboarding result.
+ *
+ * Notes:
+ * - Company ownership is determined by the API URL.
+ * - The authorization code is sent only to Django.
+ * - Meta access tokens and App Secrets never reach React.
+ * - Business Portfolio ID is optional.
+ * - Django resolves and verifies Meta Business ownership.
+ * - Newly registered numbers are assigned to the Principal branch.
+ * - Monitoring remains disabled until explicitly activated.
+ */
+export function completeWhatsAppEmbeddedSignup(companyId, data) {
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/embedded-signup/`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                code: data.code,
+                waba_id: data.waba_id,
+                phone_number_id: data.phone_number_id,
+                ...(data.business_id
+                    ? { business_id: data.business_id }
+                    : {}),
+            }),
+        }
+    );
+}
+
 
 /**
  * getWhatsAppBusinessAccount

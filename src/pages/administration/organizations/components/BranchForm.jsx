@@ -9,63 +9,78 @@ import { usePageTranslation } from "../../../usePageTranslation.js";
  * BranchForm
  *
  * Description:
- * - Renderizar el formulario de creación y edición de sucursales.
+ * - Render the branch creation and editing form.
+ * - Collect the branch name and optional description.
  *
  * Notes:
- * - La sucursal permanece asociada a la empresa seleccionada.
+ * - The branch code field has been removed.
+ * - Branch identifiers are managed by the backend.
+ * - Each branch belongs to the selected company.
+ * - The parent page controls form state and operations.
+ * - Existing administrative actions remain unchanged.
  */
 function BranchForm({
     selectedBranch,
     companyId,
     name,
-    code,
     description,
     isSaving,
     isDeleting,
     onNameChange,
-    onCodeChange,
     onDescriptionChange,
     onSubmit,
     onReset,
     onDeactivate,
 }) {
     const { t } = usePageTranslation();
+
+    const isBusy = isSaving || isDeleting;
+
+    const isDisabled = !companyId || isBusy;
+
     return (
         <section className={styles.formPanel}>
             <div className={styles.panelHeader}>
                 <div>
                     <h2>
-                        {selectedBranch ? t("Editar sucursal") : t("Nueva sucursal")}
+                        {selectedBranch
+                            ? t("Editar sucursal")
+                            : t("Nueva sucursal")}
                     </h2>
 
                     <p>
                         {selectedBranch
-                            ? t("Modifique la información de la sucursal seleccionada.")
-                            : t("Complete la información para registrar una nueva sucursal.")}
+                            ? t(
+                                "Modifique la información de la sucursal seleccionada."
+                            )
+                            : t(
+                                "Complete la información para registrar una nueva sucursal."
+                            )}
                     </p>
                 </div>
             </div>
 
-            <form className={styles.entityForm} onSubmit={onSubmit}>
+            <form
+                className={styles.entityForm}
+                onSubmit={onSubmit}
+            >
+                {/* ------------------------------------------ */}
+                {/* BRANCH NAME                                */}
+                {/* ------------------------------------------ */}
+
                 <FormField
                     id="branch-name"
                     label={t("Nombre")}
                     value={name}
                     onChange={onNameChange}
                     placeholder={t("Nombre de la sucursal")}
-                    disabled={!companyId || isSaving || isDeleting}
+                    disabled={isDisabled}
                     required
                 />
 
-                <FormField
-                    id="branch-code"
-                    label={t("Código")}
-                    value={code}
-                    onChange={onCodeChange}
-                    placeholder={t("Código de la sucursal")}
-                    disabled={!companyId || isSaving || isDeleting}
-                    required
-                />
+                {/* ------------------------------------------ */}
+                {/* BRANCH DESCRIPTION                         */}
+                {/* ------------------------------------------ */}
 
                 <FormField
                     id="branch-description"
@@ -74,8 +89,12 @@ function BranchForm({
                     value={description}
                     onChange={onDescriptionChange}
                     placeholder={t("Descripción opcional")}
-                    disabled={!companyId || isSaving || isDeleting}
+                    disabled={isDisabled}
                 />
+
+                {/* ------------------------------------------ */}
+                {/* FORM ACTIONS                               */}
+                {/* ------------------------------------------ */}
 
                 <FormActions
                     destructive={
@@ -84,9 +103,11 @@ function BranchForm({
                                 className={styles.dangerButton}
                                 type="button"
                                 onClick={onDeactivate}
-                                disabled={isSaving || isDeleting}
+                                disabled={isBusy}
                             >
-                                {isDeleting ? t("Desactivando...") : t("Desactivar")}
+                                {isDeleting
+                                    ? t("Desactivando...")
+                                    : t("Desactivar")}
                             </button>
                         ) : null
                     }
@@ -96,7 +117,7 @@ function BranchForm({
                             className={styles.secondaryButton}
                             type="button"
                             onClick={onReset}
-                            disabled={isSaving || isDeleting}
+                            disabled={isDisabled}
                         >
                             {t("Cancelar")}
                         </button>
@@ -105,7 +126,7 @@ function BranchForm({
                     <button
                         className={styles.primaryButton}
                         type="submit"
-                        disabled={!companyId || isSaving || isDeleting}
+                        disabled={isDisabled}
                     >
                         {isSaving
                             ? t("Guardando...")

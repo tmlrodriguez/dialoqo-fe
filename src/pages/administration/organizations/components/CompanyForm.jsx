@@ -9,62 +9,74 @@ import { usePageTranslation } from "../../../usePageTranslation.js";
  * CompanyForm
  *
  * Description:
- * - Renderizar el formulario de creación y edición de empresas.
+ * - Render the company creation and editing form.
+ * - Collect the company name and optional description.
  *
  * Notes:
- * - La página controla el estado y las operaciones.
+ * - The company code field has been removed.
+ * - Company identifiers are managed by the backend.
+ * - The parent page controls form state and operations.
+ * - Existing administrative actions remain unchanged.
  */
 function CompanyForm({
     selectedCompany,
     name,
-    code,
     description,
     isSaving,
     isDeleting,
     onNameChange,
-    onCodeChange,
     onDescriptionChange,
     onSubmit,
     onReset,
     onDeactivate,
 }) {
     const { t } = usePageTranslation();
+
+    const isBusy = isSaving || isDeleting;
+
     return (
         <section className={styles.formPanel}>
             <div className={styles.panelHeader}>
                 <div>
                     <h2>
-                        {selectedCompany ? t("Editar empresa") : t("Nueva empresa")}
+                        {selectedCompany
+                            ? t("Editar empresa")
+                            : t("Nueva empresa")}
                     </h2>
 
                     <p>
                         {selectedCompany
-                            ? t("Modifique la información de la empresa seleccionada.")
-                            : t("Complete la información para registrar una nueva empresa.")}
+                            ? t(
+                                "Modifique la información de la empresa seleccionada."
+                            )
+                            : t(
+                                "Complete la información para registrar una nueva empresa."
+                            )}
                     </p>
                 </div>
             </div>
 
-            <form className={styles.entityForm} onSubmit={onSubmit}>
+            <form
+                className={styles.entityForm}
+                onSubmit={onSubmit}
+            >
+                {/* ------------------------------------------ */}
+                {/* COMPANY NAME                               */}
+                {/* ------------------------------------------ */}
+
                 <FormField
                     id="company-name"
                     label={t("Nombre")}
                     value={name}
                     onChange={onNameChange}
                     placeholder={t("Nombre de la empresa")}
-                    disabled={isSaving || isDeleting}
+                    disabled={isBusy}
                     required
                 />
 
-                <FormField
-                    id="company-code"
-                    label={t("Código")}
-                    value={code}
-                    onChange={onCodeChange}
-                    placeholder={t("Código único")}
-                    disabled={isSaving || isDeleting}
-                    required
-                />
+                {/* ------------------------------------------ */}
+                {/* COMPANY DESCRIPTION                        */}
+                {/* ------------------------------------------ */}
 
                 <FormField
                     id="company-description"
@@ -73,8 +85,12 @@ function CompanyForm({
                     value={description}
                     onChange={onDescriptionChange}
                     placeholder={t("Descripción opcional")}
-                    disabled={isSaving || isDeleting}
+                    disabled={isBusy}
                 />
+
+                {/* ------------------------------------------ */}
+                {/* FORM ACTIONS                               */}
+                {/* ------------------------------------------ */}
 
                 <FormActions
                     destructive={
@@ -83,9 +99,11 @@ function CompanyForm({
                                 className={styles.dangerButton}
                                 type="button"
                                 onClick={onDeactivate}
-                                disabled={isSaving || isDeleting}
+                                disabled={isBusy}
                             >
-                                {isDeleting ? t("Desactivando...") : t("Desactivar")}
+                                {isDeleting
+                                    ? t("Desactivando...")
+                                    : t("Desactivar")}
                             </button>
                         ) : null
                     }
@@ -95,7 +113,7 @@ function CompanyForm({
                             className={styles.secondaryButton}
                             type="button"
                             onClick={onReset}
-                            disabled={isSaving || isDeleting}
+                            disabled={isBusy}
                         >
                             {t("Cancelar")}
                         </button>
@@ -104,7 +122,7 @@ function CompanyForm({
                     <button
                         className={styles.primaryButton}
                         type="submit"
-                        disabled={isSaving || isDeleting}
+                        disabled={isBusy}
                     >
                         {isSaving
                             ? t("Guardando...")
