@@ -1,0 +1,139 @@
+.card {
+    min-width: 0;
+    min-height: 108px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    position: relative;
+    padding: var(--space-4-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-large);
+    background: var(--color-surface);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: var(--shadow-small);
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary-light);
+    background: var(--color-surface-secondary);
+    box-shadow: var(--shadow-medium);
+}
+
+.cardIcon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: var(--border-radius-medium);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-body-large);
+    font-weight: 700;
+}
+
+.cardContent {
+    min-width: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.cardContent strong,
+.cardContent span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cardContent strong {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body-small);
+    font-weight: 600;
+}
+
+.cardContent span {
+    margin-top: 5px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption-small);
+}
+
+.chevron {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+}
+
+.numberStatuses {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-1);
+}
+
+.connectedBadge,
+.monitoringBadge {
+    min-height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 7px;
+    border-radius: 999px;
+    font-size: 8px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.connectedBadge {
+    background: var(--color-success-soft, var(--palette-hex-dcfce7));
+    color: var(--color-success);
+}
+
+.monitoringBadge {
+    background: var(--color-primary-soft, var(--palette-hex-eff6ff));
+    color: var(--color-primary);
+}
+.assignmentInformation {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1-5);
+    margin-top: 9px;
+}
+
+.assignmentInformation .assignmentLabel {
+    flex-shrink: 0;
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.assignmentInformation .assignmentName,
+.assignmentInformation .unassignedName {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9px;
+    font-weight: 600;
+}
+
+.assignmentInformation .assignmentName {
+    color: var(--color-text-primary);
+}
+
+.assignmentInformation .unassignedName {
+    color: var(--color-text-muted);
+}

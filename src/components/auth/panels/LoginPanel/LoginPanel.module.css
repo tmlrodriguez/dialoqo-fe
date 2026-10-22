@@ -1,0 +1,171 @@
+.loginPanel {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-10) var(--space-14);
+    background: var(--color-surface);
+}
+
+.loginBrand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3-5);
+}
+
+.loginBrandLogoWrap {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.loginBrandLogo {
+    width: 48px;
+    height: 48px;
+    display: block;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.loginBrandText {
+    min-width: 0;
+}
+
+.loginBrand h1 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-heading-small);
+    line-height: 1.2;
+}
+
+.loginBrand p {
+    margin: 3px 0 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body-small);
+}
+
+.loginContent {
+    width: 100%;
+    max-width: 420px;
+    margin: auto;
+}
+
+.loginHeading {
+    margin-bottom: var(--space-8);
+}
+
+.loginHeading h2 {
+    margin: 0 0 var(--space-2);
+    color: var(--color-text-primary);
+    font-size: 30px;
+    line-height: 1.2;
+}
+
+.loginHeading p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body-large);
+}
+
+.loginFooter {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-5);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-small);
+}
+
+@media (max-width: 1100px) {
+    .loginPanel {
+        padding: var(--space-9) var(--space-10);
+    }
+}
+
+@media (max-width: 820px) {
+    .loginPanel {
+        min-height: 100vh;
+        padding: var(--space-8);
+    }
+
+    .loginContent {
+        max-width: 480px;
+    }
+
+    .loginFooter {
+        margin-top: var(--space-10);
+    }
+}
+
+@media (max-width: 520px) {
+    .loginPanel {
+        min-height: 100dvh;
+        padding: var(--space-5);
+    }
+
+    .loginBrand {
+        min-height: 46px;
+    }
+
+    .loginBrandLogoWrap {
+        width: 46px;
+        height: 46px;
+    }
+
+    .loginBrandLogo {
+        width: 42px;
+        height: 42px;
+    }
+
+    .loginBrandText {
+        display: none;
+    }
+
+    .loginContent {
+        margin: auto 0;
+    }
+
+    .loginHeading {
+        margin-bottom: var(--space-7);
+    }
+
+    .loginHeading h2 {
+        font-size: 26px;
+    }
+
+    .loginHeading p {
+        font-size: var(--font-size-body);
+        line-height: 1.55;
+    }
+
+    .loginFooter {
+        flex-direction: column;
+        gap: var(--space-1);
+        margin-top: var(--space-8);
+    }
+}
+
+@media (max-width: 380px) {
+    .loginPanel {
+        padding: var(--space-4-5) var(--space-4);
+    }
+
+    .loginBrandLogoWrap {
+        width: 42px;
+        height: 42px;
+    }
+
+    .loginBrandLogo {
+        width: 40px;
+        height: 40px;
+    }
+
+    .loginHeading h2 {
+        font-size: var(--font-size-heading-medium);
+    }
+
+    .loginFooter {
+        font-size: var(--font-size-caption);
+    }
+}

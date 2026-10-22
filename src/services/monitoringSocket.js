@@ -1,149 +1,49 @@
+import { API_BASE_URL } from "../api/client.js";
+
 /**
  * createMonitoringSocket
- *
- * Description:
- * - Crear una conexión WebSocket autenticada para monitoreo realtime.
- *
- * Notes:
- * - La conexión pertenece a una empresa y número específicos.
- * - Utiliza el mismo token DRF almacenado por AuthContext.
- * - El backend obtiene el token mediante TokenQueryAuthMiddleware.
- * - El WebSocket utiliza WSS automáticamente cuando la aplicación se ejecuta mediante HTTPS.
+ * Description: Connect to the authorized company and number using the current session.
+ * Notes: An explicit WS URL wins; otherwise derive the origin from API configuration.
  */
-export function createMonitoringSocket({
-    companyId,
-    numberId,
-    onOpen,
-    onEvent,
-    onClose,
-    onError,
-}) {
-    const token =
-        localStorage.getItem(
-            "centralchat_token"
-        );
+export function createMonitoringSocket({ companyId, numberId, onOpen, onEvent, onClose, onError }) {
+    const token = localStorage.getItem("centralchat_token");
+    if (!companyId || !numberId || !token) return null;
 
-    if (
-        !companyId ||
-        !numberId ||
-        !token
-    ) {
-        return null;
-    }
+    const configuredBaseUrl = import.meta.env?.VITE_WS_BASE_URL;
+    const apiOrigin = new URL(API_BASE_URL || window.location.origin, window.location.origin)
+        .origin;
+    const baseUrl = new URL(configuredBaseUrl || apiOrigin, window.location.origin);
+    baseUrl.protocol =
+        baseUrl.protocol === "https:" || baseUrl.protocol === "wss:" ? "wss:" : "ws:";
+    const websocketBaseUrl = baseUrl.toString().replace(/\/$/, "");
+    const socket = new WebSocket(
+        `${websocketBaseUrl}/ws/whatsapp/companies/${companyId}/numbers/${numberId}/?token=${encodeURIComponent(token)}`,
+    );
 
-    const configuredBaseUrl =
-        import.meta.env.VITE_WS_BASE_URL;
-
-    let websocketBaseUrl =
-        configuredBaseUrl;
-
-    if (!websocketBaseUrl) {
-        const protocol =
-            window.location.protocol === "https:"
-                ? "wss"
-                : "ws";
-
-        websocketBaseUrl =
-            `${protocol}://127.0.0.1:8000`;
-    }
-
-    websocketBaseUrl =
-        websocketBaseUrl.replace(
-            /\/$/,
-            ""
-        );
-
-    const socketUrl =
-        `${websocketBaseUrl}/ws/whatsapp/companies/${companyId}/numbers/${numberId}/?token=${encodeURIComponent(token)}`;
-
-    const socket =
-        new WebSocket(
-            socketUrl
-        );
-
-
-    /**
-     * WebSocket Open
-     */
-    socket.onopen = () => {
-        onOpen?.();
-    };
-
-
-    /**
-     * WebSocket Message
-     */
-    socket.onmessage = (
-        messageEvent
-    ) => {
+    socket.onopen = () => onOpen?.();
+    socket.onmessage = async (messageEvent) => {
         try {
-            const payload =
-                JSON.parse(
-                    messageEvent.data
-                );
-
-            onEvent?.(
-                payload
-            );
+            await onEvent?.(JSON.parse(messageEvent.data));
         } catch (error) {
-            console.error(
-                "Invalid CentralChat realtime payload.",
-                error
-            );
+            onError?.(error);
         }
     };
-
-
-    /**
-     * WebSocket Error
-     */
-    socket.onerror = (
-        event
-    ) => {
-        onError?.(
-            event
-        );
-    };
-
-
-    /**
-     * WebSocket Close
-     */
-    socket.onclose = (
-        event
-    ) => {
-        onClose?.(
-            event
-        );
-    };
-
-
+    socket.onerror = (event) => onError?.(event);
+    socket.onclose = (event) => onClose?.(event);
     return socket;
 }
 
-
 /**
  * closeMonitoringSocket
- *
- * Description:
- * - Cerrar de forma controlada una conexión WebSocket de monitoreo.
+ * Description: Detach obsolete handlers and close an active or connecting socket.
  */
-export function closeMonitoringSocket(
-    socket
-) {
-    if (!socket) {
-        return;
-    }
-
-    if (
-        socket.readyState ===
-            WebSocket.OPEN ||
-        socket.readyState ===
-            WebSocket.CONNECTING
-    ) {
-        socket.close(
-            1000,
-            "Monitoring workspace closed."
-        );
+export function closeMonitoringSocket(socket) {
+    if (!socket) return;
+    socket.onopen = null;
+    socket.onmessage = null;
+    socket.onerror = null;
+    socket.onclose = null;
+    if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+        socket.close(1000, "Monitoring workspace closed.");
     }
 }

@@ -1,0 +1,45 @@
+.emptyState {
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-9);
+    text-align: center;
+}
+
+.icon {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    margin-bottom: var(--space-4);
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-heading);
+}
+
+.emptyState strong {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body);
+}
+
+.emptyState > span {
+    max-width: 380px;
+    margin-top: 7px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-small);
+    line-height: 1.6;
+}
+
+.action {
+    margin-top: var(--space-4-5);
+}
+
+@media (max-width: 520px) {
+    .emptyState {
+        min-height: 230px;
+        padding: var(--space-7) var(--space-5);
+    }
+}

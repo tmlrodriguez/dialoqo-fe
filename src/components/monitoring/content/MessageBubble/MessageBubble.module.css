@@ -1,0 +1,98 @@
+.messageRow {
+    width: 100%;
+    display: flex;
+    margin: var(--space-1) 0;
+}
+
+.messageRowInbound {
+    justify-content: flex-start;
+}
+
+.messageRowOutbound {
+    justify-content: flex-end;
+}
+
+.bubble {
+    max-width: min(72%, 520px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1-5);
+    padding: var(--space-2) var(--space-2-5) var(--space-1-5);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    box-shadow: 0 1px 2px var(--palette-rgb-15-23-42-0p04);
+}
+
+.inboundBubble {
+    background: var(--color-surface);
+    border-top-left-radius: 4px;
+}
+
+.outboundBubble {
+    background: var(--palette-hex-e9f2ff);
+    border-color: var(--palette-rgb-24-52-95-0p18);
+    border-top-right-radius: 4px;
+}
+
+.revokedBubble {
+    opacity: 0.8;
+}
+
+.mediaList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1-5);
+}
+
+.messageText {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-caption);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.revokedText {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-caption-small);
+    font-style: italic;
+}
+
+.revokedText svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.metadata {
+    min-height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    color: var(--color-text-muted);
+    font-size: 7px;
+    line-height: 1;
+}
+
+.editedLabel {
+    font-style: italic;
+}
+
+.status {
+    font-weight: 600;
+    color: var(--palette-hex-42658f);
+}
+
+.failedStatus {
+    color: var(--color-danger);
+}
+
+@media (max-width: 700px) {
+    .bubble {
+        max-width: 86%;
+    }
+}

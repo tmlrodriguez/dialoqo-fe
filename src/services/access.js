@@ -1,6 +1,5 @@
 import { apiRequest } from "../api/client.js";
 
-
 /**
  * getMonitors
  *
@@ -14,7 +13,6 @@ export function getMonitors() {
     return apiRequest("/access/monitors/");
 }
 
-
 /**
  * getMonitor
  *
@@ -27,7 +25,6 @@ export function getMonitors() {
 export function getMonitor(userId) {
     return apiRequest(`/access/monitors/${userId}/`);
 }
-
 
 /**
  * createMonitor
@@ -45,7 +42,6 @@ export function createMonitor(monitorData) {
     });
 }
 
-
 /**
  * updateMonitor
  *
@@ -62,7 +58,6 @@ export function updateMonitor(userId, monitorData) {
     });
 }
 
-
 /**
  * deactivateMonitor
  *
@@ -78,16 +73,13 @@ export function deactivateMonitor(userId) {
     });
 }
 
-
 export function getMembers() {
     return apiRequest("/access/members/");
 }
 
-
 export function getMember(memberId) {
     return apiRequest(`/access/members/${memberId}/`);
 }
-
 
 export function createMember(data) {
     return apiRequest("/access/members/", {
@@ -96,14 +88,12 @@ export function createMember(data) {
     });
 }
 
-
 export function updateMember(memberId, data) {
     return apiRequest(`/access/members/${memberId}/`, {
         method: "PATCH",
         body: JSON.stringify(data),
     });
 }
-
 
 export function deactivateMember(memberId) {
     return apiRequest(`/access/members/${memberId}/`, {

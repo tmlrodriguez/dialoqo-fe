@@ -1,0 +1,136 @@
+.picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3-5);
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.header h3 {
+    margin: 2px 0 var(--space-1);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body-large);
+    font-weight: 700;
+}
+
+.header p {
+    max-width: 480px;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption-small);
+    line-height: 1.5;
+}
+
+.eyebrow {
+    color: var(--color-primary);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.closeButton {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.closeButton:hover {
+    border-color: var(--color-border-strong);
+    color: var(--color-text-primary);
+}
+
+.closeButton svg {
+    width: 16px;
+    height: 16px;
+}
+
+.searchContainer {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 11px;
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+    background: var(--color-surface-secondary);
+}
+
+.searchContainer:focus-within {
+    border-color: var(--color-primary);
+}
+
+.searchContainer svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+}
+
+.searchContainer input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: var(--font-size-caption-small);
+}
+
+.searchContainer input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.list {
+    max-height: 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    overflow-y: auto;
+}
+
+.loadingState,
+.emptyState {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 7px;
+    color: var(--color-text-secondary);
+    text-align: center;
+    font-size: 9px;
+}
+
+.emptyState strong {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-caption-small);
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: templatePickerSpin 0.8s linear infinite;
+}
+
+@keyframes templatePickerSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}

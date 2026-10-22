@@ -1,0 +1,296 @@
+.contextBar,
+.listPanel,
+.formPanel,
+.emptyPanel {
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-large);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-small);
+}
+
+.contextBar {
+    margin-bottom: var(--space-4-5);
+    padding: var(--space-4) var(--space-4-5);
+}
+
+.contextHeader {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.contextField {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.contextField {
+    width: 100%;
+    max-width: 460px;
+}
+
+.contextField label {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+}
+
+.contextField select {
+    width: 100%;
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    outline: none;
+}
+
+.contextField select {
+    height: 42px;
+    padding: 0 var(--space-3);
+}
+
+.contextField select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-focus, var(--palette-rgb-37-99-235-0p12));
+}
+
+.templateWorkspace {
+    display: grid;
+    grid-template-columns: minmax(420px, 0.9fr) minmax(500px, 1.1fr);
+    gap: var(--space-5-5);
+    align-items: start;
+}
+
+.listPanel,
+.formPanel {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.panelHeader {
+    min-height: 88px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4-5);
+    padding: var(--space-5) var(--space-5-5);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.eyebrow {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption-small);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.panelHeader h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-medium);
+}
+
+.panelHeader p {
+    margin: 5px 0 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-small);
+}
+
+.templateList {
+    display: flex;
+    flex-direction: column;
+    max-height: 620px;
+    overflow-y: auto;
+}
+
+.statusBadge {
+    flex-shrink: 0;
+    padding: 5px var(--space-2);
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.statusApproved {
+    background: var(--color-success-soft, var(--palette-hex-dcfce7));
+    color: var(--color-success);
+}
+
+.statusRejected {
+    background: var(--color-danger-background, var(--color-danger-background));
+    color: var(--color-danger);
+}
+
+.statusPending {
+    background: var(--color-warning-background, var(--color-warning-background));
+    color: var(--color-warning, var(--palette-hex-92400e));
+}
+
+.statusNeutral {
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3-5) var(--space-4-5);
+    border-top: 1px solid var(--color-border);
+}
+
+.pagination span {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+}
+
+.loadingState,
+.emptyState,
+.emptyPanel {
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    text-align: center;
+}
+
+.loadingState {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body-small);
+}
+
+.emptyIcon {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    margin-bottom: var(--space-4);
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+}
+
+.emptyIcon svg {
+    width: 23px;
+    height: 23px;
+}
+
+.emptyState strong,
+.emptyPanel strong {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body);
+}
+
+.emptyState span,
+.emptyPanel span {
+    max-width: 380px;
+    margin-top: 7px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+    line-height: 1.6;
+}
+
+.secondaryButton,
+.syncButton {
+    min-height: 40px;
+    padding: 0 15px;
+    border-radius: var(--border-radius-medium);
+    font: inherit;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.syncButton {
+    border: 1px solid var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.syncButton:hover:not(:disabled) {
+    border-color: var(--color-primary-hover);
+    background: var(--color-primary-hover);
+}
+
+.secondaryButton {
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+}
+
+.secondaryButton:hover:not(:disabled) {
+    background: var(--color-surface-secondary);
+}
+
+.secondaryButton:disabled,
+.syncButton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+@media (max-width: 1150px) {
+    .templateWorkspace {
+        grid-template-columns: minmax(360px, 0.9fr) minmax(420px, 1.1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .templateWorkspace {
+        grid-template-columns: 1fr;
+    }
+
+    .templateList {
+        max-height: 420px;
+    }
+}
+
+@media (max-width: 700px) {
+    .contextHeader {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .contextField {
+        max-width: none;
+    }
+
+    .syncButton {
+        width: 100%;
+    }
+
+    .panelHeader {
+        min-height: auto;
+        flex-direction: column;
+        padding: var(--space-4);
+    }
+
+    .panelHeader .secondaryButton {
+        width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    .contextBar,
+    .listPanel,
+    .formPanel,
+    .emptyPanel {
+        border-radius: var(--border-radius-medium);
+    }
+
+    .templateWorkspace {
+        gap: var(--space-3-5);
+    }
+
+    .templateList {
+        max-height: none;
+    }
+}

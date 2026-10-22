@@ -1,8 +1,4 @@
-import {
-    API_BASE_URL,
-    apiRequest,
-} from "../api/client.js";
-
+import { API_BASE_URL, apiRequest } from "../api/client.js";
 
 /**
  * getMonitoringContext
@@ -15,11 +11,8 @@ import {
  * - MEMBER debe recibir exclusivamente los números que tenga asignados.
  */
 export function getMonitoringContext() {
-    return apiRequest(
-        "/whatsapp/monitoring/context/"
-    );
+    return apiRequest("/whatsapp/monitoring/context/");
 }
-
 
 /**
  * getConversations
@@ -27,69 +20,39 @@ export function getMonitoringContext() {
  * Description:
  * - Obtener las conversaciones pertenecientes a un número de WhatsApp.
  */
-export function getConversations(
-    companyId,
-    branchId,
-    numberId,
-    params = {}
-) {
-    const queryParams =
-        new URLSearchParams();
+export function getConversations(companyId, branchId, numberId, params = {}) {
+    const queryParams = new URLSearchParams();
 
     if (params.search) {
-        queryParams.set(
-            "search",
-            params.search
-        );
+        queryParams.set("search", params.search);
     }
 
-    if (
-        params.unread !== undefined &&
-        params.unread !== null &&
-        params.unread !== ""
-    ) {
-        queryParams.set(
-            "unread",
-            params.unread
-        );
+    if (params.unread !== undefined && params.unread !== null && params.unread !== "") {
+        queryParams.set("unread", params.unread);
     }
 
     if (params.memberId) {
-        queryParams.set(
-            "member_id",
-            params.memberId
-        );
+        queryParams.set("member_id", params.memberId);
     }
 
     if (params.ordering) {
-        queryParams.set(
-            "ordering",
-            params.ordering
-        );
+        queryParams.set("ordering", params.ordering);
     }
 
     if (params.page) {
-        queryParams.set(
-            "page",
-            params.page
-        );
+        queryParams.set("page", params.page);
     }
 
     if (params.pageSize) {
-        queryParams.set(
-            "page_size",
-            params.pageSize
-        );
+        queryParams.set("page_size", params.pageSize);
     }
 
-    const queryString =
-        queryParams.toString();
+    const queryString = queryParams.toString();
 
     return apiRequest(
-        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${queryString ? `?${queryString}` : ""}`
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${queryString ? `?${queryString}` : ""}`,
     );
 }
-
 
 /**
  * getConversation
@@ -97,17 +60,11 @@ export function getConversations(
  * Description:
  * - Obtener el detalle de una conversación monitoreada.
  */
-export function getConversation(
-    companyId,
-    branchId,
-    numberId,
-    conversationId
-) {
+export function getConversation(companyId, branchId, numberId, conversationId) {
     return apiRequest(
-        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${conversationId}/`
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${conversationId}/`,
     );
 }
-
 
 /**
  * markConversationAsRead
@@ -115,20 +72,14 @@ export function getConversation(
  * Description:
  * - Marcar una conversación como leída para el monitor autenticado.
  */
-export function markConversationAsRead(
-    companyId,
-    branchId,
-    numberId,
-    conversationId
-) {
+export function markConversationAsRead(companyId, branchId, numberId, conversationId) {
     return apiRequest(
         `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${conversationId}/read/`,
         {
             method: "POST",
-        }
+        },
     );
 }
-
 
 /**
  * getMessages
@@ -136,45 +87,27 @@ export function markConversationAsRead(
  * Description:
  * - Obtener el historial paginado de mensajes de una conversación.
  */
-export function getMessages(
-    companyId,
-    branchId,
-    numberId,
-    conversationId,
-    params = {}
-) {
-    const queryParams =
-        new URLSearchParams();
+export function getMessages(companyId, branchId, numberId, conversationId, params = {}) {
+    const queryParams = new URLSearchParams();
 
     if (params.ordering) {
-        queryParams.set(
-            "ordering",
-            params.ordering
-        );
+        queryParams.set("ordering", params.ordering);
     }
 
     if (params.page) {
-        queryParams.set(
-            "page",
-            params.page
-        );
+        queryParams.set("page", params.page);
     }
 
     if (params.pageSize) {
-        queryParams.set(
-            "page_size",
-            params.pageSize
-        );
+        queryParams.set("page_size", params.pageSize);
     }
 
-    const queryString =
-        queryParams.toString();
+    const queryString = queryParams.toString();
 
     return apiRequest(
-        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${conversationId}/messages/${queryString ? `?${queryString}` : ""}`
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${conversationId}/messages/${queryString ? `?${queryString}` : ""}`,
     );
 }
-
 
 /**
  * sendTextMessage
@@ -182,13 +115,7 @@ export function getMessages(
  * Description:
  * - Enviar un mensaje de texto desde una conversación operada por un usuario MEMBER.
  */
-export function sendTextMessage(
-    companyId,
-    branchId,
-    numberId,
-    conversationId,
-    textBody
-) {
+export function sendTextMessage(companyId, branchId, numberId, conversationId, textBody) {
     return apiRequest(
         `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${conversationId}/messages/send/`,
         {
@@ -196,10 +123,9 @@ export function sendTextMessage(
             body: JSON.stringify({
                 text_body: textBody,
             }),
-        }
+        },
     );
 }
-
 
 /**
  * getAvailableMessageTemplates
@@ -211,58 +137,35 @@ export function sendTextMessage(
  * - Las plantillas pertenecen exclusivamente al WABA asociado al número.
  * - El backend restringe el resultado a plantillas disponibles y aprobadas.
  */
-export function getAvailableMessageTemplates(
-    companyId,
-    branchId,
-    numberId,
-    params = {}
-) {
-    const queryParams =
-        new URLSearchParams();
+export function getAvailableMessageTemplates(companyId, branchId, numberId, params = {}) {
+    const queryParams = new URLSearchParams();
 
     if (params.search) {
-        queryParams.set(
-            "search",
-            params.search
-        );
+        queryParams.set("search", params.search);
     }
 
     if (params.category) {
-        queryParams.set(
-            "category",
-            params.category
-        );
+        queryParams.set("category", params.category);
     }
 
     if (params.language) {
-        queryParams.set(
-            "language",
-            params.language
-        );
+        queryParams.set("language", params.language);
     }
 
     if (params.page) {
-        queryParams.set(
-            "page",
-            params.page
-        );
+        queryParams.set("page", params.page);
     }
 
     if (params.pageSize) {
-        queryParams.set(
-            "page_size",
-            params.pageSize
-        );
+        queryParams.set("page_size", params.pageSize);
     }
 
-    const queryString =
-        queryParams.toString();
+    const queryString = queryParams.toString();
 
     return apiRequest(
-        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/templates/${queryString ? `?${queryString}` : ""}`
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/templates/${queryString ? `?${queryString}` : ""}`,
     );
 }
-
 
 /**
  * sendConversationTemplate
@@ -276,22 +179,20 @@ export function sendConversationTemplate(
     numberId,
     conversationId,
     templateId,
-    components = []
+    components = [],
 ) {
     return apiRequest(
         `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${conversationId}/templates/send/`,
         {
             method: "POST",
             body: JSON.stringify({
-                template_id:
-                    templateId,
+                template_id: templateId,
 
                 components,
             }),
-        }
+        },
     );
 }
-
 
 /**
  * startConversationWithTemplate
@@ -310,7 +211,7 @@ export function startConversationWithTemplate(
     numberId,
     recipientPhoneNumber,
     templateId,
-    components = []
+    components = [],
 ) {
     return apiRequest(
         `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/templates/send/`,
@@ -318,18 +219,15 @@ export function startConversationWithTemplate(
             method: "POST",
 
             body: JSON.stringify({
-                recipient_phone_number:
-                    recipientPhoneNumber,
+                recipient_phone_number: recipientPhoneNumber,
 
-                template_id:
-                    templateId,
+                template_id: templateId,
 
                 components,
             }),
-        }
+        },
     );
 }
-
 
 /**
  * getMediaAttachmentContent
@@ -348,49 +246,39 @@ export async function getMediaAttachmentContent(
     numberId,
     conversationId,
     messageId,
-    attachmentId
+    attachmentId,
 ) {
-    const token =
-        localStorage.getItem(
-            "centralchat_token"
-        );
+    const token = localStorage.getItem("centralchat_token");
 
-    const response =
-        await fetch(
-            `${API_BASE_URL}/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${conversationId}/messages/${messageId}/attachments/${attachmentId}/content/`,
-            {
-                method: "GET",
+    const response = await fetch(
+        `${API_BASE_URL}/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${conversationId}/messages/${messageId}/attachments/${attachmentId}/content/`,
+        {
+            method: "GET",
 
-                headers: token
-                    ? {
-                        Authorization:
-                            `Token ${token}`,
-                    }
-                    : {},
-            }
-        );
+            headers: token
+                ? {
+                      Authorization: `Token ${token}`,
+                  }
+                : {},
+        },
+    );
 
     if (!response.ok) {
-        let data = null;
+        let data;
 
         try {
-            data =
-                await response.json();
+            data = await response.json();
         } catch {
             data = null;
         }
 
-        const error =
-            new Error(
-                data?.error_message ||
-                "No fue posible obtener el archivo multimedia."
-            );
+        const error = new Error(
+            data?.error_message || "No fue posible obtener el archivo multimedia.",
+        );
 
-        error.status =
-            response.status;
+        error.status = response.status;
 
-        error.data =
-            data;
+        error.data = data;
 
         throw error;
     }

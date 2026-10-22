@@ -1,0 +1,160 @@
+.overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-5);
+    background: var(--palette-rgb-15-23-42-0p35);
+    backdrop-filter: blur(2px);
+}
+
+.panel {
+    width: min(640px, 100%);
+    max-height: min(720px, 92vh);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    background: var(--color-surface);
+    box-shadow:
+        0 24px 64px var(--palette-rgb-15-23-42-0p22),
+        0 8px 20px var(--palette-rgb-15-23-42-0p08);
+}
+
+.panelHeader {
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4-5);
+    padding: var(--space-3-5) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.progress {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.progressStep {
+    min-width: 62px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.progressStep > span {
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 8px;
+    font-weight: 800;
+}
+
+.progressStep small {
+    color: var(--color-text-muted);
+    font-size: 7px;
+    font-weight: 600;
+}
+
+.progressActive {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.progressComplete {
+    background: var(--color-success);
+    color: var(--color-surface);
+}
+
+.progressPending {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-secondary);
+    color: var(--color-text-muted);
+}
+
+.progressLine {
+    height: 2px;
+    flex: 1;
+    margin: 0 var(--space-1) 17px;
+    background: var(--color-border);
+}
+
+.progressLineComplete {
+    background: var(--color-success);
+}
+
+.closeButton {
+    width: 33px;
+    height: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.closeButton:hover:not(:disabled) {
+    border-color: var(--color-border-strong);
+    color: var(--color-text-primary);
+}
+
+.closeButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.closeButton svg {
+    width: 16px;
+    height: 16px;
+}
+
+.content {
+    min-height: 360px;
+    overflow-y: auto;
+    padding: var(--space-5);
+}
+
+@media (max-width: 700px) {
+    .overlay {
+        align-items: stretch;
+        padding: var(--space-2);
+    }
+
+    .panel {
+        max-height: 100%;
+        border-radius: 12px;
+    }
+
+    .panelHeader {
+        padding: var(--space-2-5);
+    }
+
+    .progressStep {
+        min-width: 42px;
+    }
+
+    .progressStep small {
+        display: none;
+    }
+
+    .progressLine {
+        margin-bottom: 0;
+    }
+
+    .content {
+        padding: var(--space-3-5);
+    }
+}

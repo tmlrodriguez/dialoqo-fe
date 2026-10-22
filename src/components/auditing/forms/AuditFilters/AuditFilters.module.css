@@ -1,0 +1,266 @@
+.filtersPanel {
+    overflow: hidden;
+    margin-bottom: var(--space-5-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-large);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-small);
+}
+
+.filtersHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding: var(--space-4-5) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.filtersHeader h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body-large);
+    line-height: 1.3;
+}
+
+.filtersHeader p {
+    margin: 5px 0 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+}
+
+.advancedToggle {
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-primary);
+    font: inherit;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.advancedToggle:hover:not(:disabled) {
+    color: var(--color-primary-hover);
+}
+
+.advancedToggle:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.filtersForm {
+    display: flex;
+    flex-direction: column;
+}
+
+.primaryFilters {
+    display: grid;
+    grid-template-columns:
+        minmax(220px, 1.5fr)
+        repeat(3, minmax(150px, 0.8fr))
+        repeat(2, minmax(145px, 0.7fr));
+    gap: var(--space-3-5);
+    padding: var(--space-5);
+}
+
+.formField {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.formField label {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+}
+
+.formField input,
+.formField select {
+    width: 100%;
+    height: 42px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: var(--font-size-body-small);
+    outline: none;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.formField input::placeholder {
+    color: var(--color-text-muted, var(--color-text-secondary));
+}
+
+.formField input:focus,
+.formField select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-focus, var(--palette-rgb-37-99-235-0p12));
+}
+
+.formField input:disabled,
+.formField select:disabled {
+    background: var(--color-surface-secondary);
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.advancedFilters {
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-secondary);
+}
+
+.advancedHeader {
+    padding: var(--space-4-5) var(--space-5) 0;
+}
+
+.advancedHeader span {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+.advancedHeader p {
+    margin: var(--space-1) 0 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+    line-height: 1.5;
+}
+
+.advancedGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    gap: var(--space-3-5);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.filtersActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-2-5);
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--color-border);
+}
+
+.primaryButton,
+.secondaryButton {
+    min-height: 40px;
+    padding: 0 15px;
+    border-radius: var(--border-radius-medium);
+    font: inherit;
+    font-size: var(--font-size-body-small);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+.primaryButton {
+    border: 1px solid var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.primaryButton:hover:not(:disabled) {
+    border-color: var(--color-primary-hover);
+    background: var(--color-primary-hover);
+}
+
+.secondaryButton {
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+}
+
+.secondaryButton:hover:not(:disabled) {
+    background: var(--color-surface-secondary);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+@media (max-width: 1250px) {
+    .primaryFilters {
+        grid-template-columns: repeat(3, minmax(180px, 1fr));
+    }
+
+    .searchField {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 950px) {
+    .primaryFilters,
+    .advancedGrid {
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+    }
+
+    .searchField {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 700px) {
+    .filtersHeader {
+        flex-direction: column;
+        gap: var(--space-3);
+        padding: var(--space-4);
+    }
+
+    .primaryFilters,
+    .advancedGrid {
+        grid-template-columns: 1fr;
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+    }
+
+    .searchField {
+        grid-column: auto;
+    }
+
+    .advancedHeader {
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+    }
+
+    .filtersActions {
+        padding: var(--space-3-5) var(--space-4);
+    }
+
+    .primaryButton,
+    .secondaryButton {
+        min-height: 42px;
+    }
+}
+
+@media (max-width: 520px) {
+    .filtersPanel {
+        border-radius: var(--border-radius-medium);
+    }
+
+    .filtersActions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .primaryButton,
+    .secondaryButton {
+        width: 100%;
+    }
+}

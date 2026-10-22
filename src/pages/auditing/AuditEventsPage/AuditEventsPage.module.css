@@ -1,0 +1,41 @@
+.auditEventsPage {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.auditWorkspace {
+    display: grid;
+    grid-template-columns:
+        minmax(520px, 1.1fr)
+        minmax(420px, 0.9fr);
+    gap: var(--space-5-5);
+    align-items: start;
+}
+
+@media (max-width: 1250px) {
+    .auditWorkspace {
+        grid-template-columns:
+            minmax(440px, 1fr)
+            minmax(380px, 1fr);
+        gap: var(--space-4-5);
+    }
+}
+
+@media (max-width: 1000px) {
+    .auditWorkspace {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .auditWorkspace {
+        gap: var(--space-4);
+    }
+}
+
+@media (max-width: 520px) {
+    .auditWorkspace {
+        gap: var(--space-3-5);
+    }
+}

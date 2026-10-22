@@ -1,0 +1,35 @@
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.formField label {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+}
+
+.formField input,
+.formField textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: var(--font-size-body-small);
+}
+
+.formField textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.formField input:focus,
+.formField textarea:focus {
+    border-color: var(--color-primary);
+    outline: 2px solid var(--color-primary-soft, var(--palette-hex-eff6ff));
+}

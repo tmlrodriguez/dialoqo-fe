@@ -1,0 +1,44 @@
+.unsupported {
+    width: 300px;
+    max-width: 100%;
+}
+
+.unsupported {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: var(--space-2-5);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: 10px;
+    background: var(--color-surface-secondary);
+}
+
+.unsupported > svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+}
+
+.unsupported > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.unsupported strong {
+    color: var(--color-text-primary);
+    font-size: 9px;
+}
+
+.unsupported span {
+    color: var(--color-text-secondary);
+    font-size: 8px;
+    line-height: 1.45;
+}
+
+@media (max-width: 700px) {
+    .unsupported {
+        width: 245px;
+    }
+}

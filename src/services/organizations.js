@@ -1,6 +1,5 @@
 import { apiRequest } from "../api/client.js";
 
-
 /**
  * getCompanies
  *
@@ -14,7 +13,6 @@ export function getCompanies() {
     return apiRequest("/organizations/companies/");
 }
 
-
 /**
  * getCompany
  *
@@ -27,7 +25,6 @@ export function getCompanies() {
 export function getCompany(companyId) {
     return apiRequest(`/organizations/companies/${companyId}/`);
 }
-
 
 /**
  * createCompany
@@ -45,7 +42,6 @@ export function createCompany(companyData) {
     });
 }
 
-
 /**
  * updateCompany
  *
@@ -62,7 +58,6 @@ export function updateCompany(companyId, companyData) {
     });
 }
 
-
 /**
  * deactivateCompany
  *
@@ -78,7 +73,6 @@ export function deactivateCompany(companyId) {
     });
 }
 
-
 /**
  * getBranches
  *
@@ -92,7 +86,6 @@ export function getBranches(companyId) {
     return apiRequest(`/organizations/companies/${companyId}/branches/`);
 }
 
-
 /**
  * getBranch
  *
@@ -105,7 +98,6 @@ export function getBranches(companyId) {
 export function getBranch(companyId, branchId) {
     return apiRequest(`/organizations/companies/${companyId}/branches/${branchId}/`);
 }
-
 
 /**
  * createBranch
@@ -123,7 +115,6 @@ export function createBranch(companyId, branchData) {
     });
 }
 
-
 /**
  * updateBranch
  *
@@ -140,7 +131,6 @@ export function updateBranch(companyId, branchId, branchData) {
     });
 }
 
-
 /**
  * deactivateBranch
  *
@@ -156,7 +146,6 @@ export function deactivateBranch(companyId, branchId) {
     });
 }
 
-
 /**
  * getCompanyAccesses
  *
@@ -170,7 +159,6 @@ export function getCompanyAccesses() {
     return apiRequest("/organizations/company-access/");
 }
 
-
 /**
  * getCompanyAccess
  *
@@ -183,7 +171,6 @@ export function getCompanyAccesses() {
 export function getCompanyAccess(accessId) {
     return apiRequest(`/organizations/company-access/${accessId}/`);
 }
-
 
 /**
  * grantCompanyAccess
@@ -201,7 +188,6 @@ export function grantCompanyAccess(accessData) {
     });
 }
 
-
 /**
  * revokeCompanyAccess
  *
@@ -216,7 +202,6 @@ export function revokeCompanyAccess(accessId) {
         method: "DELETE",
     });
 }
-
 
 /**
  * getMyCompanies
