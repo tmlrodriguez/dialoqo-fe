@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 
 import { useAuth } from "../../../../hooks/useAuth.js";
+import { getRoleLabel } from "../../../../utils/i18n.js";
 
 import Page from "../../../common/layout/Page/Page.jsx";
 
@@ -51,7 +52,7 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
             <h1>Acceso no disponible</h1>
             <p>El usuario autenticado no tiene un rol válido para utilizar Dialoqo.</p>
             <p>
-                Rol recibido: <strong>{user?.role || "Sin rol"}</strong>
+                Rol recibido: <strong>{getRoleLabel(user?.role || "Sin rol")}</strong>
             </p>
         </Page>
     );

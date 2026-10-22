@@ -55,7 +55,7 @@ function NumberAssignmentForm({
                 </Input>
 
                 <span className={styles.fieldHelp}>
-                    {t("Se muestran los usuarios MEMBER administrados por su cuenta.")}
+                    {t("Se muestran los miembros administrados por su cuenta.")}
                 </span>
             </div>
 

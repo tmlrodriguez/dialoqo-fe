@@ -9,23 +9,8 @@ const MAX_RETRIEVAL_ATTEMPTS = 10;
 const RETRY_DELAYS = [0, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 8000, 10000];
 
 /**
- * MessageMedia
- *
- * Description:
- * - Obtener y representar contenido multimedia privado asociado a un mensaje.
- *
- * Notes:
- * - El registro del adjunto puede llegar al frontend antes de que Celery termine
- *   de descargar y almacenar el binario desde Meta.
- * - El componente mantiene una ventana de recuperación automática mientras el
- *   archivo es preparado por el backend.
- * - Las respuestas pertenecientes a una ejecución anterior son ignoradas.
- * - La Object URL se libera cuando deja de utilizarse.
- */
-
-/**
  * useMessageMedia
- * Description: Own monitoring resource state, requests and lifecycle cleanup.
+ * Description: Retrieve private attachments, retain backend errors and recover when storage becomes ready.
  */
 export function useMessageMedia({
     companyId,
@@ -43,6 +28,7 @@ export function useMessageMedia({
     const [errorMessage, setErrorMessage] = useState("");
 
     const retryTimeoutRef = useRef(null);
+    const requestControllerRef = useRef(null);
     const objectUrlRef = useRef("");
     const requestGenerationRef = useRef(0);
 
@@ -142,7 +128,7 @@ export function useMessageMedia({
      * Description:
      * - Programar un nuevo intento mientras Celery prepara el archivo.
      */
-    function scheduleRetry(nextAttempt, generation) {
+    function scheduleRetry(nextAttempt, generation, error) {
         if (generation !== requestGenerationRef.current) {
             return;
         }
@@ -151,7 +137,7 @@ export function useMessageMedia({
             setIsLoading(false);
             setIsRetrying(false);
 
-            setErrorMessage(t("No fue posible obtener el archivo multimedia."));
+            setErrorMessage(error?.message || t("No fue posible obtener el archivo multimedia."));
 
             return;
         }
@@ -207,6 +193,8 @@ export function useMessageMedia({
         }
 
         setErrorMessage("");
+        const controller = new AbortController();
+        requestControllerRef.current = controller;
 
         try {
             const blob = await getMediaAttachmentContent(
@@ -216,6 +204,7 @@ export function useMessageMedia({
                 conversationId,
                 messageId,
                 attachment.id,
+                { signal: controller.signal },
             );
 
             if (generation !== requestGenerationRef.current) {
@@ -228,7 +217,10 @@ export function useMessageMedia({
 
             releaseObjectUrl();
 
-            const url = URL.createObjectURL(blob);
+            const content = attachment.mime_type && (!blob.type || blob.type === "application/octet-stream")
+                ? new Blob([blob], { type: attachment.mime_type })
+                : blob;
+            const url = URL.createObjectURL(content);
 
             objectUrlRef.current = url;
 
@@ -236,12 +228,22 @@ export function useMessageMedia({
             setIsLoading(false);
             setIsRetrying(false);
             setErrorMessage("");
-        } catch {
+        } catch (error) {
             if (generation !== requestGenerationRef.current) {
                 return;
             }
 
-            scheduleRetry(currentAttempt + 1, generation);
+            if (error.name === "AbortError") return;
+            if ([401, 403, 404, 410, 415, 422].includes(error.status)) {
+                setIsLoading(false);
+                setIsRetrying(false);
+                setErrorMessage(error.message || t("No fue posible obtener el archivo multimedia."));
+                return;
+            }
+
+            scheduleRetry(currentAttempt + 1, generation, error);
+        } finally {
+            if (requestControllerRef.current === controller) requestControllerRef.current = null;
         }
     }
 
@@ -255,6 +257,7 @@ export function useMessageMedia({
         clearRetryTimeout();
 
         requestGenerationRef.current += 1;
+        requestControllerRef.current?.abort();
 
         const generation = requestGenerationRef.current;
 
@@ -300,12 +303,16 @@ export function useMessageMedia({
 
             return () => {
                 requestGenerationRef.current += 1;
+                requestControllerRef.current?.abort();
 
                 clearRetryTimeout();
                 releaseObjectUrl();
             };
         },
-        JSON.stringify([companyId, branchId, numberId, conversationId, messageId, attachment?.id]),
+        JSON.stringify([
+            companyId, branchId, numberId, conversationId, messageId, attachment?.id,
+            attachment?.is_stored, attachment?.storage_status, attachment?.stored_at,
+        ]),
     );
 
     return {

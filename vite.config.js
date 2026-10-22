@@ -8,6 +8,7 @@ export default defineConfig({
         allowedHosts: [".trycloudflare.com"],
 
         proxy: {
+            "/ws": { target: "http://127.0.0.1:8000", ws: true },
             "/access": "http://127.0.0.1:8000",
             "/organizations": "http://127.0.0.1:8000",
             "/members": "http://127.0.0.1:8000",

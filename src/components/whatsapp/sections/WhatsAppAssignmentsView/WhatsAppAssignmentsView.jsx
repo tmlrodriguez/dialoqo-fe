@@ -191,7 +191,7 @@ function WhatsAppAssignmentsView({
 
                                         <span>
                                             {getMemberDescription(currentAssignment.member) ||
-                                                t("Usuario MEMBER")}
+                                                t("Miembro")}
                                         </span>
                                     </div>
                                 </div>
@@ -244,7 +244,7 @@ function WhatsAppAssignmentsView({
 
                                 <span>
                                     {t(
-                                        "Seleccione un usuario MEMBER para establecer la responsabilidad actual.",
+                                        "Seleccione un miembro para establecer la responsabilidad actual.",
                                     )}
                                 </span>
                             </div>

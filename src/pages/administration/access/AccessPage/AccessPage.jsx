@@ -647,7 +647,7 @@ function AccessPage() {
                 eyebrow: t("Administración"),
                 title: t("Usuarios y accesos"),
                 description: t(
-                    "Administre usuarios MONITOR, usuarios MEMBER y accesos de monitoreo a empresas.",
+                    "Administre monitores, miembros y accesos de monitoreo a empresas.",
                 ),
             }}
         >

@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 
 import dialoqoLogo from "../../../../assets/dialoqo-logo.png";
+import { getRoleLabel } from "../../../../utils/i18n.js";
 import Button from "../../buttons/Button/Button.jsx";
 
 import styles from "./SideBar.module.css";
@@ -37,7 +38,7 @@ function SideBar({ user, userName, isMobileMenuOpen, closeMobileMenu, handleLogo
                     <div className={styles.brandContent}>
                         <span className={styles.brandName}>Dialoqo</span>
 
-                        <span className={styles.brandDescription}>Inteligencia conversacional</span>
+                        <span className={styles.brandDescription}>Centro de mensajería empresarial</span>
                     </div>
                 </div>
 
@@ -184,7 +185,7 @@ function SideBar({ user, userName, isMobileMenuOpen, closeMobileMenu, handleLogo
                                 </svg>
                             </span>
 
-                            <span>Usuarios y accesos</span>
+                            <span>Accesos</span>
                         </NavLink>
 
                         <NavLink
@@ -263,7 +264,7 @@ function SideBar({ user, userName, isMobileMenuOpen, closeMobileMenu, handleLogo
                     <div className={styles.userInformation}>
                         <strong>{userName}</strong>
 
-                        <span>{user?.role || "Usuario"}</span>
+                        <span>{getRoleLabel(user?.role)}</span>
                     </div>
                 </div>
 

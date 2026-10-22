@@ -33,7 +33,7 @@ export const COPY = {
         visibilityEyebrow: "Supervisión operacional",
         visibilityTitle: "Observa las conversaciones sin interferir con la operación.",
         visibilityIntro:
-            "Los usuarios MONITOR pueden supervisar los números autorizados y consultar sus conversaciones en tiempo real sin capacidad para responder.",
+            "Los monitores pueden supervisar los números autorizados y consultar sus conversaciones en tiempo real sin capacidad para responder.",
 
         howEyebrow: "Simple por diseño",
         howTitle: "Cómo funciona Dialoqo",
@@ -96,7 +96,7 @@ export const COPY = {
         visibilityEyebrow: "Operational supervision",
         visibilityTitle: "Observe conversations without interfering with operations.",
         visibilityIntro:
-            "MONITOR users can supervise authorized numbers and review their conversations in real time without the ability to reply.",
+            "Monitors can supervise authorized numbers and review their conversations in real time without the ability to reply.",
 
         howEyebrow: "Simple by design",
         howTitle: "How Dialoqo works",
@@ -170,12 +170,12 @@ export const CAPABILITIES = [
         es: {
             title: "Responsables definidos",
             description:
-                "Asigna cada número a un usuario MEMBER responsable de atender sus conversaciones.",
+                "Asigna cada número a un miembro responsable de atender sus conversaciones.",
         },
         en: {
             title: "Defined assignees",
             description:
-                "Assign each number to the MEMBER responsible for handling its conversations.",
+                "Assign each number to the member responsible for handling its conversations.",
         },
     },
     {
@@ -183,12 +183,12 @@ export const CAPABILITIES = [
         es: {
             title: "Supervisión independiente",
             description:
-                "Autoriza usuarios MONITOR para observar conversaciones sin permitirles enviar mensajes.",
+                "Autoriza monitores para observar conversaciones sin permitirles enviar mensajes.",
         },
         en: {
             title: "Independent supervision",
             description:
-                "Authorize MONITOR users to observe conversations without allowing them to send messages.",
+                "Authorize monitors to observe conversations without allowing them to send messages.",
         },
     },
     {
@@ -196,12 +196,12 @@ export const CAPABILITIES = [
         es: {
             title: "Atención centralizada",
             description:
-                "Los usuarios MEMBER pueden responder mensajes y utilizar plantillas desde los números que tienen asignados.",
+                "Los miembros pueden responder mensajes y utilizar plantillas desde los números que tienen asignados.",
         },
         en: {
             title: "Centralized handling",
             description:
-                "MEMBER users can reply to messages and use templates from their assigned numbers.",
+                "Members can reply to messages and use templates from their assigned numbers.",
         },
     },
     {
@@ -257,11 +257,11 @@ export const STEPS = [
         icon: UserCheck,
         es: {
             title: "Asigna responsables",
-            description: "Define qué MEMBER atenderá las conversaciones de cada número.",
+            description: "Define qué miembro atenderá las conversaciones de cada número.",
         },
         en: {
             title: "Assign responsibility",
-            description: "Define which MEMBER will handle conversations for each number.",
+            description: "Define which member will handle conversations for each number.",
         },
     },
     {

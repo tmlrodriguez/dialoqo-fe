@@ -18,7 +18,7 @@ function LoginPanel({ t, handleSubmit, errorMessage, isSubmitting }) {
                 <div className={styles.loginBrandText}>
                     <h1>Dialoqo</h1>
 
-                    <p>{t("Plataforma de inteligencia conversacional")}</p>
+                    <p>{t("Centro de mensajería empresarial")}</p>
                 </div>
             </div>
 
