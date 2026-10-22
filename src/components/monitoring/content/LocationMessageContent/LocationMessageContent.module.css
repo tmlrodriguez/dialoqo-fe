@@ -1,0 +1,77 @@
+.locationCard {
+    width: 300px;
+    max-width: 100%;
+}
+
+.locationCard {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-2-5);
+    padding: 11px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--palette-rgb-255-255-255-0p5);
+}
+
+.locationIcon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: var(--color-surface-secondary);
+    color: var(--color-primary);
+}
+
+.locationIcon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.locationInformation {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.locationInformation strong {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-caption-small);
+}
+
+.locationInformation span {
+    color: var(--color-text-secondary);
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.locationInformation small {
+    color: var(--color-text-muted);
+    font-size: 7px;
+}
+
+.actionButton {
+    grid-column: 1 / -1;
+    min-height: 30px;
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font: inherit;
+    font-size: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.actionButton:hover {
+    border-color: var(--color-primary);
+}
+
+@media (max-width: 700px) {
+    .locationCard {
+        width: 245px;
+    }
+}

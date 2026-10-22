@@ -1,0 +1,59 @@
+.contactCard {
+    width: 300px;
+    max-width: 100%;
+}
+
+.contactCard {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: var(--space-2-5);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--palette-rgb-255-255-255-0p5);
+}
+
+.contactAvatar {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+.contactInformation {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.contactInformation strong {
+    overflow: hidden;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-caption-small);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.contactInformation span {
+    color: var(--color-text-secondary);
+    font-size: 9px;
+}
+
+.contactInformation small {
+    color: var(--color-text-muted);
+    font-size: 8px;
+}
+
+@media (max-width: 700px) {
+    .contactCard {
+        width: 245px;
+    }
+}

@@ -1,0 +1,90 @@
+.accessWorkspace {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.7fr) minmax(480px, 1.3fr);
+    gap: var(--space-5-5);
+    align-items: start;
+}
+
+.listPanel,
+.historyPanel {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-large);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-small);
+}
+
+.historyPanel {
+    grid-column: 1 / -1;
+}
+
+.panelHeader {
+    min-height: 84px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-5-5);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.panelHeader h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-medium);
+    line-height: 1.3;
+}
+
+.panelHeader p {
+    margin: 5px 0 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+}
+
+.accessList {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 1100px) {
+    .accessWorkspace {
+        grid-template-columns: minmax(280px, 0.75fr) minmax(420px, 1.25fr);
+        gap: var(--space-4-5);
+    }
+}
+
+@media (max-width: 1000px) {
+    .accessWorkspace {
+        grid-template-columns: 1fr;
+    }
+
+    .historyPanel {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 700px) {
+    .panelHeader {
+        min-height: auto;
+        flex-direction: column;
+        gap: var(--space-3-5);
+        padding: var(--space-4-5);
+    }
+}
+
+@media (max-width: 520px) {
+    .accessWorkspace {
+        gap: var(--space-3-5);
+    }
+
+    .listPanel,
+    .historyPanel {
+        border-radius: var(--border-radius-medium);
+    }
+
+    .panelHeader {
+        padding: var(--space-4);
+    }
+}

@@ -1,0 +1,16 @@
+.dateDivider {
+    display: flex;
+    justify-content: center;
+    margin: var(--space-3) 0 var(--space-3-5);
+}
+
+.dateDivider span {
+    padding: 5px 9px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: 8px;
+    font-weight: 600;
+    box-shadow: 0 1px 1px var(--palette-rgb-15-23-42-0p05);
+}

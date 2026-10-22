@@ -1,0 +1,234 @@
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.formField label {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+}
+
+.formField input,
+.formField select,
+.formField textarea {
+    width: 100%;
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    outline: none;
+}
+
+.formField input,
+.formField select {
+    height: 42px;
+    padding: 0 var(--space-3);
+}
+
+.formField textarea {
+    min-height: 180px;
+    padding: var(--space-3);
+    resize: vertical;
+    font-family: monospace;
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+}
+
+.formField input:focus,
+.formField select:focus,
+.formField textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-focus, var(--palette-rgb-37-99-235-0p12));
+}
+
+.templateForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding: var(--space-6) var(--space-5-5);
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3-5);
+}
+
+.fieldHelp {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+    line-height: 1.5;
+}
+
+.lifecycleSection {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface-secondary);
+}
+
+.lifecycleGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lifecycleGrid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: var(--space-3-5) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.lifecycleGrid > div:nth-child(odd) {
+    border-right: 1px solid var(--color-border);
+}
+
+.lifecycleGrid > div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+}
+
+.lifecycleGrid span {
+    color: var(--color-text-secondary);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.lifecycleGrid strong {
+    overflow-wrap: anywhere;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-caption);
+}
+
+.rejectionMessage {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: var(--space-4);
+    padding: var(--space-3);
+    border: 1px solid var(--color-danger-border, var(--color-danger-border));
+    border-radius: var(--border-radius-medium);
+    background: var(--color-danger-background, var(--color-danger-background));
+    color: var(--color-danger);
+    font-size: var(--font-size-caption);
+}
+
+.formActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-border);
+}
+
+.primaryActions {
+    display: flex;
+    gap: var(--space-2-5);
+    margin-left: auto;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+    min-height: 40px;
+    padding: 0 15px;
+    border-radius: var(--border-radius-medium);
+    font: inherit;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.primaryButton {
+    border: 1px solid var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.primaryButton:hover:not(:disabled) {
+    border-color: var(--color-primary-hover);
+    background: var(--color-primary-hover);
+}
+
+.secondaryButton {
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+}
+
+.secondaryButton:hover:not(:disabled) {
+    background: var(--color-surface-secondary);
+}
+
+.dangerButton {
+    border: 1px solid var(--color-danger);
+    background: transparent;
+    color: var(--color-danger);
+}
+
+.dangerButton:hover:not(:disabled) {
+    background: var(--color-danger-background, var(--color-danger-background));
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+    .formGrid,
+    .lifecycleGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .lifecycleGrid > div:nth-child(odd) {
+        border-right: 0;
+    }
+
+    .lifecycleGrid > div:nth-last-child(-n + 2) {
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .lifecycleGrid > div:last-child {
+        border-bottom: 0;
+    }
+
+    .templateForm {
+        padding: var(--space-5) var(--space-4);
+    }
+
+    .formActions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .primaryActions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .primaryActions button {
+        flex: 1;
+    }
+
+    .dangerButton {
+        width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    .primaryActions {
+        flex-direction: column;
+    }
+
+    .primaryActions button {
+        width: 100%;
+    }
+}

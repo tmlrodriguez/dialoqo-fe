@@ -1,0 +1,61 @@
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.formField label {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body-small);
+    font-weight: 600;
+}
+
+.formField input,
+.formField textarea,
+.formField select {
+    width: 100%;
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: var(--font-size-body);
+    outline: none;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.formField input,
+.formField select {
+    height: 44px;
+    padding: 0 var(--space-3-5);
+}
+
+.formField textarea {
+    min-height: 120px;
+    padding: var(--space-3) var(--space-3-5);
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.formField input::placeholder,
+.formField textarea::placeholder {
+    color: var(--color-text-muted, var(--color-text-secondary));
+}
+
+.formField input:focus,
+.formField textarea:focus,
+.formField select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-focus, var(--palette-rgb-37-99-235-0p12));
+}
+
+.formField input:disabled,
+.formField textarea:disabled,
+.formField select:disabled {
+    background: var(--color-surface-secondary);
+    cursor: not-allowed;
+    opacity: 0.75;
+}

@@ -1,14 +1,13 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 
+import { useResourceLifecycle } from "../hooks/useResourceLifecycle.js";
 import {
     getCurrentUser,
     login as loginRequest,
     logout as logoutRequest,
 } from "../services/auth.js";
 
-
-const AuthContext = createContext(null);
-
+export const AuthContext = createContext(null);
 
 /**
  * AuthProvider
@@ -27,11 +26,6 @@ export function AuthProvider({ children }) {
 
     const token = localStorage.getItem("centralchat_token");
     const isAuthenticated = Boolean(user && token);
-
-    useEffect(() => {
-        restoreSession();
-    }, []);
-
 
     /**
      * restoreSession
@@ -62,6 +56,9 @@ export function AuthProvider({ children }) {
         }
     }
 
+    useResourceLifecycle(() => {
+        restoreSession();
+    }, "session");
 
     /**
      * login
@@ -76,16 +73,12 @@ export function AuthProvider({ children }) {
         const response = await loginRequest(credentials);
         const authenticationData = response.data;
 
-        localStorage.setItem(
-            "centralchat_token",
-            authenticationData.token
-        );
+        localStorage.setItem("centralchat_token", authenticationData.token);
 
         setUser(authenticationData.user);
 
         return authenticationData.user;
     }
-
 
     /**
      * logout
@@ -113,31 +106,5 @@ export function AuthProvider({ children }) {
         logout,
     };
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
-}
-
-
-/**
- * useAuth
- *
- * Description:
- * - Provide access to the current authentication context.
- *
- * Notes:
- * - Must be used inside AuthProvider.
- */
-export function useAuth() {
-    const context = useContext(AuthContext);
-
-    if (!context) {
-        throw new Error(
-            "useAuth debe utilizarse dentro de AuthProvider."
-        );
-    }
-
-    return context;
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

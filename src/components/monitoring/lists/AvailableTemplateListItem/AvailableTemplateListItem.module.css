@@ -1,0 +1,103 @@
+.templateCard {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2-5) 11px;
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+    background: var(--color-surface);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.templateCard:hover {
+    border-color: var(--color-primary-light);
+}
+
+.templateCardSelected {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--palette-rgb-23-74-139-0p08);
+}
+
+.templateIdentity {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.templateIdentity > div:last-child {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.templateIdentity strong {
+    overflow: hidden;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-caption-small);
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.templateIdentity span {
+    color: var(--color-text-muted);
+    font-size: 8px;
+}
+
+.templateIcon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--color-surface-secondary);
+    color: var(--color-primary);
+}
+
+.templateIcon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.badges {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.categoryBadge,
+.approvedBadge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 20px;
+    padding: 0 7px;
+    border-radius: 999px;
+    font-size: 7px;
+    font-weight: 700;
+}
+
+.categoryBadge {
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+}
+
+.approvedBadge {
+    background: var(--palette-hex-dcfce7);
+    color: var(--color-success);
+}
+
+@media (max-width: 600px) {
+    .templateCard {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

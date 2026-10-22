@@ -1,0 +1,188 @@
+.conversationList {
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid var(--color-border);
+    background: var(--color-surface);
+}
+
+.header {
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3-5);
+    padding: 15px var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.eyebrow {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--color-text-secondary);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.header h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body-large);
+}
+
+.count {
+    min-width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption-small);
+    font-weight: 700;
+}
+
+.filters {
+    display: flex;
+    gap: 7px;
+    padding: var(--space-2-5) var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.filterButton {
+    min-height: 30px;
+    padding: 0 11px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: var(--font-size-caption-small);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.filterButtonActive {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.list {
+    min-height: 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.loadingState,
+.emptyState {
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-7) var(--space-5);
+    text-align: center;
+}
+
+.loadingState {
+    gap: var(--space-3);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.emptyIcon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 13px;
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+}
+
+.emptyIcon svg {
+    width: 21px;
+    height: 21px;
+}
+
+.emptyState strong {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-small);
+}
+
+.emptyState span {
+    max-width: 280px;
+    margin-top: var(--space-1-5);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption-small);
+    line-height: 1.6;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2-5);
+    padding: var(--space-2-5) var(--space-3);
+    border-top: 1px solid var(--color-border);
+}
+
+.pagination button {
+    min-height: 31px;
+    padding: 0 var(--space-2-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 9px;
+    cursor: pointer;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: var(--color-surface-secondary);
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    color: var(--color-text-secondary);
+    font-size: 9px;
+}
+
+@media (max-width: 800px) {
+    .conversationList {
+        border-right: 0;
+        border-bottom: 1px solid var(--color-border);
+    }
+}
+@media (max-width: 800px) {
+    .conversationList {
+        border-right: 0;
+    }
+}

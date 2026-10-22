@@ -1,0 +1,70 @@
+.orderCard {
+    width: 300px;
+    max-width: 100%;
+}
+
+.orderIcon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: var(--color-surface-secondary);
+    color: var(--color-primary);
+}
+
+.orderIcon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.orderCard {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--palette-rgb-255-255-255-0p5);
+}
+
+.orderHeader {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: var(--space-2-5);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.orderHeader > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.orderHeader strong {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-caption-small);
+}
+
+.orderHeader span {
+    color: var(--color-text-muted);
+    font-size: 8px;
+}
+
+.orderProducts {
+    display: flex;
+    flex-direction: column;
+}
+
+.orderFooter {
+    padding: 7px var(--space-2-5);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 7px;
+}
+
+@media (max-width: 700px) {
+    .orderCard {
+        width: 245px;
+    }
+}

@@ -1,6 +1,5 @@
 import { apiRequest } from "../api/client.js";
 
-
 /**
  * getAuditEvents
  *
@@ -78,7 +77,6 @@ export function getAuditEvents(companyId, filters = {}) {
 
     return apiRequest(endpoint);
 }
-
 
 /**
  * getAuditEvent

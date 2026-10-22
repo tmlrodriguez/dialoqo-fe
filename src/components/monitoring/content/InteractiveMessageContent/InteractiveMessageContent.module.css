@@ -1,0 +1,65 @@
+.selectionCard {
+    width: 300px;
+    max-width: 100%;
+}
+
+.selectionIcon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: var(--color-surface-secondary);
+    color: var(--color-primary);
+}
+
+.selectionIcon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.selectionCard {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2-5);
+    padding: var(--space-2-5);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--palette-rgb-255-255-255-0p5);
+}
+
+.selectionInformation {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.selectionInformation > span {
+    color: var(--color-text-muted);
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.selectionInformation strong {
+    overflow: hidden;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-caption-small);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.selectionInformation small {
+    color: var(--color-text-secondary);
+    font-size: 8px;
+}
+
+@media (max-width: 700px) {
+    .selectionCard {
+        width: 245px;
+    }
+}

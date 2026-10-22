@@ -1,0 +1,46 @@
+.loginPage {
+    position: relative;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(380px, 0.9fr) minmax(480px, 1.1fr);
+    background: var(--color-background);
+}
+
+.languageSelector {
+    position: fixed;
+    top: 18px;
+    right: 22px;
+    z-index: 20;
+}
+
+.loginLoading {
+    margin: auto;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body);
+}
+
+@media (max-width: 1100px) {
+    .loginPage {
+        grid-template-columns: minmax(360px, 1fr) 1fr;
+    }
+}
+
+@media (max-width: 820px) {
+    .loginPage {
+        display: block;
+    }
+}
+
+@media (max-width: 520px) {
+    .languageSelector {
+        top: 20px;
+        right: 20px;
+    }
+}
+
+@media (max-width: 380px) {
+    .languageSelector {
+        top: 18px;
+        right: 16px;
+    }
+}

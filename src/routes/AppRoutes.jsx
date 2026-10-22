@@ -1,31 +1,26 @@
+import { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
-import AppLayout from "../components/layout/AppLayout.jsx";
-import ProtectedRoute from "../components/routing/ProtectedRoute.jsx";
-import { useAuth } from "../context/AuthContext.jsx";
+import AppLayout from "../components/common/layout/AppLayout/AppLayout.jsx";
+import PublicLayout from "../components/public/layout/PublicLayout/PublicLayout.jsx";
+import RoutePage from "../components/routing/boundaries/RoutePage/RoutePage.jsx";
+import ProtectedRoute from "../components/routing/guards/ProtectedRoute/ProtectedRoute.jsx";
+import { useAuth } from "../hooks/useAuth.js";
 
-import AccessPage from "../pages/administration/access/AccessPage.jsx";
-import OrganizationPage from "../pages/administration/organizations/OrganizationPage.jsx";
-import WhatsAppAdministrationPage from "../pages/whatsapp/WhatsappAdministrationPage.jsx";
-import AuditEventsPage from "../pages/auditing/AuditEventsPage.jsx";
-import LoginPage from "../pages/auth/LoginPage.jsx";
-import MonitoringPage from "../pages/monitoring/MonitoringPage.jsx";
-import PublicLayout from "../components/public/PublicLayout.jsx";
-import LandingPage from "../pages/public/LandingPage.jsx";
-import LegalPage from "../pages/public/LegalPage.jsx";
-import ContactPage from "../pages/public/ContactPage.jsx";
+const LandingPage = lazy(() => import("../pages/public/LandingPage/LandingPage.jsx"));
+const LegalPage = lazy(() => import("../pages/public/LegalPage/LegalPage.jsx"));
+const ContactPage = lazy(() => import("../pages/public/ContactPage/ContactPage.jsx"));
+const LoginPage = lazy(() => import("../pages/auth/LoginPage/LoginPage.jsx"));
 
+const MonitoringPage = lazy(() => import("../pages/monitoring/MonitoringPage/MonitoringPage.jsx"));
+const OrganizationPage = lazy(() => import("../pages/administration/organizations/OrganizationPage/OrganizationPage.jsx"));
+const AccessPage = lazy(() => import("../pages/administration/access/AccessPage/AccessPage.jsx"));
+const WhatsAppAdministrationPage = lazy(() => import("../pages/whatsapp/WhatsAppPage/WhatsAppPage.jsx"));
+const AuditEventsPage = lazy(() => import("../pages/auditing/AuditEventsPage/AuditEventsPage.jsx"));
 
 /**
  * RoleHomeRoute
- *
- * Description:
- * - Redirigir cada usuario autenticado a la página inicial correspondiente a su rol.
- *
- * Notes:
- * - ADMINISTRATOR ingresa directamente a la administración de organización.
- * - MONITOR ingresa directamente al flujo de monitoreo para seleccionar empresa, sucursal y número.
- * - MEMBER ingresa directamente a sus conversaciones autorizadas.
+ * Description: Redirigir al usuario a la página inicial correspondiente a su rol.
  */
 function RoleHomeRoute() {
     const { user } = useAuth();
@@ -41,39 +36,30 @@ function RoleHomeRoute() {
     return <Navigate to="/login" replace />;
 }
 
-
 /**
  * AppRoutes
- *
- * Description:
- * - Definir las rutas principales de Dialoqo.
- *
- * Notes:
- * - Las rutas autenticadas utilizan ProtectedRoute.
- * - MONITOR accede a Monitoreo y consulta conversaciones exclusivamente en modo lectura.
- * - MEMBER accede a sus conversaciones y puede operar únicamente los números que el backend le autoriza.
- * - ADMINISTRATOR accede a las funciones administrativas y de auditoría.
+ * Description: Definir las rutas públicas y autenticadas con sus permisos y carga diferida.
  */
 function AppRoutes() {
     return (
         <Routes>
             <Route element={<PublicLayout />}>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/privacy" element={<LegalPage type="privacy" />} />
-                <Route path="/terms" element={<LegalPage type="terms" />} />
-                <Route path="/data-deletion" element={<LegalPage type="deletion" />} />
-                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/" element={<RoutePage><LandingPage /></RoutePage>} />
+                <Route path="/privacy" element={<RoutePage><LegalPage type="privacy" /></RoutePage>} />
+                <Route path="/terms" element={<RoutePage><LegalPage type="terms" /></RoutePage>} />
+                <Route path="/data-deletion" element={<RoutePage><LegalPage type="deletion" /></RoutePage>} />
+                <Route path="/contact" element={<RoutePage><ContactPage /></RoutePage>} />
             </Route>
 
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={<RoutePage><LoginPage /></RoutePage>} />
 
             <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                 <Route index element={<RoleHomeRoute />} />
-                <Route path="monitoring" element={<ProtectedRoute allowedRoles={["MONITOR", "MEMBER"]}><MonitoringPage /></ProtectedRoute>} />
-                <Route path="administration/organization" element={<ProtectedRoute allowedRoles={["ADMINISTRATOR"]}><OrganizationPage /></ProtectedRoute>} />
-                <Route path="administration/access" element={<ProtectedRoute allowedRoles={["ADMINISTRATOR"]}><AccessPage /></ProtectedRoute>} />
-                <Route path="administration/whatsapp" element={<ProtectedRoute allowedRoles={["ADMINISTRATOR"]}><WhatsAppAdministrationPage /></ProtectedRoute>} />
-                <Route path="auditing" element={<ProtectedRoute allowedRoles={["ADMINISTRATOR"]}><AuditEventsPage /></ProtectedRoute>} />
+                <Route path="monitoring" element={<ProtectedRoute allowedRoles={["MONITOR", "MEMBER"]}><RoutePage><MonitoringPage /></RoutePage></ProtectedRoute>} />
+                <Route path="administration/organization" element={<ProtectedRoute allowedRoles={["ADMINISTRATOR"]}><RoutePage><OrganizationPage /></RoutePage></ProtectedRoute>} />
+                <Route path="administration/access" element={<ProtectedRoute allowedRoles={["ADMINISTRATOR"]}><RoutePage><AccessPage /></RoutePage></ProtectedRoute>} />
+                <Route path="administration/whatsapp" element={<ProtectedRoute allowedRoles={["ADMINISTRATOR"]}><RoutePage><WhatsAppAdministrationPage /></RoutePage></ProtectedRoute>} />
+                <Route path="auditing" element={<ProtectedRoute allowedRoles={["ADMINISTRATOR"]}><RoutePage><AuditEventsPage /></RoutePage></ProtectedRoute>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,130 @@
+.messageViewport {
+    position: relative;
+    min-height: 0;
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.messageContent {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.newMessagesButton {
+    position: absolute;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    border-radius: var(--border-radius-large);
+    box-shadow: var(--shadow-small);
+}
+
+.messageList {
+    min-height: 0;
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-4) var(--space-4-5) var(--space-5);
+    background: linear-gradient(
+        var(--palette-rgb-238-243-248-0p78),
+        var(--palette-rgb-238-243-248-0p78)
+    );
+}
+
+.loadOlderContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-4);
+}
+
+.loadOlderContainer button {
+    min-height: 31px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 9px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-small);
+}
+
+.loadOlderContainer button:hover:not(:disabled) {
+    background: var(--color-surface-secondary);
+}
+
+.loadOlderContainer button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.loadingState,
+.emptyState {
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+}
+
+.loadingState {
+    gap: 11px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption-small);
+}
+
+.spinner {
+    width: 25px;
+    height: 25px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: messageListSpin 0.8s linear infinite;
+}
+
+@keyframes messageListSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.emptyIcon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    margin-bottom: var(--space-3-5);
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+}
+
+.emptyIcon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.emptyState strong {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body-small);
+}
+
+.emptyState span {
+    max-width: 320px;
+    margin-top: var(--space-1-5);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption-small);
+    line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+    .messageList {
+        padding: var(--space-3-5) var(--space-3) var(--space-4-5);
+    }
+}

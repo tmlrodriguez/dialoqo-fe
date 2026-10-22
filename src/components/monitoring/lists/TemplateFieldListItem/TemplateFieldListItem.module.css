@@ -1,0 +1,27 @@
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.field > span {
+    color: var(--color-text-secondary);
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.field input {
+    height: 36px;
+    padding: 0 var(--space-2-5);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    outline: none;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: var(--font-size-caption-small);
+}
+
+.field input:focus {
+    border-color: var(--color-primary);
+}

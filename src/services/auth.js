@@ -28,7 +28,7 @@ export function login(credentials) {
  * Notes:
  * - The backend remains authoritative for authentication validity.
  * - An invalid or expired token will cause the shared API client to throw an error.
-*/
+ */
 export function getCurrentUser() {
     return apiRequest("/access/me/");
 }

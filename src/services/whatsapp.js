@@ -1,6 +1,5 @@
 import { apiRequest } from "../api/client.js";
 
-
 /**
  * getWhatsAppBusinessAccounts
  *
@@ -30,22 +29,16 @@ export function getWhatsAppBusinessAccounts(companyId) {
  * - Monitoring remains disabled until explicitly activated.
  */
 export function completeWhatsAppEmbeddedSignup(companyId, data) {
-    return apiRequest(
-        `/whatsapp/companies/${companyId}/embedded-signup/`,
-        {
-            method: "POST",
-            body: JSON.stringify({
-                code: data.code,
-                waba_id: data.waba_id,
-                phone_number_id: data.phone_number_id,
-                ...(data.business_id
-                    ? { business_id: data.business_id }
-                    : {}),
-            }),
-        }
-    );
+    return apiRequest(`/whatsapp/companies/${companyId}/embedded-signup/`, {
+        method: "POST",
+        body: JSON.stringify({
+            code: data.code,
+            waba_id: data.waba_id,
+            phone_number_id: data.phone_number_id,
+            ...(data.business_id ? { business_id: data.business_id } : {}),
+        }),
+    });
 }
-
 
 /**
  * getWhatsAppBusinessAccount
@@ -56,7 +49,6 @@ export function completeWhatsAppEmbeddedSignup(companyId, data) {
 export function getWhatsAppBusinessAccount(companyId, accountId) {
     return apiRequest(`/whatsapp/companies/${companyId}/accounts/${accountId}/`);
 }
-
 
 /**
  * createWhatsAppBusinessAccount
@@ -75,7 +67,6 @@ export function createWhatsAppBusinessAccount(companyId, data) {
     });
 }
 
-
 /**
  * updateWhatsAppBusinessAccount
  *
@@ -89,7 +80,6 @@ export function updateWhatsAppBusinessAccount(companyId, accountId, data) {
     });
 }
 
-
 /**
  * deactivateWhatsAppBusinessAccount
  *
@@ -101,7 +91,6 @@ export function deactivateWhatsAppBusinessAccount(companyId, accountId) {
         method: "DELETE",
     });
 }
-
 
 /**
  * connectWhatsAppBusinessAccount
@@ -119,7 +108,6 @@ export function connectWhatsAppBusinessAccount(companyId, accountId) {
     });
 }
 
-
 /**
  * refreshWhatsAppBusinessAccount
  *
@@ -131,7 +119,6 @@ export function refreshWhatsAppBusinessAccount(companyId, accountId) {
         method: "PATCH",
     });
 }
-
 
 /**
  * disconnectWhatsAppBusinessAccount
@@ -145,7 +132,6 @@ export function disconnectWhatsAppBusinessAccount(companyId, accountId) {
     });
 }
 
-
 /**
  * getWhatsAppNumbers
  *
@@ -156,7 +142,6 @@ export function getWhatsAppNumbers(companyId, branchId) {
     return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/`);
 }
 
-
 /**
  * getWhatsAppNumber
  *
@@ -166,7 +151,6 @@ export function getWhatsAppNumbers(companyId, branchId) {
 export function getWhatsAppNumber(companyId, branchId, numberId) {
     return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/`);
 }
-
 
 /**
  * createWhatsAppNumber
@@ -181,7 +165,6 @@ export function createWhatsAppNumber(companyId, branchId, data) {
     });
 }
 
-
 /**
  * updateWhatsAppNumber
  *
@@ -189,12 +172,14 @@ export function createWhatsAppNumber(companyId, branchId, data) {
  * - Actualizar un número de WhatsApp existente.
  */
 export function updateWhatsAppNumber(companyId, branchId, numberId, data) {
-    return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-    });
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/`,
+        {
+            method: "PATCH",
+            body: JSON.stringify(data),
+        },
+    );
 }
-
 
 /**
  * deactivateWhatsAppNumber
@@ -203,11 +188,13 @@ export function updateWhatsAppNumber(companyId, branchId, numberId, data) {
  * - Desactivar un número de WhatsApp existente.
  */
 export function deactivateWhatsAppNumber(companyId, branchId, numberId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/`, {
-        method: "DELETE",
-    });
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/`,
+        {
+            method: "DELETE",
+        },
+    );
 }
-
 
 /**
  * validateWhatsAppNumber
@@ -216,11 +203,13 @@ export function deactivateWhatsAppNumber(companyId, branchId, numberId) {
  * - Validar contra Meta la identidad y disponibilidad de un número de WhatsApp.
  */
 export function validateWhatsAppNumber(companyId, branchId, numberId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/validate/`, {
-        method: "POST",
-    });
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/validate/`,
+        {
+            method: "POST",
+        },
+    );
 }
-
 
 /**
  * activateWhatsAppMonitoring
@@ -229,11 +218,13 @@ export function validateWhatsAppNumber(companyId, branchId, numberId) {
  * - Activar el monitoreo de un número de WhatsApp.
  */
 export function activateWhatsAppMonitoring(companyId, branchId, numberId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/monitoring/`, {
-        method: "POST",
-    });
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/monitoring/`,
+        {
+            method: "POST",
+        },
+    );
 }
-
 
 /**
  * deactivateWhatsAppMonitoring
@@ -242,11 +233,13 @@ export function activateWhatsAppMonitoring(companyId, branchId, numberId) {
  * - Desactivar el monitoreo de un número de WhatsApp.
  */
 export function deactivateWhatsAppMonitoring(companyId, branchId, numberId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/monitoring/`, {
-        method: "DELETE",
-    });
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/monitoring/`,
+        {
+            method: "DELETE",
+        },
+    );
 }
-
 
 /**
  * getNumberAssignments
@@ -255,9 +248,10 @@ export function deactivateWhatsAppMonitoring(companyId, branchId, numberId) {
  * - Obtener la asignación actual y el historial de asignaciones de un número.
  */
 export function getNumberAssignments(companyId, branchId, numberId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/assignments/`);
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/assignments/`,
+    );
 }
-
 
 /**
  * getNumberAssignment
@@ -266,9 +260,10 @@ export function getNumberAssignments(companyId, branchId, numberId) {
  * - Obtener una asignación específica de un número.
  */
 export function getNumberAssignment(companyId, branchId, numberId, assignmentId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/assignments/${assignmentId}/`);
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/assignments/${assignmentId}/`,
+    );
 }
-
 
 /**
  * assignWhatsAppNumber
@@ -277,14 +272,16 @@ export function getNumberAssignment(companyId, branchId, numberId, assignmentId)
  * - Asignar o reasignar un número de WhatsApp a un miembro.
  */
 export function assignWhatsAppNumber(companyId, branchId, numberId, memberId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/assignments/`, {
-        method: "POST",
-        body: JSON.stringify({
-            member: memberId,
-        }),
-    });
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/assignments/`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                member: memberId,
+            }),
+        },
+    );
 }
-
 
 /**
  * unassignWhatsAppNumber
@@ -293,11 +290,13 @@ export function assignWhatsAppNumber(companyId, branchId, numberId, memberId) {
  * - Finalizar la asignación activa de un número de WhatsApp.
  */
 export function unassignWhatsAppNumber(companyId, branchId, numberId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/assignments/`, {
-        method: "DELETE",
-    });
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/assignments/`,
+        {
+            method: "DELETE",
+        },
+    );
 }
-
 
 /**
  * getMessageTemplates
@@ -344,7 +343,6 @@ export function getMessageTemplates(companyId, accountId, filters = {}) {
     return apiRequest(endpoint);
 }
 
-
 /**
  * getMessageTemplate
  *
@@ -352,9 +350,10 @@ export function getMessageTemplates(companyId, accountId, filters = {}) {
  * - Obtener el detalle de una plantilla de WhatsApp.
  */
 export function getMessageTemplate(companyId, accountId, templateId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/accounts/${accountId}/templates/${templateId}/`);
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/accounts/${accountId}/templates/${templateId}/`,
+    );
 }
-
 
 /**
  * createMessageTemplate
@@ -369,7 +368,6 @@ export function createMessageTemplate(companyId, accountId, data) {
     });
 }
 
-
 /**
  * updateMessageTemplate
  *
@@ -377,12 +375,14 @@ export function createMessageTemplate(companyId, accountId, data) {
  * - Actualizar una plantilla existente en Meta.
  */
 export function updateMessageTemplate(companyId, accountId, templateId, data) {
-    return apiRequest(`/whatsapp/companies/${companyId}/accounts/${accountId}/templates/${templateId}/`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-    });
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/accounts/${accountId}/templates/${templateId}/`,
+        {
+            method: "PATCH",
+            body: JSON.stringify(data),
+        },
+    );
 }
-
 
 /**
  * deleteMessageTemplate
@@ -391,11 +391,13 @@ export function updateMessageTemplate(companyId, accountId, templateId, data) {
  * - Eliminar una plantilla existente en Meta.
  */
 export function deleteMessageTemplate(companyId, accountId, templateId) {
-    return apiRequest(`/whatsapp/companies/${companyId}/accounts/${accountId}/templates/${templateId}/`, {
-        method: "DELETE",
-    });
+    return apiRequest(
+        `/whatsapp/companies/${companyId}/accounts/${accountId}/templates/${templateId}/`,
+        {
+            method: "DELETE",
+        },
+    );
 }
-
 
 /**
  * synchronizeMessageTemplates

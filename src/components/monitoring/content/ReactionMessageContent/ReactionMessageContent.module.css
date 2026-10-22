@@ -1,0 +1,43 @@
+.reactionCard {
+    width: 300px;
+    max-width: 100%;
+}
+
+.reactionCard {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px var(--space-2-5);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--palette-rgb-255-255-255-0p45);
+}
+
+.reactionEmoji {
+    min-width: 34px;
+    font-size: var(--font-size-heading-medium);
+    line-height: 1;
+    text-align: center;
+}
+
+.reactionInformation {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.reactionInformation strong {
+    color: var(--color-text-primary);
+    font-size: 9px;
+}
+
+.reactionInformation span {
+    color: var(--color-text-muted);
+    font-size: 8px;
+}
+
+@media (max-width: 700px) {
+    .reactionCard {
+        width: 245px;
+    }
+}

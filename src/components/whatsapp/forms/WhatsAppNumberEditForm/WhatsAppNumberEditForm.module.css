@@ -1,0 +1,134 @@
+.numberForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+.formField label {
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+.formField input,
+.formField textarea,
+.formField select {
+    min-width: 0;
+    box-sizing: border-box;
+    padding: var(--space-2-5) var(--space-3);
+    border: 1px solid var(--color-border-strong, var(--color-border));
+    border-radius: var(--border-radius-medium);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: var(--font-size-body-small);
+}
+.formField input,
+.formField select {
+    min-height: 40px;
+}
+.formField textarea {
+    resize: vertical;
+    line-height: 1.5;
+}
+.formField input:focus,
+.formField textarea:focus,
+.formField select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-focus, var(--palette-rgb-37-99-235-0p12));
+}
+.formField :is(input, textarea, select):disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: var(--color-surface-secondary);
+}
+.formField input:read-only {
+    background: var(--color-surface-secondary);
+}
+.advancedSection {
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-medium);
+}
+.advancedSection summary {
+    padding: 13px var(--space-3-5);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    cursor: pointer;
+}
+.advancedFields {
+    display: grid;
+    gap: var(--space-3-5);
+    padding: 0 var(--space-3-5) var(--space-3-5);
+}
+.formActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+}
+.primaryActions {
+    display: flex;
+    gap: 9px;
+    margin-left: auto;
+}
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+    min-height: 38px;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--border-radius-medium);
+    font: inherit;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    cursor: pointer;
+}
+.primaryButton {
+    border: 1px solid var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+.primaryButton:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+.secondaryButton {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+}
+.secondaryButton:hover:not(:disabled) {
+    background: var(--color-surface-secondary);
+}
+.dangerButton {
+    border: 1px solid var(--color-danger);
+    background: transparent;
+    color: var(--color-danger);
+}
+.dangerButton:hover:not(:disabled) {
+    background: var(--color-danger-background, var(--color-danger-background));
+}
+:is(.primaryButton, .secondaryButton, .dangerButton):disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+@media (max-width: 600px) {
+    .formActions,
+    .primaryActions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .primaryActions {
+        margin-left: 0;
+        width: 100%;
+    }
+    .formActions button {
+        width: 100%;
+    }
+}

@@ -1,0 +1,103 @@
+.accountCard {
+    display: flex;
+    width: 100%;
+    min-height: 78px;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3-5);
+    padding: 15px var(--space-4-5);
+    border: 0;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.accountCard:last-child {
+    border-bottom: 0;
+}
+
+.accountCard:hover:not(:disabled) {
+    background: var(--color-surface-secondary);
+}
+
+.accountCardActive {
+    background: var(--color-primary-soft, var(--palette-hex-eff6ff));
+    box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.accountInformation {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.accountInformation strong,
+.accountInformation span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.accountInformation strong {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body-small);
+    font-weight: 600;
+}
+
+.accountInformation span {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+}
+
+.statusGroup {
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.connectedBadge,
+.disconnectedBadge,
+.webhookBadge,
+.webhookInactiveBadge {
+    display: inline-flex;
+    min-height: 23px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--space-2);
+    border-radius: 999px;
+    font-size: var(--font-size-caption-small);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.connectedBadge {
+    background: var(--color-success-soft, var(--palette-hex-dcfce7));
+    color: var(--color-success);
+}
+
+.disconnectedBadge {
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+}
+
+.webhookBadge {
+    background: var(--color-primary-soft, var(--palette-hex-eff6ff));
+    color: var(--color-primary);
+}
+
+.webhookInactiveBadge {
+    background: var(--color-warning-background, var(--color-warning-background));
+    color: var(--color-warning, var(--palette-hex-b45309));
+}
+
+@media (max-width: 600px) {
+    .accountCard {
+        padding: 13px;
+    }
+}

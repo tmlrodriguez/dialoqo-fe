@@ -1,0 +1,9 @@
+.padded {
+    padding: var(--space-6);
+    background: var(--color-background);
+}
+@media (max-width: 640px) {
+    .padded {
+        padding: var(--space-4);
+    }
+}

@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || "";
 
 /**
  * apiRequest
@@ -31,7 +31,7 @@ export async function apiRequest(endpoint, options = {}) {
         headers,
     });
 
-    let data = null;
+    let data;
 
     try {
         data = await response.json();
