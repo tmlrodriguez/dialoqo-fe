@@ -21,11 +21,11 @@ import styles from "./MonitoringPage.module.css";
  * MonitoringPage
  *
  * Description:
- * - Proporcionar el flujo de monitoreo para MONITOR y el workspace operativo para MEMBER.
+ * - Proporcionar conversaciones de solo consulta para MONITOR y MEMBER.
  *
  * Notes:
  * - Los MONITOR navegan empresa → sucursal → número y consultan conversaciones sin capacidad de envío.
- * - Los MEMBER pueden enviar mensajes y utilizar plantillas dentro de sus números asignados.
+ * - Los MEMBER consultan las conversaciones de sus números asignados sin capacidad de envío.
  * - Cuando un MEMBER dispone de un único número autorizado, ingresa directamente a sus conversaciones.
  * - MONITOR nunca omite la selección jerárquica, incluso cuando exista un único recurso disponible.
  * - Los recursos disponibles son determinados exclusivamente por el backend.
@@ -46,8 +46,9 @@ function MonitoringPage() {
     const loadMonitoringContextGuard = useRequestGuard(JSON.stringify([user?.id, user?.role]));
 
     const isMember = user?.role === "MEMBER";
-    const canSendMessages = isMember;
-    const canStartConversations = isMember;
+    // El envío y las conversaciones nuevas se habilitarán en una entrega posterior.
+    const canSendMessages = false;
+    const canStartConversations = false;
 
     /**
      * clearMessages
@@ -225,15 +226,9 @@ function MonitoringPage() {
         >
             {monitoringStep !== "workspace" && (
                 <PageHeader
-                    eyebrow={isMember ? t("Operación") : t("Monitoreo")}
+                    eyebrow={t("Monitoreo")}
                     title={isMember ? t("Mis conversaciones") : t("Monitoreo")}
-                    description={
-                        isMember
-                            ? t(
-                                  "Seleccione uno de sus números asignados para atender conversaciones.",
-                              )
-                            : t("Seleccione el canal de WhatsApp que desea supervisar.")
-                    }
+                    description={t("Seleccione el canal de WhatsApp que desea supervisar.")}
                 />
             )}
 

@@ -15,7 +15,7 @@ import styles from "./TopBar.module.css";
 function TopBar({ userName, handleLogout }) {
     return (
         <header className={styles.topbar}>
-            <span className={styles.topbarApplication}>Dialoqo · Inteligencia conversacional</span>
+            <span className={styles.topbarApplication}>Dialoqo · Centro de mensajería empresarial</span>
 
             <div className={styles.topbarActions}>
                 <LanguageSelector compact />

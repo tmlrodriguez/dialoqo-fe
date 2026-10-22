@@ -52,7 +52,7 @@ function AccessAssignmentsSection({
                             <h2>{t("Accesos de Monitores activos")}</h2>
                             <p>
                                 {t(
-                                    "Empresas que cada usuario MONITOR tiene autorizadas para supervisión.",
+                                    "Empresas que cada monitor tiene autorizadas para supervisión.",
                                 )}
                             </p>
                         </div>

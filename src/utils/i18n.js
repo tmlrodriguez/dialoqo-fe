@@ -1,12 +1,19 @@
 export const LANGUAGE_STORAGE_KEY = "dialoqo_language";
 export const SUPPORTED_LANGUAGES = ["es", "en"];
 
+const ROLE_LABELS = new Map([
+    ["MONITOR", "Monitor"],
+    ["MEMBER", "Miembro"],
+    ["ADMINISTRATOR", "Administrador"],
+]);
+
 const EXACT_TRANSLATIONS = {
     "Nuevos mensajes": "New messages",
     Idioma: "Language",
     "Abrir menú": "Open menu",
     "Cerrar menú": "Close menu",
     Acceso: "Access",
+    Accesos: "Access",
     "Acceso de empresa asignado correctamente.": "Company access assigned successfully.",
     "Acceso de empresa revocado correctamente.": "Company access revoked successfully.",
     "Actualizar estado": "Refresh status",
@@ -110,15 +117,13 @@ const EXACT_TRANSLATIONS = {
     Reasignar: "Reassign",
     "Rol recibido:": "Received role:",
     "Sin rol": "No role",
-    "Usuario MEMBER": "MEMBER user",
     "¿Desea desconectar esta empresa de Meta?": "Do you want to disconnect this company from Meta?",
     "— Conectada": "— Connected",
     "— Desconectada": "— Disconnected",
     Hoy: "Today",
     Ayer: "Yesterday",
-    "Dialoqo · Inteligencia conversacional": "Dialoqo · Conversational intelligence",
-    "Plataforma de inteligencia conversacional": "Conversational intelligence platform",
-    "Inteligencia conversacional": "Conversational intelligence",
+    "Dialoqo · Centro de mensajería empresarial": "Dialoqo · Business Messaging Hub",
+    "Centro de mensajería empresarial": "Business Messaging Hub",
     "Inteligencia detrás de cada conversación": "Intelligence behind every conversation",
     Bienvenido: "Welcome",
     "Inicia sesión para acceder a la inteligencia detrás de tus conversaciones.":
@@ -174,6 +179,7 @@ const EXACT_TRANSLATIONS = {
     "Números de WhatsApp": "WhatsApp numbers",
     Números: "Numbers",
     Miembro: "Member",
+    Administrador: "Administrator",
     Miembros: "Members",
     Monitor: "Monitor",
     Monitores: "Monitors",
@@ -371,8 +377,8 @@ const EXACT_TRANSLATIONS = {
     "Usuarios de monitoreo administrados por su usuario.": "Monitoring users managed by your user.",
     "Usuarios que pueden recibir la asignación de números corporativos.":
         "Users who can be assigned corporate numbers.",
-    "Empresas que cada usuario MONITOR tiene autorizadas para supervisión.":
-        "Companies each MONITOR user is authorized to supervise.",
+    "Empresas que cada monitor tiene autorizadas para supervisión.":
+        "Companies each monitor is authorized to supervise.",
     "Cree el primer monitor para posteriormente asignarle acceso a empresas.":
         "Create the first monitor and then assign company access.",
     "No existen monitores registrados.": "No monitors are registered.",
@@ -608,6 +614,14 @@ export function getStoredLanguage() {
 
 export function getLanguageLocale(language = getStoredLanguage()) {
     return language === "en" ? "en-US" : "es-HN";
+}
+
+/**
+ * getRoleLabel
+ * Description: Translate a display name while preserving the backend role identifier.
+ */
+export function getRoleLabel(role, language = getStoredLanguage()) {
+    return translateText(ROLE_LABELS.get(role) || role || "Usuario", language);
 }
 
 export function translateText(value, language = getStoredLanguage()) {

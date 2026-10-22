@@ -247,6 +247,7 @@ export async function getMediaAttachmentContent(
     conversationId,
     messageId,
     attachmentId,
+    options = {},
 ) {
     const token = localStorage.getItem("centralchat_token");
 
@@ -254,6 +255,7 @@ export async function getMediaAttachmentContent(
         `${API_BASE_URL}/whatsapp/companies/${companyId}/branches/${branchId}/numbers/${numberId}/conversations/${conversationId}/messages/${messageId}/attachments/${attachmentId}/content/`,
         {
             method: "GET",
+            signal: options.signal,
 
             headers: token
                 ? {
@@ -272,9 +274,10 @@ export async function getMediaAttachmentContent(
             data = null;
         }
 
-        const error = new Error(
-            data?.error_message || "No fue posible obtener el archivo multimedia.",
-        );
+        const message = [data?.error_message, data?.data?.attachment]
+            .filter((value) => typeof value === "string" && value.trim())
+            .join(" ");
+        const error = new Error(message || "No fue posible obtener el archivo multimedia.");
 
         error.status = response.status;
 

@@ -19,6 +19,7 @@ const TRANSLATIONS = {
     Miembros: "Members",
     Monitor: "Monitor",
     Monitores: "Monitors",
+    Administrador: "Administrator",
     Usuario: "User",
     Usuarios: "Users",
     Contraseña: "Password",
@@ -77,7 +78,7 @@ const TRANSLATIONS = {
     Contactos: "Contacts",
     Reacción: "Reaction",
 
-    "Plataforma de inteligencia conversacional": "Conversational intelligence platform",
+    "Centro de mensajería empresarial": "Business Messaging Hub",
     "Inicia sesión para acceder a la inteligencia detrás de tus conversaciones.":
         "Sign in to access the intelligence behind your conversations.",
     "Ingresa tu usuario": "Enter your username",
@@ -85,7 +86,6 @@ const TRANSLATIONS = {
     "Iniciando sesión...": "Signing in...",
     "Iniciar sesión": "Sign in",
     "Inteligencia detrás de cada conversación": "Intelligence behind every conversation",
-    "Inteligencia conversacional": "Conversational intelligence",
     "Convierte cada conversación en información que tu empresa puede entender y utilizar.":
         "Turn every conversation into information your company can understand and use.",
     "Dialoqo centraliza las comunicaciones de tu organización para escuchar,\n                        observar, interpretar y detectar lo que ocurre en cada conversación.":
@@ -229,12 +229,13 @@ const TRANSLATIONS = {
     "Administración general": "General administration",
     "Administre las empresas, sucursales, monitores y accesos de Dialoqo.":
         "Manage Dialoqo companies, branches, monitors, and access permissions.",
+    Accesos: "Access",
     "Usuarios y accesos": "Users and access",
     "Usuarios y Accesos": "Users and Access",
     "Administración de usuarios": "User administration",
     "Gestión de usuarios": "User management",
-    "Administre usuarios MONITOR, usuarios MEMBER y accesos de monitoreo a empresas.":
-        "Manage MONITOR users, MEMBER users, and company monitoring access.",
+    "Administre monitores, miembros y accesos de monitoreo a empresas.":
+        "Manage monitors, members, and company monitoring access.",
     "Administre monitores, miembros y accesos de monitoreo.":
         "Manage monitors, members, and monitoring access.",
     "Administre las empresas y sucursales registradas en Dialoqo.":
@@ -260,8 +261,8 @@ const TRANSLATIONS = {
     "No existen monitores registrados.": "No monitors are registered.",
     "Cree el primer monitor para posteriormente asignarle acceso a empresas.":
         "Create the first monitor so you can later grant company access.",
-    "Empresas que cada usuario MONITOR tiene autorizadas para supervisión.":
-        "Companies each MONITOR user is authorized to monitor.",
+    "Empresas que cada monitor tiene autorizadas para supervisión.":
+        "Companies each monitor is authorized to monitor.",
     "Asignar acceso de Monitor": "Grant monitor access",
     "Seleccione un monitor y una empresa para autorizar su monitoreo.":
         "Select a monitor and a company to authorize monitoring.",
@@ -542,13 +543,13 @@ const TRANSLATIONS = {
         "You must select a number to view or modify its assignee.",
     "Cargando asignación...": "Loading assignment...",
     "El número no tiene responsable.": "The number has no assignee.",
-    "Seleccione un usuario MEMBER para establecer la responsabilidad actual.":
-        "Select a MEMBER user to set the current assignment.",
+    "Seleccione un miembro para establecer la responsabilidad actual.":
+        "Select a member to set the current assignment.",
     "Asignado desde": "Assigned since",
     "Sucursal del número": "Number's branch",
     "No existen miembros disponibles": "No members are available",
-    "Se muestran los usuarios MEMBER administrados por su cuenta.":
-        "MEMBER users managed by your account are shown.",
+    "Se muestran los miembros administrados por su cuenta.":
+        "Members managed by your account are shown.",
     "Responsables actuales y anteriores del número.":
         "Current and previous assignees for the number.",
     "Cargando historial...": "Loading history...",
@@ -557,7 +558,6 @@ const TRANSLATIONS = {
         "History will appear when the number is assigned.",
     Actual: "Current",
     Finalizada: "Ended",
-    "Usuario MEMBER": "MEMBER user",
     "Finalizando asignación...": "Ending assignment...",
     "Finalizar asignación": "End assignment",
     "Reasignar número": "Reassign number",

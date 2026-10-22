@@ -19,7 +19,7 @@ function LoginVisual({ t }) {
                     />
                 </div>
 
-                <span className={styles.loginEyebrow}>{t("Inteligencia conversacional")}</span>
+                <span className={styles.loginEyebrow}>{t("Centro de mensajería empresarial")}</span>
 
                 <h2>
                     {t(

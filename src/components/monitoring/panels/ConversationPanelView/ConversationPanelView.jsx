@@ -1,5 +1,5 @@
 import Button from "../../../common/buttons/Button/Button.jsx";
-import MessageComposer from "../../forms/MessageComposer/MessageComposer.jsx";
+// import MessageComposer from "../../forms/MessageComposer/MessageComposer.jsx";
 
 import MessageList from "../../lists/MessageList/MessageList.jsx";
 
@@ -21,7 +21,7 @@ function ConversationPanelView({
     branchId,
     numberId,
     onError,
-    handleMessageSent,
+    // handleMessageSent,
 }) {
     if (!conversation) {
         return (
@@ -116,6 +116,7 @@ function ConversationPanelView({
                 onError={onError}
             />
 
+            {/* Envío deshabilitado temporalmente para esta entrega.
             {canSendMessages && (
                 <MessageComposer
                     companyId={companyId}
@@ -126,6 +127,7 @@ function ConversationPanelView({
                     onError={onError}
                 />
             )}
+            */}
         </section>
     );
 }

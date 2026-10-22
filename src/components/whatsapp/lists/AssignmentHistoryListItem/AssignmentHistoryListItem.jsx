@@ -27,7 +27,7 @@ function AssignmentHistoryListItem({
                 <div className={styles.historyInformation}>
                     <strong>{getMemberName(assignment.member)}</strong>
 
-                    <span>{getMemberDescription(assignment.member) || t("Usuario MEMBER")}</span>
+                    <span>{getMemberDescription(assignment.member) || t("Miembro")}</span>
                 </div>
             </div>
 

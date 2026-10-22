@@ -288,9 +288,6 @@ export function useMonitoringWorkspace({
                 socket = createMonitoringSocket({
                     companyId,
                     numberId,
-                    onOpen: () => {
-                        if (!disposed) setIsRealtimeConnected(true);
-                    },
                     onEvent: (payload) => {
                         if (disposed || !payload?.event) return;
                         if (payload.event === "connection.ready") {
